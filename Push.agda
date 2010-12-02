@@ -7,6 +7,16 @@ open import Data.List
 infixr 4 _↦_ _↤_
 infixr 4 _∷_
 
+_lt_ : ℕ → ℕ → Bool
+zero lt (suc n) = true
+(suc n) lt (suc m) = n lt m
+_ lt _ = false
+
+_gt_ : ℕ → ℕ → Bool
+(suc n) gt zero = true
+(suc n) gt (suc m) = n gt m
+_ gt _ = false
+
 data U : Set where
   EXEC BOOL NAT : U
 
@@ -90,9 +100,11 @@ run (state (inst DIV ∷ es) bs (n ∷ zero ∷ ns)) =
 run (state (inst DIV ∷ es) bs (n₁ ∷ (suc n₂) ∷ ns)) =
   run ( state es bs (n₁ div (suc n₂) ∷ ns) )
 
-run (state (inst LT ∷ es) bs ns) = {!!}
+run (state (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es (n₁ lt n₂ ∷ bs) ns )
 
-run (state (inst GT ∷ es) bs ns) = {!!}
+run (state (inst GT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es (n₁ gt n₂ ∷ bs) ns )
 
 run (state (inst NOT ∷ es) (b ∷ bs) ns) =
   run ( state es (not b ∷ bs) ns )
