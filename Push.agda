@@ -45,14 +45,6 @@ data State : Set where
     Stack NAT →
     State
 
-run-lit : {u : U} → Lit u → State → State
-run-lit {EXEC} e (state es bs ns) =
-  state (e ∷ es) bs ns
-run-lit {BOOL} b (state es bs ns) =
-  state es (b ∷ bs) ns
-run-lit {NAT} n (state es bs ns) =
-  state es bs (n ∷ ns)
-
 run : State → State
 
 run (state [] bs ns) =
