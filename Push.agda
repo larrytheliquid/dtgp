@@ -7,8 +7,7 @@ infixr 4 _↦_ _↤_
 infixr 5 _∷_
 
 data U : Set where
-  EXEC : U
-  BOOL NAT : U
+  EXEC BOOL NAT : U
 
 data Type : Set where
   ★ : Type
@@ -39,34 +38,36 @@ data Stack (u : U) : Set where
   [] : Stack u
   _∷_ : Lit u → Stack u → Stack u
 
-record State : Set where
-  field
-    EXECS : Stack EXEC
-    BOOLS : Stack BOOL
-    NATS : Stack NAT
-open State
+data State : Set where
+  state :
+    Stack EXEC →
+    Stack BOOL →
+    Stack NAT →
+    State
 
 run : State → State
-run st with EXECS st
-run st | [] = record
-  { EXECS = []
-  ; BOOLS = BOOLS st
-  ; NATS = NATS st
-  }
-run st | (lit {BOOL} l ∷ es) = record
-  { EXECS = es
-  ; BOOLS = l ∷ BOOLS st
-  ; NATS = NATS st
-  }
-run st | (lit {NAT} l ∷ es) = record
-  { EXECS = es
-  ; BOOLS = BOOLS st
-  ; NATS = l ∷ NATS st
-  }
-run st | (lit {EXEC} l ∷ es) = record
-  { EXECS = l ∷ es
-  ; BOOLS = BOOLS st
-  ; NATS = NATS st
-  }
-run st | inst i ∷ es = {!!}
+run (state [] bs ns) =
+  state
+  []
+  bs
+  ns
+run (state (lit {EXEC} e ∷ es) bs ns) = run (
+  state
+  (e ∷ es)
+  bs
+  ns
+  )
+run (state (lit {BOOL} b ∷ es) bs ns) = run (
+  state
+  es
+  (b ∷ bs)
+  ns
+  )
+run (state (lit {NAT} n ∷ es) bs ns) = run (
+  state
+  es
+  bs
+  (n ∷ ns)
+  )
+run _ = {!!}
 
