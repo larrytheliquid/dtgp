@@ -1,6 +1,7 @@
 module Push where
 open import Data.Bool
 open import Data.Nat
+open import Data.Nat.DivMod
 open import Data.List
 
 infixr 4 _↦_ _↤_
@@ -17,7 +18,6 @@ data Type : Set where
 data Inst : Type → Set where
   NOOP : Inst ★
   POP : {u : U} → Inst (u ↦ ★)
-  DUP : {u : U} → Inst (u ↦ u ↤ ★)
   POPEQ : {u : U} → Inst (u ↦ u ↦ BOOL ↤ ★)
   PLUS MINUS MULT DIV : Inst (NAT ↦ NAT ↦ NAT ↤ ★)
   LT GT : Inst (NAT ↦ NAT ↦ BOOL ↤ ★)
@@ -33,6 +33,9 @@ mutual
   data Expr : Set where
     lit : {u : U} → Lit u → Expr
     inst : {t : Type} → Inst t → Expr
+
+postulate
+  eq-Lit : {u : U} → Lit u → Lit u → Bool
 
 data Stack (u : U) : Set where
   [] : Stack u
@@ -59,32 +62,33 @@ run (state (lit {BOOL} b ∷ es) bs ns) =
 run (state (lit {NAT} n ∷ es) bs ns) =
   run ( state es bs (n ∷ ns) )
 
-run (state (inst NOOP ∷ es) bs ns) =
+run (state (inst (POP {EXEC}) ∷ _ ∷ es) bs ns) =
+  run ( state es bs ns )
+run (state (inst (POP {BOOL}) ∷ es) (_ ∷ bs) ns) =
+  run ( state es bs ns )
+run (state (inst (POP {NAT}) ∷ es) bs (_ ∷ ns)) =
   run ( state es bs ns )
 
-run (state (inst (POP {EXEC}) ∷ (e ∷ es)) bs ns) =
-  run ( state es bs ns )
-run (state (inst (POP {BOOL}) ∷ es) (b ∷ bs) ns) =
-  run ( state es bs ns )
-run (state (inst (POP {NAT}) ∷ es) bs (n ∷ ns)) =
-  run ( state es bs ns )
-run (state (inst POP ∷ es) bs ns) =
-  run ( state es bs ns )
-
-run (state (inst DUP ∷ es) bs ns) = {!!}
-
-run (state (inst POPEQ ∷ es) bs ns) = {!!}
+run (state (inst (POPEQ {EXEC}) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
+  run ( state es (eq-Lit e₁ e₂ ∷ bs) ns )
+run (state (inst (POPEQ {BOOL}) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+  run ( state es (eq-Lit b₁ b₂ ∷ bs) ns )
+run (state (inst (POPEQ {NAT}) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es (eq-Lit n₁ n₂ ∷ bs) ns )
 
 run (state (inst PLUS ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
   run ( state es bs (n₁ + n₂ ∷ ns) )
-run (state (inst PLUS ∷ es) bs ns) =
-  run ( state es bs ns )
 
-run (state (inst MINUS ∷ es) bs ns) = {!!}
+run (state (inst MINUS ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es bs (n₁ ∸ n₂ ∷ ns) )
 
-run (state (inst MULT ∷ es) bs ns) = {!!}
+run (state (inst MULT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es bs (n₁ * n₂ ∷ ns) )
 
-run (state (inst DIV ∷ es) bs ns) = {!!}
+run (state (inst DIV ∷ es) bs (n ∷ zero ∷ ns)) =
+  run ( state es bs (n ∷ ns) )
+run (state (inst DIV ∷ es) bs (n₁ ∷ (suc n₂) ∷ ns)) =
+  run ( state es bs (n₁ div (suc n₂) ∷ ns) )
 
 run (state (inst LT ∷ es) bs ns) = {!!}
 
@@ -100,4 +104,6 @@ run (state (inst NAND ∷ es) bs ns) = {!!}
 
 run (state (inst NOR ∷ es) bs ns) = {!!}
 
+run (state (inst _ ∷ es) bs ns) =
+  run ( state es bs ns )
 
