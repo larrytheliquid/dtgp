@@ -5,7 +5,7 @@ open import Data.Nat.DivMod
 open import Data.List
 
 infixr 4 _↦_ _↤_
-infixr 5 _∷_
+infixr 4 _∷_
 
 data U : Set where
   EXEC BOOL NAT : U
@@ -94,15 +94,20 @@ run (state (inst LT ∷ es) bs ns) = {!!}
 
 run (state (inst GT ∷ es) bs ns) = {!!}
 
-run (state (inst NOT ∷ es) bs ns) = {!!}
+run (state (inst NOT ∷ es) (b ∷ bs) ns) =
+  run ( state es (not b ∷ bs) ns )
 
-run (state (inst AND ∷ es) bs ns) = {!!}
+run (state (inst AND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+  run ( state es (b₁ ∧ b₂ ∷ bs) ns )
 
-run (state (inst OR ∷ es) bs ns) = {!!}
+run (state (inst OR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+  run ( state es (b₁ ∨ b₂ ∷ bs) ns )
 
-run (state (inst NAND ∷ es) bs ns) = {!!}
+run (state (inst NAND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+  run ( state es (not (b₁ ∧ b₂) ∷ bs) ns )
 
-run (state (inst NOR ∷ es) bs ns) = {!!}
+run (state (inst NOR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+  run ( state es (not (b₁ ∨ b₂) ∷ bs) ns )
 
 run (state (inst _ ∷ es) bs ns) =
   run ( state es bs ns )
