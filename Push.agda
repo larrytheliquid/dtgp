@@ -45,29 +45,67 @@ data State : Set where
     Stack NAT →
     State
 
+run-lit : {u : U} → Lit u → State → State
+run-lit {EXEC} e (state es bs ns) =
+  state (e ∷ es) bs ns
+run-lit {BOOL} b (state es bs ns) =
+  state es (b ∷ bs) ns
+run-lit {NAT} n (state es bs ns) =
+  state es bs (n ∷ ns)
+
 run : State → State
+
 run (state [] bs ns) =
-  state
-  []
-  bs
-  ns
-run (state (lit {EXEC} e ∷ es) bs ns) = run (
-  state
-  (e ∷ es)
-  bs
-  ns
-  )
-run (state (lit {BOOL} b ∷ es) bs ns) = run (
-  state
-  es
-  (b ∷ bs)
-  ns
-  )
-run (state (lit {NAT} n ∷ es) bs ns) = run (
-  state
-  es
-  bs
-  (n ∷ ns)
-  )
-run _ = {!!}
+  state [] bs ns
+
+run (state (lit {EXEC} e ∷ es) bs ns) =
+  run ( state (e ∷ es) bs ns )
+
+run (state (lit {BOOL} b ∷ es) bs ns) =
+  run ( state es (b ∷ bs) ns )
+
+run (state (lit {NAT} n ∷ es) bs ns) =
+  run ( state es bs (n ∷ ns) )
+
+run (state (inst NOOP ∷ es) bs ns) =
+  run ( state es bs ns )
+
+run (state (inst (POP {EXEC}) ∷ (e ∷ es)) bs ns) =
+  run ( state es bs ns )
+run (state (inst (POP {BOOL}) ∷ es) (b ∷ bs) ns) =
+  run ( state es bs ns )
+run (state (inst (POP {NAT}) ∷ es) bs (n ∷ ns)) =
+  run ( state es bs ns )
+run (state (inst POP ∷ es) bs ns) =
+  run ( state es bs ns )
+
+run (state (inst DUP ∷ es) bs ns) = {!!}
+
+run (state (inst POPEQ ∷ es) bs ns) = {!!}
+
+run (state (inst PLUS ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es bs (n₁ + n₂ ∷ ns) )
+run (state (inst PLUS ∷ es) bs ns) =
+  run ( state es bs ns )
+
+run (state (inst MINUS ∷ es) bs ns) = {!!}
+
+run (state (inst MULT ∷ es) bs ns) = {!!}
+
+run (state (inst DIV ∷ es) bs ns) = {!!}
+
+run (state (inst LT ∷ es) bs ns) = {!!}
+
+run (state (inst GT ∷ es) bs ns) = {!!}
+
+run (state (inst NOT ∷ es) bs ns) = {!!}
+
+run (state (inst AND ∷ es) bs ns) = {!!}
+
+run (state (inst OR ∷ es) bs ns) = {!!}
+
+run (state (inst NAND ∷ es) bs ns) = {!!}
+
+run (state (inst NOR ∷ es) bs ns) = {!!}
+
 
