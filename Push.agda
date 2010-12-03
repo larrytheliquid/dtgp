@@ -22,17 +22,17 @@ data U : Set where
 
 data Type : Set where
   ★ : Type
-  _↤_ : U → Type → Type
+  _↤_ : Type → U → Type
   _↦_ : U → Type → Type
 
 data Inst : Type → Set where
   NOOP : Inst ★
   POP : {u : U} → Inst (u ↦ ★)
-  POPEQ : {u : U} → Inst (u ↦ u ↦ BOOL ↤ ★)
-  ADD SUB MULT DIV : Inst (NAT ↦ NAT ↦ NAT ↤ ★)
-  LT GT : Inst (NAT ↦ NAT ↦ BOOL ↤ ★)
-  NOT : Inst (BOOL ↦ BOOL ↤ ★)
-  AND OR NAND NOR : Inst (BOOL ↦ BOOL ↦ BOOL ↤ ★)
+  POPEQ : {u : U} → Inst (u ↦ u ↦ ★ ↤ BOOL)
+  ADD SUB MULT DIV : Inst (NAT ↦ NAT ↦ ★ ↤ NAT)
+  LT GT : Inst (NAT ↦ NAT ↦ ★ ↤ BOOL)
+  NOT : Inst (BOOL ↦ ★ ↤ BOOL)
+  AND OR NAND NOR : Inst (BOOL ↦ BOOL ↦ ★ ↤ BOOL)
 
 mutual
   Lit : U → Set
