@@ -2,11 +2,12 @@ module Push where
 open import Data.Bool
 open import Data.Nat
 open import Data.Nat.DivMod
+open import Data.Fin hiding (_+_)
 open import Data.List
+open import Data.Vec
 open import Relation.Binary.PropositionalEquality
 
 infixr 4 _↦_ _↤_
-infixr 4 _∷_
 
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
@@ -48,15 +49,14 @@ mutual
 postulate
   eq-Lit : {u : U} → Lit u → Lit u → Bool
 
-data Stack (u : U) : Set where
-  [] : Stack u
-  _∷_ : Lit u → Stack u → Stack u
+Stack : (u : U) → ℕ → Set
+Stack u = Vec (Lit u)
 
 data State : Set where
-  state :
-    Stack EXEC →
-    Stack BOOL →
-    Stack NAT →
+  state : {x y z : ℕ} →
+    Stack EXEC x →
+    Stack BOOL y →
+    Stack NAT z →
     State
 
 run : State → State
@@ -112,7 +112,7 @@ run (state (inst AND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
   run ( state es (b₂ ∧ b₁ ∷ bs) ns )
 
 run (state (inst OR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (b₂ ∨ b₁ ∷ bs) ns )
+  run ( state es ((b₂ ∨ b₁) ∷ bs) ns )
 
 run (state (inst NAND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
   run ( state es (not (b₂ ∧ b₁) ∷ bs) ns )
@@ -123,13 +123,13 @@ run (state (inst NOR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
 run (state (inst _ ∷ es) bs ns) =
   run ( state es bs ns )
 
-prog1 : Stack EXEC
+prog1 : Stack EXEC 8
 prog1 = lit 5 ∷ lit 4 ∷ inst DIV ∷ lit 7 ∷ inst ADD ∷ lit 2 ∷ lit 3 ∷ inst GT ∷ []
 
 test1 : state [] (false ∷ []) (8 ∷ []) ≡ run (state prog1 [] [])
 test1 = refl
 
-prog2 : Stack EXEC
+prog2 : Stack EXEC 3
 prog2 = inst (POP EXEC) ∷ lit 3 ∷ lit 3 ∷ []
 
 test2 : state [] [] (3 ∷ []) ≡ run (state prog2 [] [])
