@@ -3,7 +3,6 @@ open import Data.Bool
 open import Data.Nat
 open import Data.Nat.DivMod
 open import Data.Fin hiding (_+_)
-open import Data.List
 open import Data.Vec
 open import Relation.Binary.PropositionalEquality
 
