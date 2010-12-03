@@ -65,6 +65,10 @@ data Eval : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack NAT z → Se
   LT-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
            {n₁ n₂ : Lit NAT} →
            Eval (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns) → Eval es (n₂ lt n₁ ∷ bs) ns
+  YANK-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL (suc y)} {ns : Stack NAT z} 
+             -- {b : Lit BOOL} {n : Lit NAT} → b ∈ bs → (i : Fin y) → suc n ≡ y → bs [ i ]= b →
+             {b : Lit BOOL} →
+             Eval (inst LT ∷ es) bs (y ∷ ns) → Eval es (lookup (fromℕ y) bs ∷ bs) ns
 
 hmm : Eval (lit false ∷ []) (true ∷ []) []
 hmm = BOOL-ELI (BOOL-INT true (BOOL-INT false INT))
