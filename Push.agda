@@ -29,7 +29,7 @@ data Inst : Type → Set where
   NOOP : Inst ★
   POP : {u : U} → Inst (u ↦ ★)
   POPEQ : {u : U} → Inst (u ↦ u ↦ BOOL ↤ ★)
-  PLUS MINUS MULT DIV : Inst (NAT ↦ NAT ↦ NAT ↤ ★)
+  ADD SUB MULT DIV : Inst (NAT ↦ NAT ↦ NAT ↤ ★)
   LT GT : Inst (NAT ↦ NAT ↦ BOOL ↤ ★)
   NOT : Inst (BOOL ↦ BOOL ↤ ★)
   AND OR NAND NOR : Inst (BOOL ↦ BOOL ↦ BOOL ↤ ★)
@@ -80,47 +80,50 @@ run (state (inst (POP {NAT}) ∷ es) bs (_ ∷ ns)) =
   run ( state es bs ns )
 
 run (state (inst (POPEQ {EXEC}) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
-  run ( state es (eq-Lit e₁ e₂ ∷ bs) ns )
+  run ( state es (eq-Lit e₂ e₁ ∷ bs) ns )
 run (state (inst (POPEQ {BOOL}) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (eq-Lit b₁ b₂ ∷ bs) ns )
+  run ( state es (eq-Lit b₂ b₁ ∷ bs) ns )
 run (state (inst (POPEQ {NAT}) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es (eq-Lit n₁ n₂ ∷ bs) ns )
+  run ( state es (eq-Lit n₂ n₁ ∷ bs) ns )
 
-run (state (inst PLUS ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₁ + n₂ ∷ ns) )
+run (state (inst ADD ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es bs (n₂ + n₁ ∷ ns) )
 
-run (state (inst MINUS ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₁ ∸ n₂ ∷ ns) )
+run (state (inst SUB ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+  run ( state es bs (n₂ ∸ n₁ ∷ ns) )
 
 run (state (inst MULT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₁ * n₂ ∷ ns) )
+  run ( state es bs (n₂ * n₁ ∷ ns) )
 
-run (state (inst DIV ∷ es) bs (n ∷ zero ∷ ns)) =
-  run ( state es bs (n ∷ ns) )
-run (state (inst DIV ∷ es) bs (n₁ ∷ (suc n₂) ∷ ns)) =
-  run ( state es bs (n₁ div (suc n₂) ∷ ns) )
+run (state (inst DIV ∷ es) bs ((suc n₁) ∷ n₂ ∷ ns)) =
+  run ( state es bs (n₂ div (suc n₁) ∷ ns) )
 
 run (state (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es (n₁ lt n₂ ∷ bs) ns )
+  run ( state es (n₂ lt n₁ ∷ bs) ns )
 
 run (state (inst GT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es (n₁ gt n₂ ∷ bs) ns )
+  run ( state es (n₂ gt n₁ ∷ bs) ns )
 
 run (state (inst NOT ∷ es) (b ∷ bs) ns) =
   run ( state es (not b ∷ bs) ns )
 
 run (state (inst AND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (b₁ ∧ b₂ ∷ bs) ns )
+  run ( state es (b₂ ∧ b₁ ∷ bs) ns )
 
 run (state (inst OR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (b₁ ∨ b₂ ∷ bs) ns )
+  run ( state es (b₂ ∨ b₁ ∷ bs) ns )
 
 run (state (inst NAND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (not (b₁ ∧ b₂) ∷ bs) ns )
+  run ( state es (not (b₂ ∧ b₁) ∷ bs) ns )
 
 run (state (inst NOR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (not (b₁ ∨ b₂) ∷ bs) ns )
+  run ( state es (not (b₂ ∨ b₁) ∷ bs) ns )
 
 run (state (inst _ ∷ es) bs ns) =
   run ( state es bs ns )
 
+exp1 : Stack EXEC
+exp1 = lit 5 ∷ lit 4 ∷ inst DIV ∷ lit 7 ∷ inst ADD ∷ lit 2 ∷ lit 3 ∷ inst GT ∷ []
+
+prog1 : State
+prog1 = run (state exp1 [] [])
