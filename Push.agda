@@ -28,7 +28,7 @@ data Type : Set where
 data Inst : Type → Set where
   NOOP : Inst ★
   POP : (u : U) → Inst (u ↦ ★)
-  POPEQ : (u : U) → Inst (u ↦ u ↦ ★ ↤ BOOL)
+  EQ : (u : U) → Inst (u ↦ u ↦ ★ ↤ BOOL)
   ADD SUB MULT DIV : Inst (NAT ↦ NAT ↦ ★ ↤ NAT)
   LT GT : Inst (NAT ↦ NAT ↦ ★ ↤ BOOL)
   NOT : Inst (BOOL ↦ ★ ↤ BOOL)
@@ -79,11 +79,11 @@ run (state (inst (POP BOOL) ∷ es) (_ ∷ bs) ns) =
 run (state (inst (POP NAT) ∷ es) bs (_ ∷ ns)) =
   run ( state es bs ns )
 
-run (state (inst (POPEQ EXEC) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
+run (state (inst (EQ EXEC) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
   run ( state es (eq-Lit e₂ e₁ ∷ bs) ns )
-run (state (inst (POPEQ BOOL) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+run (state (inst (EQ BOOL) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
   run ( state es (eq-Lit b₂ b₁ ∷ bs) ns )
-run (state (inst (POPEQ NAT) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+run (state (inst (EQ NAT) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
   run ( state es (eq-Lit n₂ n₁ ∷ bs) ns )
 
 run (state (inst ADD ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
@@ -127,3 +127,9 @@ exp1 = lit 5 ∷ lit 4 ∷ inst DIV ∷ lit 7 ∷ inst ADD ∷ lit 2 ∷ lit 3 �
 
 prog1 : State
 prog1 = run (state exp1 [] [])
+
+exp2 : Stack EXEC
+exp2 = inst (POP EXEC) ∷ lit 3 ∷ lit 3 ∷ []
+
+prog2 : State
+prog2 = run (state exp2 [] [])
