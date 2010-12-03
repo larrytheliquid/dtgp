@@ -27,8 +27,8 @@ data Type : Set where
 
 data Inst : Type → Set where
   NOOP : Inst ★
-  POP : {u : U} → Inst (u ↦ ★)
-  POPEQ : {u : U} → Inst (u ↦ u ↦ ★ ↤ BOOL)
+  POP : (u : U) → Inst (u ↦ ★)
+  POPEQ : (u : U) → Inst (u ↦ u ↦ ★ ↤ BOOL)
   ADD SUB MULT DIV : Inst (NAT ↦ NAT ↦ ★ ↤ NAT)
   LT GT : Inst (NAT ↦ NAT ↦ ★ ↤ BOOL)
   NOT : Inst (BOOL ↦ ★ ↤ BOOL)
@@ -72,18 +72,18 @@ run (state (lit {BOOL} b ∷ es) bs ns) =
 run (state (lit {NAT} n ∷ es) bs ns) =
   run ( state es bs (n ∷ ns) )
 
-run (state (inst (POP {EXEC}) ∷ _ ∷ es) bs ns) =
+run (state (inst (POP EXEC) ∷ _ ∷ es) bs ns) =
   run ( state es bs ns )
-run (state (inst (POP {BOOL}) ∷ es) (_ ∷ bs) ns) =
+run (state (inst (POP BOOL) ∷ es) (_ ∷ bs) ns) =
   run ( state es bs ns )
-run (state (inst (POP {NAT}) ∷ es) bs (_ ∷ ns)) =
+run (state (inst (POP NAT) ∷ es) bs (_ ∷ ns)) =
   run ( state es bs ns )
 
-run (state (inst (POPEQ {EXEC}) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
+run (state (inst (POPEQ EXEC) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
   run ( state es (eq-Lit e₂ e₁ ∷ bs) ns )
-run (state (inst (POPEQ {BOOL}) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
+run (state (inst (POPEQ BOOL) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
   run ( state es (eq-Lit b₂ b₁ ∷ bs) ns )
-run (state (inst (POPEQ {NAT}) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
+run (state (inst (POPEQ NAT) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
   run ( state es (eq-Lit n₂ n₁ ∷ bs) ns )
 
 run (state (inst ADD ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
