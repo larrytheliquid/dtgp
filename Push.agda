@@ -8,6 +8,16 @@ open import Relation.Binary.PropositionalEquality
 
 infixr 4 _↦_ _↤_
 
+delete : ∀ {A n} → Fin n → Vec A n → Vec A (Data.Nat.pred n)
+delete zero (_ ∷ xs) = xs
+delete (suc ()) (_ ∷ [])
+delete (suc i) (x ∷ x' ∷ xs) = x ∷ delete i (x' ∷ xs)
+
+yank : ∀ {A n} → Fin n → Vec A n → Vec A n
+yank zero xs = lookup zero xs ∷ delete zero xs
+yank (suc ()) (x ∷ [])
+yank (suc i) (x ∷ x' ∷ xs) = lookup (suc i) (x ∷ x' ∷ xs) ∷ delete (suc i) (x ∷ x' ∷ xs)
+
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
 (suc n) lt (suc m) = n lt m
@@ -20,6 +30,7 @@ _ gt _ = false
 
 data U : Set where
   EXEC BOOL NAT : U
+  FIN : ℕ → U
 
 data Type : Set where
   ★ : Type
@@ -40,6 +51,7 @@ mutual
   Lit EXEC = Expr
   Lit BOOL = Bool
   Lit NAT = ℕ
+  Lit (FIN n) = Fin n
 
   data Expr : Set where
     lit : {u : U} → Lit u → Expr
@@ -51,27 +63,27 @@ postulate
 Stack : (u : U) → ℕ → Set
 Stack u = Vec (Lit u)
 
-data Eval : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack NAT z → Set where
-  INT : Eval [] [] []
-  BOOL-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-             (b : Lit BOOL) →
-             Eval es bs ns → Eval (lit b ∷ es) bs ns
-  BOOL-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-             {b : Lit BOOL} →
-             Eval (lit b ∷ es) bs ns → Eval es (b ∷ bs) ns
-  LT-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-           {n₁ n₂ : Lit NAT} →
-           Eval es bs (n₁ ∷ n₂ ∷ ns) → Eval (inst LT ∷ es) bs ns
-  LT-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-           {n₁ n₂ : Lit NAT} →
-           Eval (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns) → Eval es (n₂ lt n₁ ∷ bs) ns
-  YANK-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL (suc y)} {ns : Stack NAT z} 
-             -- {b : Lit BOOL} {n : Lit NAT} → b ∈ bs → (i : Fin y) → suc n ≡ y → bs [ i ]= b →
-             {b : Lit BOOL} →
-             Eval (inst LT ∷ es) bs (y ∷ ns) → Eval es (lookup (fromℕ y) bs ∷ bs) ns
+data Eval : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN y) z → Set where
+  -- INT : Eval [] [] []
+  -- BOOL-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+  --            (b : Lit BOOL) →
+  --            Eval es bs ns → Eval (lit b ∷ es) bs ns
+  -- BOOL-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+  --            {b : Lit BOOL} →
+  --            Eval (lit b ∷ es) bs ns → Eval es (b ∷ bs) ns
+  -- LT-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+  --          {n₁ n₂ : Lit NAT} →
+  --          Eval es bs (n₁ ∷ n₂ ∷ ns) → Eval (inst LT ∷ es) bs ns
+  -- LT-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+  --          {n₁ n₂ : Lit NAT} →
+  --          Eval (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns) → Eval es (n₂ lt n₁ ∷ bs) ns
 
-hmm : Eval (lit false ∷ []) (true ∷ []) []
-hmm = BOOL-ELI (BOOL-INT true (BOOL-INT false INT))
+  YANK-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+             {i : Fin y} →
+             Eval (inst LT ∷ es) bs (i ∷ is) → Eval es (yank i bs) is
+
+-- hmm : Eval (lit false ∷ []) (true ∷ []) []
+-- hmm = BOOL-ELI (BOOL-INT true (BOOL-INT false INT))
 
 data State : Set where
   state : {x y z : ℕ} →
@@ -93,6 +105,9 @@ run (state (lit {BOOL} b ∷ es) bs ns) =
 
 run (state (lit {NAT} n ∷ es) bs ns) =
   run ( state es bs (n ∷ ns) )
+
+run (state (lit {FIN _} i ∷ es) bs ns) =
+  state [] [] []
 
 run (state (inst (POP EXEC) ∷ _ ∷ es) bs ns) =
   run ( state es bs ns )
