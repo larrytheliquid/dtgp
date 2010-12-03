@@ -51,6 +51,24 @@ postulate
 Stack : (u : U) → ℕ → Set
 Stack u = Vec (Lit u)
 
+data Eval : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack NAT z → Set where
+  INT : Eval [] [] []
+  BOOL-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+             (b : Lit BOOL) →
+             Eval es bs ns → Eval (lit b ∷ es) bs ns
+  BOOL-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+             {b : Lit BOOL} →
+             Eval (lit b ∷ es) bs ns → Eval es (b ∷ bs) ns
+  LT-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+           {n₁ n₂ : Lit NAT} →
+           Eval es bs (n₁ ∷ n₂ ∷ ns) → Eval (inst LT ∷ es) bs ns
+  LT-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
+           {n₁ n₂ : Lit NAT} →
+           Eval (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns) → Eval es (n₂ lt n₁ ∷ bs) ns
+
+hmm : Eval (lit false ∷ []) (true ∷ []) []
+hmm = BOOL-ELI (BOOL-INT true (BOOL-INT false INT))
+
 data State : Set where
   state : {x y z : ℕ} →
     Stack EXEC x →
