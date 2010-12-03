@@ -3,6 +3,7 @@ open import Data.Bool
 open import Data.Nat
 open import Data.Nat.DivMod
 open import Data.List
+open import Relation.Binary.PropositionalEquality
 
 infixr 4 _↦_ _↤_
 infixr 4 _∷_
@@ -122,14 +123,14 @@ run (state (inst NOR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
 run (state (inst _ ∷ es) bs ns) =
   run ( state es bs ns )
 
-exp1 : Stack EXEC
-exp1 = lit 5 ∷ lit 4 ∷ inst DIV ∷ lit 7 ∷ inst ADD ∷ lit 2 ∷ lit 3 ∷ inst GT ∷ []
+prog1 : Stack EXEC
+prog1 = lit 5 ∷ lit 4 ∷ inst DIV ∷ lit 7 ∷ inst ADD ∷ lit 2 ∷ lit 3 ∷ inst GT ∷ []
 
-prog1 : State
-prog1 = run (state exp1 [] [])
+test1 : state [] (false ∷ []) (8 ∷ []) ≡ run (state prog1 [] [])
+test1 = refl
 
-exp2 : Stack EXEC
-exp2 = inst (POP EXEC) ∷ lit 3 ∷ lit 3 ∷ []
+prog2 : Stack EXEC
+prog2 = inst (POP EXEC) ∷ lit 3 ∷ lit 3 ∷ []
 
-prog2 : State
-prog2 = run (state exp2 [] [])
+test2 : state [] [] (3 ∷ []) ≡ run (state prog2 [] [])
+test2 = refl
