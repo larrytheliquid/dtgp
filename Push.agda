@@ -29,7 +29,7 @@ _gt_ : ℕ → ℕ → Bool
 _ gt _ = false
 
 data U : Set where
-  EXEC BOOL NAT : U
+  EXEC BOOL : U
   FIN : ℕ → U
 
 data Type : Set where
@@ -37,25 +37,22 @@ data Type : Set where
   _↤_ : Type → U → Type
   _↦_ : U → Type → Type
 
-data Inst : Type → Set where
-  NOOP : Inst ★
-  POP : (u : U) → Inst (u ↦ ★)
-  EQ : (u : U) → Inst (u ↦ u ↦ ★ ↤ BOOL)
-  ADD SUB MULT DIV : Inst (NAT ↦ NAT ↦ ★ ↤ NAT)
-  LT GT : Inst (NAT ↦ NAT ↦ ★ ↤ BOOL)
-  NOT : Inst (BOOL ↦ ★ ↤ BOOL)
-  AND OR NAND NOR : Inst (BOOL ↦ BOOL ↦ ★ ↤ BOOL)
+data Inst : Set where
+  NOOP POP EQ : Inst
+  ADD SUB MULT DIV : Inst
+  LT GT : Inst
+  NOT : Inst
+  AND OR NAND NOR : Inst
 
 mutual
   Lit : U → Set
   Lit EXEC = Expr
   Lit BOOL = Bool
-  Lit NAT = ℕ
   Lit (FIN n) = Fin n
 
   data Expr : Set where
     lit : {u : U} → Lit u → Expr
-    inst : {t : Type} → Inst t → Expr
+    inst : Inst → Expr
 
 postulate
   eq-Lit : {u : U} → Lit u → Lit u → Bool
@@ -63,110 +60,18 @@ postulate
 Stack : (u : U) → ℕ → Set
 Stack u = Vec (Lit u)
 
-data Eval : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN y) z → Set where
-  -- INT : Eval [] [] []
-  -- BOOL-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-  --            (b : Lit BOOL) →
-  --            Eval es bs ns → Eval (lit b ∷ es) bs ns
-  -- BOOL-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-  --            {b : Lit BOOL} →
-  --            Eval (lit b ∷ es) bs ns → Eval es (b ∷ bs) ns
-  -- LT-INT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-  --          {n₁ n₂ : Lit NAT} →
-  --          Eval es bs (n₁ ∷ n₂ ∷ ns) → Eval (inst LT ∷ es) bs ns
-  -- LT-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z} 
-  --          {n₁ n₂ : Lit NAT} →
-  --          Eval (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns) → Eval es (n₂ lt n₁ ∷ bs) ns
+data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN y) z → Set where
+  I-EXEC : Prog [] [] []
 
-  YANK-ELI : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-             {i : Fin y} →
-             Eval (inst LT ∷ es) bs (i ∷ is) → Eval es (yank i bs) is
+  I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+           (b : Lit BOOL) →
+           Prog es bs is → Prog (lit b ∷ es) bs is
 
--- hmm : Eval (lit false ∷ []) (true ∷ []) []
--- hmm = BOOL-ELI (BOOL-INT true (BOOL-INT false INT))
+  E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+           {b : Lit BOOL} →
+           Prog (lit b ∷ es) bs is → Prog es (b ∷ bs) (map inject₁ is)
 
-data State : Set where
-  state : {x y z : ℕ} →
-    Stack EXEC x →
-    Stack BOOL y →
-    Stack NAT z →
-    State
+  E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+           {i : Fin y} →
+           Prog (inst LT ∷ es) bs (i ∷ is) → Prog es (yank i bs) is
 
-run : State → State
-
-run (state [] bs ns) =
-  state [] bs ns
-
-run (state (lit {EXEC} e ∷ es) bs ns) =
-  run ( state (e ∷ es) bs ns )
-
-run (state (lit {BOOL} b ∷ es) bs ns) =
-  run ( state es (b ∷ bs) ns )
-
-run (state (lit {NAT} n ∷ es) bs ns) =
-  run ( state es bs (n ∷ ns) )
-
-run (state (lit {FIN _} i ∷ es) bs ns) =
-  state [] [] []
-
-run (state (inst (POP EXEC) ∷ _ ∷ es) bs ns) =
-  run ( state es bs ns )
-run (state (inst (POP BOOL) ∷ es) (_ ∷ bs) ns) =
-  run ( state es bs ns )
-run (state (inst (POP NAT) ∷ es) bs (_ ∷ ns)) =
-  run ( state es bs ns )
-
-run (state (inst (EQ EXEC) ∷ e₁ ∷ e₂ ∷ es) bs ns) =
-  run ( state es (eq-Lit e₂ e₁ ∷ bs) ns )
-run (state (inst (EQ BOOL) ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (eq-Lit b₂ b₁ ∷ bs) ns )
-run (state (inst (EQ NAT) ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es (eq-Lit n₂ n₁ ∷ bs) ns )
-
-run (state (inst ADD ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₂ + n₁ ∷ ns) )
-
-run (state (inst SUB ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₂ ∸ n₁ ∷ ns) )
-
-run (state (inst MULT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₂ * n₁ ∷ ns) )
-
-run (state (inst DIV ∷ es) bs ((suc n₁) ∷ n₂ ∷ ns)) =
-  run ( state es bs (n₂ div (suc n₁) ∷ ns) )
-
-run (state (inst LT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es (n₂ lt n₁ ∷ bs) ns )
-
-run (state (inst GT ∷ es) bs (n₁ ∷ n₂ ∷ ns)) =
-  run ( state es (n₂ gt n₁ ∷ bs) ns )
-
-run (state (inst NOT ∷ es) (b ∷ bs) ns) =
-  run ( state es (not b ∷ bs) ns )
-
-run (state (inst AND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (b₂ ∧ b₁ ∷ bs) ns )
-
-run (state (inst OR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es ((b₂ ∨ b₁) ∷ bs) ns )
-
-run (state (inst NAND ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (not (b₂ ∧ b₁) ∷ bs) ns )
-
-run (state (inst NOR ∷ es) (b₁ ∷ b₂ ∷ bs) ns) =
-  run ( state es (not (b₂ ∨ b₁) ∷ bs) ns )
-
-run (state (inst _ ∷ es) bs ns) =
-  run ( state es bs ns )
-
-prog1 : Stack EXEC 8
-prog1 = lit 5 ∷ lit 4 ∷ inst DIV ∷ lit 7 ∷ inst ADD ∷ lit 2 ∷ lit 3 ∷ inst GT ∷ []
-
-test1 : state [] (false ∷ []) (8 ∷ []) ≡ run (state prog1 [] [])
-test1 = refl
-
-prog2 : Stack EXEC 3
-prog2 = inst (POP EXEC) ∷ lit 3 ∷ lit 3 ∷ []
-
-test2 : state [] [] (3 ∷ []) ≡ run (state prog2 [] [])
-test2 = refl
