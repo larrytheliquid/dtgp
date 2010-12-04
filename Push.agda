@@ -2,7 +2,7 @@ module Push where
 open import Data.Bool
 open import Data.Nat
 open import Data.Nat.DivMod
-open import Data.Fin hiding (_+_)
+open import Data.Fin hiding (_+_; _≤_)
 open import Data.Vec
 open import Relation.Binary.PropositionalEquality
 
@@ -24,6 +24,10 @@ n⊓suc : {n : ℕ} → Fin n → Fin (n ⊓ suc n)
 n⊓suc {zero} ()
 n⊓suc {suc n} zero = zero
 n⊓suc {suc n} (suc i) = suc (n⊓suc {n} i)
+
+from≤ : {n m : ℕ} → n ≤ m → ℕ
+from≤ z≤n = zero
+from≤ (s≤s pos) = suc (from≤ pos)
 
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
@@ -62,41 +66,63 @@ postulate
 Stack : (u : U) → ℕ → Set
 Stack u = Vec (Lit u)
 
-data Prog : ∀ {n x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN (n ⊓ y)) z → Set where
-  I-EXEC : Prog {zero} [] [] []
+data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → Stack (FIN (from≤ pos)) z → Set where
+  I-EXEC : Prog z≤n [] [] []
 
-  I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  I-BOOL : ∀ {n x y z} (pos : n ≤ y) {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
            (b : Lit BOOL) →
-           Prog {y} es bs (map n⊓n is) → Prog {y} (lit b ∷ es) bs (map n⊓n is)
+           Prog pos es bs is → Prog pos (lit b ∷ es) bs is
 
-  E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-           {b : Lit BOOL} →
-           Prog {y} (lit b ∷ es) bs (map n⊓n is) → Prog {y} es (b ∷ bs) (map (n⊓suc {y}) is)
+--   E-BOOL : ∀ {n x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN n) z}
+--            {b : Lit BOOL} →
+--            Prog {n} (lit b ∷ es) bs (map (n⊓m y) is) → Prog {n} es (b ∷ bs) (map (n⊓m (suc y)) is)
 
-  I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-          (i : Lit (FIN y)) →
-          Prog {y} es bs (map n⊓n is) → Prog {y} (lit i ∷ es) bs (map n⊓n is)
+--   -- I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+--   --          (b : Lit BOOL) →
+--   --          Prog {y} es bs (map n⊓n is) → Prog {y} (lit b ∷ es) bs (map n⊓n is)
 
-  E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-          {i : Lit (FIN y)} →
-          Prog {y} (lit i ∷ es) bs (map n⊓n is) → Prog {y} es bs (n⊓n i ∷ (map n⊓n is))
+--   -- E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+--   --          {b : Lit BOOL} →
+--   --          Prog {y} (lit b ∷ es) bs (map n⊓n is) → Prog {y} es (b ∷ bs) (map (n⊓suc {y}) is)
 
-  -- I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
-  --         {b : Lit BOOL} →
-  --         Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
+--   -- I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+--   --         (i : Lit (FIN y)) →
+--   --         Prog {y} es bs (map n⊓n is) → Prog {y} (lit i ∷ es) bs (map n⊓n is)
 
-  -- E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
-  --         {b : Lit BOOL} →
-  --         Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
+--   -- E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+--   --         {i : Lit (FIN y)} →
+--   --         Prog {y} (lit i ∷ es) bs (map n⊓n is) → Prog {y} es bs (n⊓n i ∷ (map n⊓n is))
 
-  -- E-AND : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc (suc y))) z}
-  --         {b₁ b₂ : Lit BOOL} →
-  --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
+--   -- I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+--   --         {b : Lit BOOL} →
+--   --         Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
 
-  E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-           {i : Fin y} →
-           Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
+--   -- E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+--   --         {b : Lit BOOL} →
+--   --         Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
+
+--   -- E-AND : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc (suc y))) z}
+--   --         {b₁ b₂ : Lit BOOL} →
+--   --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
+
+--   -- E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+--   --          {i : Fin y} →
+--   --          Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
 
 
-example : Prog (lit false ∷ []) (true ∷ []) []
-example = E-BOOL (I-BOOL true (I-BOOL false I-EXEC))
+-- -- example : Prog (lit false ∷ []) (true ∷ []) []
+-- -- example = E-BOOL (I-BOOL true (I-BOOL false I-EXEC))
+
+-- -- huh : Prog (lit false ∷ []) [] []
+-- -- huh = (I-BOOL false I-EXEC)
+
+-- -- -- the reason hmz wont typecheck has to do with y being both the length of
+-- -- -- BOOL stack (the previous one) and the minimum FIN
+-- -- wut : Prog {zero} [] (false ∷ []) []
+-- -- wut = E-BOOL huh
+
+-- -- hmz : Prog {zero} (lit true ∷ []) (false ∷ []) []
+-- -- hmz = I-BOOL true wut
+
+-- -- meta : Prog {zero} [] (true ∷ false ∷ []) []
+-- -- meta = E-BOOL hmz
