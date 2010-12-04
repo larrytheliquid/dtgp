@@ -72,6 +72,14 @@ data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN y) z �
           {i : Lit (FIN y)} →
           Prog (lit i ∷ es) bs is → Prog es bs (i ∷ is)
 
+  I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+          {b : Lit BOOL} →
+          Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
+
+  E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+          {b : Lit BOOL} →
+          Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
+
   E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
            {i : Fin y} →
            Prog (inst LT ∷ es) bs (i ∷ is) → Prog es (yank i bs) is
