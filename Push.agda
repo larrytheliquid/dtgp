@@ -97,3 +97,6 @@ data Prog : ∀ {n x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN (n �
            {i : Fin y} →
            Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
 
+
+example : Prog (lit false ∷ []) (true ∷ []) []
+example = E-BOOL (I-BOOL true (I-BOOL false I-EXEC))
