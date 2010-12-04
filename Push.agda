@@ -16,6 +16,10 @@ yank zero xs = lookup zero xs ∷ delete zero xs
 yank (suc ()) (x ∷ [])
 yank (suc i) (x ∷ x' ∷ xs) = lookup (suc i) (x ∷ x' ∷ xs) ∷ delete (suc i) (x ∷ x' ∷ xs)
 
+n⊓n : {n : ℕ} → Fin n → Fin (n ⊓ n)
+n⊓n zero = zero
+n⊓n (suc i) = suc (n⊓n i)
+
 n⊓suc : {n : ℕ} → Fin (n ⊓ n) → Fin (n ⊓ suc n)
 n⊓suc {zero} ()
 n⊓suc {suc n} zero = zero
@@ -61,9 +65,9 @@ Stack u = Vec (Lit u)
 data Prog : ∀ {n x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN (n ⊓ y)) z → Set where
   I-EXEC : Prog {zero} [] [] []
 
-  I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (y ⊓ y)) z}
+  I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
            (b : Lit BOOL) →
-           Prog {y} es bs is → Prog {y} (lit b ∷ es) bs is
+           Prog {y} es bs (map n⊓n is) → Prog {y} (lit b ∷ es) bs (map n⊓n is)
 
   E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (y ⊓ y)) z}
            {b : Lit BOOL} →
