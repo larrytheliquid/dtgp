@@ -16,6 +16,9 @@ yank zero xs = lookup zero xs ∷ delete zero xs
 yank (suc ()) (x ∷ [])
 yank (suc i) (x ∷ x' ∷ xs) = lookup (suc i) (x ∷ x' ∷ xs) ∷ delete (suc i) (x ∷ x' ∷ xs)
 
+postulate
+  upup : {y : ℕ} → Fin (y ⊓ y) → Fin (y ⊓ suc y)
+
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
 (suc n) lt (suc m) = n lt m
@@ -53,34 +56,38 @@ postulate
 Stack : (u : U) → ℕ → Set
 Stack u = Vec (Lit u)
 
-data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN y) z → Set where
-  I-EXEC : Prog [] [] []
+data Prog : ∀ {n x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN (n ⊓ y)) z → Set where
+  I-EXEC : Prog {zero} [] [] []
 
-  I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (y ⊓ y)) z}
            (b : Lit BOOL) →
-           Prog es bs is → Prog (lit b ∷ es) bs is
+           Prog {y} es bs is → Prog {y} (lit b ∷ es) bs is
 
-  E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (y ⊓ y)) z}
            {b : Lit BOOL} →
-           Prog (lit b ∷ es) bs is → Prog es (b ∷ bs) (map inject₁ is)
+           Prog {y} (lit b ∷ es) bs is → Prog {y} es (b ∷ bs) (map (upup {y}) is)
 
-  I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-          (i : Lit (FIN y)) →
-          Prog es bs is → Prog (lit i ∷ es) bs is
+  -- I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  --         (i : Lit (FIN y)) →
+  --         Prog es bs is → Prog (lit i ∷ es) bs is
 
-  E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-          {i : Lit (FIN y)} →
-          Prog (lit i ∷ es) bs is → Prog es bs (i ∷ is)
+  -- E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  --         {i : Lit (FIN y)} →
+  --         Prog (lit i ∷ es) bs is → Prog es bs (i ∷ is)
 
-  I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
-          {b : Lit BOOL} →
-          Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
+  -- I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+  --         {b : Lit BOOL} →
+  --         Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
 
-  E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
-          {b : Lit BOOL} →
-          Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
+  -- E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+  --         {b : Lit BOOL} →
+  --         Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
 
-  E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-           {i : Fin y} →
-           Prog (inst LT ∷ es) bs (i ∷ is) → Prog es (yank i bs) is
+  -- E-AND : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc (suc y))) z}
+  --         {b₁ b₂ : Lit BOOL} →
+  --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
+
+  -- E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  --          {i : Fin y} →
+  --          Prog (inst LT ∷ es) bs (i ∷ is) → Prog es (yank i bs) is
 
