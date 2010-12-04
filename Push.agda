@@ -6,8 +6,6 @@ open import Data.Fin hiding (_+_)
 open import Data.Vec
 open import Relation.Binary.PropositionalEquality
 
-infixr 4 _↦_ _↤_
-
 delete : ∀ {A n} → Fin n → Vec A n → Vec A (Data.Nat.pred n)
 delete zero (_ ∷ xs) = xs
 delete (suc ()) (_ ∷ [])
@@ -31,11 +29,6 @@ _ gt _ = false
 data U : Set where
   EXEC BOOL : U
   FIN : ℕ → U
-
-data Type : Set where
-  ★ : Type
-  _↤_ : Type → U → Type
-  _↦_ : U → Type → Type
 
 data Inst : Set where
   NOOP POP EQ : Inst
