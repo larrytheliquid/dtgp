@@ -29,6 +29,15 @@ from≤ : {n m : ℕ} → n ≤ m → ℕ
 from≤ z≤n = zero
 from≤ (s≤s pos) = suc (from≤ pos)
 
+inject≤₁ : {n m : ℕ} → n ≤ m → n ≤ suc m
+inject≤₁ z≤n = z≤n
+inject≤₁ (s≤s pos) = s≤s (inject≤₁ pos)
+
+injectF≤₁ : {n m : ℕ} → {pos : n ≤ m} → Fin (from≤ pos) → Fin (from≤ (inject≤₁ pos))
+injectF≤₁ {.0} {m} {z≤n} ()
+injectF≤₁ {.(suc m)} {.(suc n)} {s≤s {m} {n} m≤n} zero = zero
+injectF≤₁ {.(suc m)} {.(suc n)} {s≤s {m} {n} m≤n} (suc i) = suc (injectF≤₁ i)
+
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
 (suc n) lt (suc m) = n lt m
@@ -69,21 +78,13 @@ Stack u = Vec (Lit u)
 data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → Stack (FIN (from≤ pos)) z → Set where
   I-EXEC : Prog z≤n [] [] []
 
-  I-BOOL : ∀ {n x y z} (pos : n ≤ y) {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+  I-BOOL : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
            (b : Lit BOOL) →
            Prog pos es bs is → Prog pos (lit b ∷ es) bs is
 
---   E-BOOL : ∀ {n x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN n) z}
---            {b : Lit BOOL} →
---            Prog {n} (lit b ∷ es) bs (map (n⊓m y) is) → Prog {n} es (b ∷ bs) (map (n⊓m (suc y)) is)
-
---   -- I-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
---   --          (b : Lit BOOL) →
---   --          Prog {y} es bs (map n⊓n is) → Prog {y} (lit b ∷ es) bs (map n⊓n is)
-
---   -- E-BOOL : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
---   --          {b : Lit BOOL} →
---   --          Prog {y} (lit b ∷ es) bs (map n⊓n is) → Prog {y} es (b ∷ bs) (map (n⊓suc {y}) is)
+  E-BOOL : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+           {b : Lit BOOL} →
+           Prog pos (lit b ∷ es) bs is → Prog (inject≤₁ pos) es (b ∷ bs) (map injectF≤₁ is)
 
 --   -- I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
 --   --         (i : Lit (FIN y)) →
@@ -110,19 +111,5 @@ data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → 
 --   --          Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
 
 
--- -- example : Prog (lit false ∷ []) (true ∷ []) []
--- -- example = E-BOOL (I-BOOL true (I-BOOL false I-EXEC))
-
--- -- huh : Prog (lit false ∷ []) [] []
--- -- huh = (I-BOOL false I-EXEC)
-
--- -- -- the reason hmz wont typecheck has to do with y being both the length of
--- -- -- BOOL stack (the previous one) and the minimum FIN
--- -- wut : Prog {zero} [] (false ∷ []) []
--- -- wut = E-BOOL huh
-
--- -- hmz : Prog {zero} (lit true ∷ []) (false ∷ []) []
--- -- hmz = I-BOOL true wut
-
--- -- meta : Prog {zero} [] (true ∷ false ∷ []) []
--- -- meta = E-BOOL hmz
+example : Prog z≤n [] (false ∷ true ∷ []) []
+example = E-BOOL (E-BOOL (I-BOOL true (I-BOOL false I-EXEC)))
