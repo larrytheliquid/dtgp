@@ -64,6 +64,14 @@ data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN y) z �
            {b : Lit BOOL} →
            Prog (lit b ∷ es) bs is → Prog es (b ∷ bs) (map inject₁ is)
 
+  I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+          (i : Lit (FIN y)) →
+          Prog es bs is → Prog (lit i ∷ es) bs is
+
+  E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+          {i : Lit (FIN y)} →
+          Prog (lit i ∷ es) bs is → Prog es bs (i ∷ is)
+
   E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
            {i : Fin y} →
            Prog (inst LT ∷ es) bs (i ∷ is) → Prog es (yank i bs) is
