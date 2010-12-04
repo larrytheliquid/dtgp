@@ -73,9 +73,9 @@ data Prog : ∀ {n x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN (n �
            {b : Lit BOOL} →
            Prog {y} (lit b ∷ es) bs is → Prog {y} es (b ∷ bs) (map (n⊓suc {y}) is)
 
-  -- I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-  --         (i : Lit (FIN y)) →
-  --         Prog es bs is → Prog (lit i ∷ es) bs is
+  I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+          (i : Lit (FIN y)) →
+          Prog {y} es bs (map n⊓n is) → Prog {y} (lit i ∷ es) bs (map n⊓n is)
 
   -- E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
   --         {i : Lit (FIN y)} →
@@ -93,7 +93,7 @@ data Prog : ∀ {n x y z} → Stack EXEC x → Stack BOOL y → Stack (FIN (n �
   --         {b₁ b₂ : Lit BOOL} →
   --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
 
-  -- E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
-  --          {i : Fin y} →
-  --          Prog (inst LT ∷ es) bs (i ∷ is) → Prog es (yank i bs) is
+  E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+           {i : Fin y} →
+           Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
 
