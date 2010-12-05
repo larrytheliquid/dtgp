@@ -110,17 +110,11 @@ data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack NAT z → Se
     (pos : n < x) →
     Prog (inst YANK ∷ es) bs (n ∷ ns) → Prog (yank (fromℕ≤ pos) es) bs ns
 
-yank-exec-args : Prog (lit 2 ∷ lit 3 ∷ []) [] (1 ∷ [])
-yank-exec-args = I-NAT 2 (I-NAT 3 (E-NAT (I-NAT 1 I-EXEC)))
+div-not-args : Prog [] (true ∷ []) (2 ∷ 6 ∷ [])
+div-not-args = E-NAT (E-BOOL (E-NAT (I-NAT 6 (I-BOOL true (I-NAT 2 I-EXEC)))))
 
-yank-exec-call : Prog (lit 3 ∷ lit 2 ∷ []) [] []
-yank-exec-call = E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-exec-args)
-
-yank-nat-args : Prog [] [] (1 ∷ 2 ∷ 3 ∷ [])
-yank-nat-args = E-NAT (E-NAT (E-NAT (I-NAT 3 (I-NAT 2 (I-NAT 1 I-EXEC)))))
-
-yank-nat-call : Prog [] [] (3 ∷ 2 ∷ [])
-yank-nat-call = E-YANK-NAT (s≤s (s≤s z≤n)) (I-YANK-NAT (s≤s (s≤s z≤n)) yank-nat-args)
+div-not-call : Prog [] (false ∷ []) (3 ∷ [])
+div-not-call = E-NOT (E-DIV (I-DIV (I-NOT div-not-args)))
 
 yank-bool-args : Prog [] (true ∷ false ∷ []) (1 ∷ [])
 yank-bool-args = E-BOOL (E-BOOL (E-NAT (I-NAT 1 (I-BOOL false (I-BOOL true I-EXEC)))))
@@ -128,18 +122,24 @@ yank-bool-args = E-BOOL (E-BOOL (E-NAT (I-NAT 1 (I-BOOL false (I-BOOL true I-EXE
 yank-bool-call : Prog [] (false ∷ true ∷ []) []
 yank-bool-call = E-YANK-BOOL (s≤s (s≤s z≤n)) (I-YANK-BOOL (s≤s (s≤s z≤n)) yank-bool-args)
 
-div-not-args : Prog [] (true ∷ []) (2 ∷ 6 ∷ [])
-div-not-args = E-NAT (E-BOOL (E-NAT (I-NAT 6 (I-BOOL true (I-NAT 2 I-EXEC)))))
+yank-nat-args : Prog [] [] (1 ∷ 2 ∷ 3 ∷ [])
+yank-nat-args = E-NAT (E-NAT (E-NAT (I-NAT 3 (I-NAT 2 (I-NAT 1 I-EXEC)))))
 
-div-not-call : Prog [] (false ∷ []) (3 ∷ [])
-div-not-call = E-NOT (E-DIV (I-DIV (I-NOT div-not-args)))
+yank-nat-call : Prog [] [] (3 ∷ 2 ∷ [])
+yank-nat-call = E-YANK-NAT (s≤s (s≤s z≤n)) (I-YANK-NAT (s≤s (s≤s z≤n)) yank-nat-args)
 
-yank-break-args : Prog (inst DIV ∷ lit 4 ∷ []) [] (1 ∷ 2 ∷ 3 ∷ [])
-yank-break-args = I-DIV (I-NAT 4 yank-nat-args)
+yank-exec-args : Prog (lit 2 ∷ lit 3 ∷ []) [] (1 ∷ [])
+yank-exec-args = I-NAT 2 (I-NAT 3 (E-NAT (I-NAT 1 I-EXEC)))
 
-yank-break-control : Prog [] [] (4 ∷ 2 ∷ 3 ∷ [])
-yank-break-control = E-NAT (E-DIV yank-break-args)
+yank-exec-call : Prog (lit 3 ∷ lit 2 ∷ []) [] []
+yank-exec-call = E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-exec-args)
 
-yank-break-call : Prog [] [] (0 ∷ 3 ∷ [])
-yank-break-call = E-DIV (E-NAT (E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-break-args)))
+yank-diverge-args : Prog (inst DIV ∷ lit 0 ∷ []) [] (1 ∷ 2 ∷ [])
+yank-diverge-args = I-DIV (I-NAT 0 (E-NAT (E-NAT (I-NAT 2 (I-NAT 1 I-EXEC)))))
+
+yank-diverge-control : Prog [] [] (0 ∷ 2 ∷ [])
+yank-diverge-control = E-NAT (E-DIV yank-diverge-args)
+
+yank-diverge-call : Prog (inst DIV ∷ []) [] (0 ∷ 2 ∷ [])
+yank-diverge-call = E-NAT (E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-diverge-args))
 
