@@ -100,6 +100,22 @@ data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack NAT z → Se
     (pos : n < z) →
     Prog (inst YANK ∷ es) bs (n ∷ ns) → Prog es bs (yank (fromℕ≤ pos) ns)
 
+  I-YANK-EXEC :
+    ∀ {n x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z}
+    (pos : n < x) →
+    Prog es bs (n ∷ ns) → Prog (inst YANK ∷ es) bs (n ∷ ns)
+
+  E-YANK-EXEC :
+    ∀ {n x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z}
+    (pos : n < x) →
+    Prog (inst YANK ∷ es) bs (n ∷ ns) → Prog (yank (fromℕ≤ pos) es) bs ns
+
+yank-exec-args : Prog (lit 2 ∷ lit 3 ∷ []) [] (1 ∷ [])
+yank-exec-args = I-NAT 2 (I-NAT 3 (E-NAT (I-NAT 1 I-EXEC)))
+
+yank-exec-call : Prog (lit 3 ∷ lit 2 ∷ []) [] []
+yank-exec-call = E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-exec-args)
+
 yank-nat-args : Prog [] [] (1 ∷ 2 ∷ 3 ∷ [])
 yank-nat-args = E-NAT (E-NAT (E-NAT (I-NAT 3 (I-NAT 2 (I-NAT 1 I-EXEC)))))
 
