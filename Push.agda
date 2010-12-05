@@ -143,3 +143,9 @@ yank-diverge-control = E-NAT (E-DIV yank-diverge-args)
 yank-diverge-call : Prog (inst DIV ∷ []) [] (0 ∷ 2 ∷ [])
 yank-diverge-call = E-NAT (E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-diverge-args))
 
+interleaved-diverge-args : Prog (lit 0 ∷ inst DIV ∷ []) [] (1 ∷ 2 ∷ [])
+interleaved-diverge-args = I-NAT 0 (I-DIV (E-NAT (E-NAT (I-NAT 2 (I-NAT 1 I-EXEC)))))
+
+interleaved-diverge-call : Prog (inst DIV ∷ []) [] (0 ∷ 1 ∷ 2 ∷ [])
+interleaved-diverge-call = E-NAT interleaved-diverge-args
+
