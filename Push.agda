@@ -86,29 +86,29 @@ data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → 
            {b : Lit BOOL} →
            Prog pos (lit b ∷ es) bs is → Prog (inject≤₁ pos) es (b ∷ bs) (map injectF≤₁ is)
 
---   -- I-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
---   --         (i : Lit (FIN y)) →
---   --         Prog {y} es bs (map n⊓n is) → Prog {y} (lit i ∷ es) bs (map n⊓n is)
+  I-FIN : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+          (i : Lit (FIN y)) →
+          Prog pos es bs is → Prog pos (lit i ∷ es) bs is
 
---   -- E-FIN : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
---   --         {i : Lit (FIN y)} →
---   --         Prog {y} (lit i ∷ es) bs (map n⊓n is) → Prog {y} es bs (n⊓n i ∷ (map n⊓n is))
+  E-FIN : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+          {i : Lit (FIN (from≤ pos))} →
+          Prog pos (lit i ∷ es) bs is → Prog pos es bs (i ∷ is)
 
---   -- I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
---   --         {b : Lit BOOL} →
---   --         Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
+  -- I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+  --         {b : Lit BOOL} →
+  --         Prog es (b ∷ bs) is → Prog (inst NOT ∷ es) (b ∷ bs) is
 
---   -- E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
---   --         {b : Lit BOOL} →
---   --         Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
+  -- E-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
+  --         {b : Lit BOOL} →
+  --         Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
 
---   -- E-AND : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc (suc y))) z}
---   --         {b₁ b₂ : Lit BOOL} →
---   --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
+  -- E-AND : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc (suc y))) z}
+  --         {b₁ b₂ : Lit BOOL} →
+  --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
 
---   -- E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
---   --          {i : Fin y} →
---   --          Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
+  -- E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
+  --          {i : Fin y} →
+  --          Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
 
 
 example : Prog z≤n [] (false ∷ true ∷ []) []
