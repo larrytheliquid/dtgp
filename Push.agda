@@ -38,19 +38,12 @@ injectF≤₁ {.0} {m} {z≤n} ()
 injectF≤₁ {.(suc m)} {.(suc n)} {s≤s {m} {n} m≤n} zero = zero
 injectF≤₁ {.(suc m)} {.(suc n)} {s≤s {m} {n} m≤n} (suc i) = suc (injectF≤₁ i)
 
-pred≤ : {n m : ℕ} → suc n ≤ m → n ≤ m
-pred≤ (s≤s z≤n) = z≤n
+pred≤ : {n m : ℕ} → suc n < m → n < m
+pred≤ (s≤s (s≤s z≤n)) = s≤s z≤n
 pred≤ (s≤s (s≤s pos)) = s≤s (inject≤₁ pos)
 
-predF≤ : {n m : ℕ} {pos : suc n ≤ m} → Fin (from≤ pos) → Fin (from≤ (pred≤ pos))
--- predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} i = {!!}
-
--- predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} zero = {!!}
--- predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} (suc i) = {!!}
-
-predF≤ {.0} {.(suc m)} {s≤s {0} {m} z≤n} zero = {!!}
-predF≤ {.(suc n)} {.(suc (suc m))} {s≤s (s≤s {n} {m} m≤n)} zero = {!!}
-predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} (suc i) = {!!}
+postulate
+  predF≤ : {n m : ℕ} {pos : suc n < m} → Fin (from≤ pos) → Fin (from≤ (pred≤ pos))
 
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
@@ -89,24 +82,24 @@ postulate
 Stack : (u : U) → ℕ → Set
 Stack u = Vec (Lit u)
 
-data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → Stack (FIN (from≤ pos)) z → Set where
-  I-EXEC : Prog z≤n [] [] []
+data Prog : ∀ {n x y z} (pos : n < y) → Stack EXEC x → Stack BOOL y → Stack (FIN (from≤ pos)) z → Set where
+  I-EXEC : Prog (s≤s z≤n) [] (true ∷ []) []
 
-  I-BOOL : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+  I-BOOL : ∀ {n x y z} {pos : n < y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
            (b : Lit BOOL) →
            Prog pos es bs is → Prog pos (lit b ∷ es) bs is
 
-  E-BOOL : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
-           {b : Lit BOOL} →
-           Prog pos (lit b ∷ es) bs is → Prog (inject≤₁ pos) es (b ∷ bs) (map injectF≤₁ is)
+  -- E-BOOL : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+  --          {b : Lit BOOL} →
+  --          Prog pos (lit b ∷ es) bs is → Prog (inject≤₁ pos) es (b ∷ bs) (map injectF≤₁ is)
 
-  I-FIN : ∀ {n x y z} {pos : n < y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
-          (i : Lit (FIN (from≤ pos))) →
-          Prog (pred≤ pos) es bs (map predF≤ is) → Prog pos (lit i ∷ es) bs is
+  -- I-FIN : ∀ {n x y z} {pos : suc n < y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+  --         (i : Lit (FIN (from≤ pos))) →
+  --         Prog (pred≤ pos) es bs (map predF≤ is) → Prog pos (lit i ∷ es) bs is
 
-  E-FIN : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
-          {i : Lit (FIN (from≤ pos))} →
-          Prog pos (lit i ∷ es) bs is → Prog pos es bs (i ∷ is)
+  -- E-FIN : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+  --         {i : Lit (FIN (from≤ pos))} →
+  --         Prog pos (lit i ∷ es) bs is → Prog pos es bs (i ∷ is)
 
   -- I-NOT : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc y)) z}
   --         {b : Lit BOOL} →
@@ -120,13 +113,15 @@ data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → 
   --          {i : Fin y} →
   --          Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
 
+test : Prog (s≤s z≤n) (lit false ∷ []) (true ∷ []) []
+test = (I-BOOL false I-EXEC)
 
-example : Prog z≤n [] (false ∷ true ∷ []) []
-example = E-BOOL (E-BOOL (I-BOOL true (I-BOOL false I-EXEC)))
+-- example : Prog z≤n [] (false ∷ true ∷ []) []
+-- example = E-BOOL (E-BOOL (I-BOOL true (I-BOOL false I-EXEC)))
 
-i-fin : Prog (s≤s z≤n) (lit {FIN 1} zero ∷ []) (true ∷ []) []
-i-fin = I-FIN zero (E-BOOL (I-BOOL true I-EXEC))
+-- i-fin : Prog (s≤s (s≤s z≤n)) (lit {FIN 2} (suc zero) ∷ []) (false ∷ true ∷ []) []
+-- i-fin = I-FIN (suc zero) (E-BOOL (E-BOOL (I-BOOL true (I-BOOL false I-EXEC))))
 
-e-fin : Prog (s≤s z≤n) [] (true ∷ []) (zero ∷ [])
-e-fin = E-FIN i-fin
+-- e-fin : Prog (s≤s z≤n) [] (true ∷ []) (zero ∷ [])
+-- e-fin = E-FIN i-fin
 
