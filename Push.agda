@@ -42,8 +42,15 @@ pred≤ : {n m : ℕ} → suc n ≤ m → n ≤ m
 pred≤ (s≤s z≤n) = z≤n
 pred≤ (s≤s (s≤s pos)) = s≤s (inject≤₁ pos)
 
-postulate
-  predF≤ : {n m : ℕ} {pos : suc n ≤ m} → Fin (from≤ pos) → Fin (from≤ (pred≤ pos))
+predF≤ : {n m : ℕ} {pos : suc n ≤ m} → Fin (from≤ pos) → Fin (from≤ (pred≤ pos))
+-- predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} i = {!!}
+
+-- predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} zero = {!!}
+-- predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} (suc i) = {!!}
+
+predF≤ {.0} {.(suc m)} {s≤s {0} {m} z≤n} zero = {!!}
+predF≤ {.(suc n)} {.(suc (suc m))} {s≤s (s≤s {n} {m} m≤n)} zero = {!!}
+predF≤ {.n} {.(suc m)} {s≤s {n} {m} pos} (suc i) = {!!}
 
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
