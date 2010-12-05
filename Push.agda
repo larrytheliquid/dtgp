@@ -134,3 +134,12 @@ div-not-args = E-NAT (E-BOOL (E-NAT (I-NAT 6 (I-BOOL true (I-NAT 2 I-EXEC)))))
 div-not-call : Prog [] (false ∷ []) (3 ∷ [])
 div-not-call = E-NOT (E-DIV (I-DIV (I-NOT div-not-args)))
 
+yank-break-args : Prog (inst DIV ∷ lit 4 ∷ []) [] (1 ∷ 2 ∷ 3 ∷ [])
+yank-break-args = I-DIV (I-NAT 4 yank-nat-args)
+
+yank-break-control : Prog [] [] (4 ∷ 2 ∷ 3 ∷ [])
+yank-break-control = E-NAT (E-DIV yank-break-args)
+
+yank-break-call : Prog [] [] (0 ∷ 3 ∷ [])
+yank-break-call = E-DIV (E-NAT (E-YANK-EXEC (s≤s (s≤s z≤n)) (I-YANK-EXEC (s≤s (s≤s z≤n)) yank-break-args)))
+
