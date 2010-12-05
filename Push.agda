@@ -2,7 +2,7 @@ module Push where
 open import Data.Bool
 open import Data.Nat
 open import Data.Nat.DivMod
-open import Data.Fin hiding (_+_; _≤_)
+open import Data.Fin hiding (_+_; _≤_; _<_)
 open import Data.Vec
 open import Relation.Binary.PropositionalEquality
 
@@ -37,6 +37,13 @@ injectF≤₁ : {n m : ℕ} → {pos : n ≤ m} → Fin (from≤ pos) → Fin (f
 injectF≤₁ {.0} {m} {z≤n} ()
 injectF≤₁ {.(suc m)} {.(suc n)} {s≤s {m} {n} m≤n} zero = zero
 injectF≤₁ {.(suc m)} {.(suc n)} {s≤s {m} {n} m≤n} (suc i) = suc (injectF≤₁ i)
+
+pred≤ : {n m : ℕ} → suc n ≤ m → n ≤ m
+pred≤ (s≤s z≤n) = z≤n
+pred≤ (s≤s (s≤s pos)) = s≤s (inject≤₁ pos)
+
+postulate
+  predF≤ : {n m : ℕ} {pos : suc n ≤ m} → Fin (from≤ pos) → Fin (from≤ (pred≤ pos))
 
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
@@ -86,9 +93,9 @@ data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → 
            {b : Lit BOOL} →
            Prog pos (lit b ∷ es) bs is → Prog (inject≤₁ pos) es (b ∷ bs) (map injectF≤₁ is)
 
-  I-FIN : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
-          (i : Lit (FIN y)) →
-          Prog pos es bs is → Prog pos (lit i ∷ es) bs is
+  I-FIN : ∀ {n x y z} {pos : n < y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
+          (i : Lit (FIN (from≤ pos))) →
+          Prog (pred≤ pos) es bs (map predF≤ is) → Prog pos (lit i ∷ es) bs is
 
   E-FIN : ∀ {n x y z} {pos : n ≤ y} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (from≤ pos)) z}
           {i : Lit (FIN (from≤ pos))} →
@@ -102,10 +109,6 @@ data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → 
   --         {b : Lit BOOL} →
   --         Prog (inst NOT ∷ es) (b ∷ bs) is → Prog es (not b ∷ bs) is
 
-  -- E-AND : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN (suc (suc y))) z}
-  --         {b₁ b₂ : Lit BOOL} →
-  --         Prog (inst NOT ∷ es) (b₁ ∷ b₂ ∷ bs) is → Prog es (b₂ ∧ b₁ ∷ bs) is
-
   -- E-YANK : ∀ {x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {is : Stack (FIN y) z}
   --          {i : Fin y} →
   --          Prog {y} (inst LT ∷ es) bs (n⊓n i ∷ (map n⊓n is)) → Prog {y} es (yank i bs) (map n⊓n is)
@@ -113,3 +116,7 @@ data Prog : ∀ {n x y z} (pos : n ≤ y) → Stack EXEC x → Stack BOOL y → 
 
 example : Prog z≤n [] (false ∷ true ∷ []) []
 example = E-BOOL (E-BOOL (I-BOOL true (I-BOOL false I-EXEC)))
+
+i-fin : Prog (s≤s z≤n) (lit {FIN 1} zero ∷ []) (true ∷ []) []
+i-fin = I-FIN zero (E-BOOL (I-BOOL true I-EXEC))
+
