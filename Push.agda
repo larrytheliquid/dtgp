@@ -22,6 +22,7 @@ data U : Set where
 data Inst : Set where
   ADD DIV : Inst
   NOT : Inst
+  YANK : Inst
 
 mutual
   Lit : U → Set
@@ -79,9 +80,25 @@ data Prog : ∀ {x y z} → Stack EXEC x → Stack BOOL y → Stack NAT z → Se
           {n₁ n₂ : Lit NAT} →
           Prog (inst DIV ∷ es) bs (suc n₁ ∷ n₂ ∷ ns) → Prog es bs (n₂ div suc n₁ ∷ ns)
 
-args : Prog [] (true ∷ []) (2 ∷ 6 ∷ [])
-args = E-NAT (E-BOOL (E-NAT (I-NAT 6 (I-BOOL true (I-NAT 2 I-EXEC)))))
+  I-YANK-BOOL :
+    ∀ {n x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z}
+    (pos : n < y) →
+    Prog es bs (n ∷ ns) → Prog (inst YANK ∷ es) bs (n ∷ ns)
 
-call : Prog [] (false ∷ []) (3 ∷ [])
-call = E-NOT (E-DIV (I-DIV (I-NOT args)))
+  E-YANK-BOOL :
+    ∀ {n x y z} {es : Stack EXEC x} {bs : Stack BOOL y} {ns : Stack NAT z}
+    (pos : n < y) →
+    Prog (inst YANK ∷ es) bs (n ∷ ns) → Prog es (yank (fromℕ≤ pos) bs) ns
+
+yank-bool-args : Prog [] (true ∷ false ∷ []) (1 ∷ [])
+yank-bool-args = E-BOOL (E-BOOL (E-NAT (I-NAT 1 (I-BOOL false (I-BOOL true I-EXEC)))))
+
+yank-bool-call : Prog [] (false ∷ true ∷ []) []
+yank-bool-call = E-YANK-BOOL (s≤s (s≤s z≤n)) (I-YANK-BOOL (s≤s (s≤s z≤n)) yank-bool-args)
+
+div-not-args : Prog [] (true ∷ []) (2 ∷ 6 ∷ [])
+div-not-args = E-NAT (E-BOOL (E-NAT (I-NAT 6 (I-BOOL true (I-NAT 2 I-EXEC)))))
+
+div-not-call : Prog [] (false ∷ []) (3 ∷ [])
+div-not-call = E-NOT (E-DIV (I-DIV (I-NOT div-not-args)))
 
