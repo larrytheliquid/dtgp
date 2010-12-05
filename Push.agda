@@ -120,3 +120,6 @@ example = E-BOOL (E-BOOL (I-BOOL true (I-BOOL false I-EXEC)))
 i-fin : Prog (s≤s z≤n) (lit {FIN 1} zero ∷ []) (true ∷ []) []
 i-fin = I-FIN zero (E-BOOL (I-BOOL true I-EXEC))
 
+e-fin : Prog (s≤s z≤n) [] (true ∷ []) (zero ∷ [])
+e-fin = E-FIN i-fin
+
