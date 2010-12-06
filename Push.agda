@@ -149,3 +149,8 @@ interleaved-diverge-args = I-NAT 0 (I-DIV (E-NAT (E-NAT (I-NAT 2 (I-NAT 1 I-EXEC
 interleaved-diverge-call : Prog (inst DIV ∷ []) [] (0 ∷ 1 ∷ 2 ∷ [])
 interleaved-diverge-call = E-NAT interleaved-diverge-args
 
+ordering1 : Prog [] [] (1 ∷ 2 ∷ [])
+ordering1 = E-NAT (E-NAT (I-NAT 2 (I-NAT 1 I-EXEC)))
+
+ordering2 : Prog [] [] (2 ∷ 1 ∷ [])
+ordering2 = E-NAT (I-NAT 2 (E-NAT (I-NAT 1 I-EXEC)))
