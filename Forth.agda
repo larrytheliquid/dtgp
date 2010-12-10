@@ -3,13 +3,13 @@ open import Data.Nat
 open import Data.List
 
 data Term : Set where
-  end : Term
+  empty : Term
   true false Bool-POP AND NOT Nat-POP ADD LT GT :
     Term → Term
   nat : ℕ → Term → Term
 
 data _∣_∣_⊢_ : (Exec : Term) (Bool Nat : ℕ) (t : Term) → Set where
-  end : end ∣ 0 ∣ 0 ⊢ end
+  empty : empty ∣ 0 ∣ 0 ⊢ empty
 
   I-true : ∀ {E B N t} →
     E ∣ B ∣ N ⊢ t →
@@ -91,3 +91,11 @@ data _∣_∣_⊢_ : (Exec : Term) (Bool Nat : ℕ) (t : Term) → Set where
     GT E ∣ B ∣ suc (suc N) ⊢ t →
     E ∣ suc B ∣ N ⊢ t
 
+eg-Term : Term
+eg-Term = nat 3 (nat 4 (GT (true (AND empty))))
+
+eg-I : eg-Term ∣ 0 ∣ 0 ⊢ eg-Term
+eg-I = I-nat (I-nat (I-GT (I-true (I-AND empty))))
+
+eg-E : empty ∣ 1 ∣ 0 ⊢ eg-Term
+eg-E = E-AND (E-true (E-GT (E-nat (E-nat eg-I))))
