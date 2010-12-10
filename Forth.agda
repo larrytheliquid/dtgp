@@ -9,8 +9,11 @@ data Term : Bool → ℕ → Set where
     ∀ {n} → Term false n → Term false (suc n)
   nat : ℕ → ∀ {n} → Term false n → Term false (suc n)
 
-eg : Term true 0
-eg = exec (exec (exec (AND (true (false end)))))
+eg-I : Term false 3
+eg-I = AND (true (false end))
+
+eg-E : Term true 0
+eg-E = exec (exec (exec eg-I))
 
 -- data _∣_⊢_ : (Bool Nat : ℕ) → Term → Set where
 --   end : 0 ∣ 0 ⊢ end
