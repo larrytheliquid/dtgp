@@ -15,11 +15,15 @@ eg-I = AND (true (false end))
 eg-E : Term true 0
 eg-E = exec (exec (exec eg-I))
 
--- data _∣_⊢_ : (Bool Nat : ℕ) → Term → Set where
---   end : 0 ∣ 0 ⊢ end
+data _∣_∣_⊢_ : ∀ {b n} (Exec Bool Nat : ℕ) → Term b n → Set where
+  end : 0 ∣ 0 ∣ 0 ⊢ end
 
---   true : ∀ {B N t} →
---     B ∣ N ⊢ t → suc B ∣ N ⊢ true t
+  true : ∀ {E B N n} {t : Term false n} →
+    E ∣ B ∣ N ⊢ t                        →
+    suc E ∣ B ∣ N ⊢ true t
+  exec-true : ∀ {E B N n} {t : Term false n} →
+    suc E ∣ B ∣ N ⊢ exec (true t)             →
+    E ∣ suc B ∣ N ⊢ t
 --   false : ∀ {B N t} →
 --     B ∣ N ⊢ t → suc B ∣ N ⊢ false t
 --   Bool-POP : ∀ {B N t} →
