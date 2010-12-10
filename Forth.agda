@@ -2,7 +2,7 @@ module Forth where
 open import Data.Nat
 
 data Term : Set where
-  start : Term
+  end : Term
   true false : Term → Term
   AND NOT : Term → Term
   nat : ℕ → Term → Term
@@ -10,7 +10,7 @@ data Term : Set where
   LT GT : Term → Term
 
 data _∣_⊢_ : (Bool Nat : ℕ) → Term → Set where
-  start : 0 ∣ 0 ⊢ start
+  end : 0 ∣ 0 ⊢ end
 
   true : ∀ {B N t} →
     B ∣ N ⊢ t → suc B ∣ N ⊢ true t
