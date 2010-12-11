@@ -1,4 +1,4 @@
-module Forth where
+module Stash where
 open import Data.Nat
 open import Data.Bool
 open import Data.List
