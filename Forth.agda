@@ -83,3 +83,18 @@ pop-push = push (push (push []))
 
 pop-exec : WT pop-Term
 pop-exec = Exec-POP (nat pop-push)
+
+erase : ∀ {b E B N t} → b ∣ E ∣ B ∣ N ⊢ t → Term
+erase [] = []
+erase (push d) = erase d
+erase (Exec-POP {w = w} d) = Exec-POP ∷ w ∷ erase d
+erase (true d) = true ∷ erase d
+erase (false d) = false ∷ erase d
+erase (Bool-POP d) = Bool-POP ∷ erase d
+erase (AND d) = AND ∷ erase d
+erase (NOT d) = NOT ∷ erase d
+erase (nat {n = n} d) = nat n ∷ erase d
+erase (Nat-POP d) = Nat-POP ∷ erase d
+erase (ADD d) = ADD ∷ erase d
+erase (LT d) = LT ∷ erase d
+erase (GT d) = GT ∷ erase d
