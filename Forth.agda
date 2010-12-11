@@ -59,11 +59,14 @@ data _∣_∣_∣_⊢_ : (Executed : Bool) (Exec : Term) (Bool Nat : ℕ) (t : T
     b ∣ GT ∷ E ∣ B ∣ suc (suc N) ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
+WT : {B N : ℕ} → Term → Set
+WT {B} {N} t = true ∣ [] ∣ B ∣ N ⊢ t
+
 eg-Term : Term
 eg-Term = nat 3 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
 
 eg-push : false ∣ eg-Term ∣ 0 ∣ 0 ⊢ eg-Term
 eg-push = push (push (push (push (push []))))
 
-eg-exec : true ∣ [] ∣ 1 ∣ 0 ⊢ eg-Term
+eg-exec : WT eg-Term
 eg-exec = AND (true (GT (nat (nat eg-push))))
