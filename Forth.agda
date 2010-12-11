@@ -6,18 +6,22 @@ open import Data.List
 infixr 2 _∣_∣_∣_⊢_
 
 data Word : Set where
-  true false Bool-POP AND NOT Nat-POP ADD LT GT : Word
+  Exec-POP true false Bool-POP AND NOT Nat-POP ADD LT GT : Word
   nat : ℕ → Word
 
 Term : Set
 Term = List Word
 
-data _∣_∣_∣_⊢_ : (Executed : Bool) (Exec : Term) (Bool Nat : ℕ) (t : Term) → Set where
+data _∣_∣_∣_⊢_ : (Executing : Bool) (Exec : Term) (Bool Nat : ℕ) (t : Term) → Set where
   [] : false ∣ [] ∣ 0 ∣ 0 ⊢ []
 
   push : ∀ {B N t w} →
     false ∣ t ∣ B ∣ N ⊢ t →
     false ∣ w ∷ t ∣ B ∣ N ⊢ w ∷ t
+
+  Exec-POP : ∀ {b w E B N t} →
+    b ∣ Exec-POP ∷ w ∷ E ∣ B ∣ N ⊢ t →
+    true ∣ E ∣ B ∣ N ⊢ t
 
   true : ∀ {b E B N t} →
     b ∣ true ∷ E ∣ B ∣ N ⊢ t →
