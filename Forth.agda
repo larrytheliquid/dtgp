@@ -12,81 +12,81 @@ data Term : Set where
 data _∣_∣_∣_⊢_ : (Executed : Bool) (Exec : Term) (Bool Nat : ℕ) (t : Term) → Set where
   empty : false ∣ empty ∣ 0 ∣ 0 ⊢ empty
 
-  I-true : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ true E ∣ B ∣ N ⊢ true t
+  I-true : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ true t ∣ B ∣ N ⊢ true t
 
   E-true : ∀ {b E B N t} →
     b ∣ true E ∣ B ∣ N ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
-  I-false : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ false E ∣ B ∣ N ⊢ false t
+  I-false : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ false t ∣ B ∣ N ⊢ false t
 
   E-false : ∀ {b E B N t} →
     b ∣ false E ∣ B ∣ N ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
-  I-Bool-POP : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ Bool-POP E ∣ B ∣ N ⊢ Bool-POP t
+  I-Bool-POP : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ Bool-POP t ∣ B ∣ N ⊢ Bool-POP t
 
   E-Bool-POP : ∀ {b E B N t} →
     b ∣ Bool-POP E ∣ suc B ∣ N ⊢ t →
     true ∣ E ∣ B ∣ N ⊢ t
 
-  I-AND : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ AND E ∣ B ∣ N ⊢ AND t
+  I-AND : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ AND t ∣ B ∣ N ⊢ AND t
 
   E-AND : ∀ {b E B N t} →
     b ∣ AND E ∣ suc (suc B) ∣ N ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
-  I-NOT : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ NOT E ∣ B ∣ N ⊢ NOT t
+  I-NOT : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ NOT t ∣ B ∣ N ⊢ NOT t
 
   E-NOT : ∀ {b E B N t} →
     b ∣ NOT E ∣ suc B ∣ N ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
-  I-nat : ∀ {E B N n t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ (nat n) E ∣ B ∣ N ⊢ (nat n) t
+  I-nat : ∀ {B N n t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ (nat n) t ∣ B ∣ N ⊢ (nat n) t
 
   E-nat : ∀ {b E B N n t} →
     b ∣ (nat n) E ∣ B ∣ N ⊢ t →
     true ∣ E ∣ B ∣ suc N ⊢ t
 
-  I-Nat-POP : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ Nat-POP E ∣ B ∣ N ⊢ Nat-POP t
+  I-Nat-POP : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ Nat-POP t ∣ B ∣ N ⊢ Nat-POP t
 
   E-Nat-POP : ∀ {b E B N t} →
     b ∣ Nat-POP E ∣ B ∣ suc N ⊢ t →
     true ∣ E ∣ B ∣ N ⊢ t
 
-  I-ADD : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ ADD E ∣ B ∣ N ⊢ ADD t
+  I-ADD : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ ADD t ∣ B ∣ N ⊢ ADD t
 
   E-ADD : ∀ {b E B N t} →
     b ∣ ADD E ∣ B ∣ suc (suc N) ⊢ t →
     true ∣ E ∣ B ∣ suc N ⊢ t
 
-  I-LT : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ LT E ∣ B ∣ N ⊢ LT t
+  I-LT : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ LT t ∣ B ∣ N ⊢ LT t
 
   E-LT : ∀ {b E B N t} →
     b ∣ LT E ∣ B ∣ suc (suc N) ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
-  I-GT : ∀ {E B N t} →
-    false ∣ E ∣ B ∣ N ⊢ t →
-    false ∣ GT E ∣ B ∣ N ⊢ GT t
+  I-GT : ∀ {B N t} →
+    false ∣ t ∣ B ∣ N ⊢ t →
+    false ∣ GT t ∣ B ∣ N ⊢ GT t
 
   E-GT : ∀ {b E B N t} →
     b ∣ GT E ∣ B ∣ suc (suc N) ⊢ t →
