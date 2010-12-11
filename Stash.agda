@@ -66,23 +66,24 @@ data _∣_∣_∣_⊢_ : (Executing : Bool) (Exec : Term) (Bool Nat : ℕ) (t : 
 WT : {B N : ℕ} → Term → Set
 WT {B} {N} t = true ∣ [] ∣ B ∣ N ⊢ t
 
-eg-Term : Term
-eg-Term = nat 3 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
+private
+  eg-Term : Term
+  eg-Term = nat 3 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
 
-eg-push : false ∣ eg-Term ∣ 0 ∣ 0 ⊢ eg-Term
-eg-push = push (push (push (push (push []))))
+  eg-push : false ∣ eg-Term ∣ 0 ∣ 0 ⊢ eg-Term
+  eg-push = push (push (push (push (push []))))
 
-eg-exec : WT eg-Term
-eg-exec = AND (true (GT (nat (nat eg-push))))
+  eg-exec : WT eg-Term
+  eg-exec = AND (true (GT (nat (nat eg-push))))
 
-pop-Term : Term
-pop-Term = nat 3 ∷ Exec-POP ∷ GT ∷ []
+  pop-Term : Term
+  pop-Term = nat 3 ∷ Exec-POP ∷ GT ∷ []
 
-pop-push : false ∣ pop-Term ∣ 0 ∣ 0 ⊢ pop-Term
-pop-push = push (push (push []))
+  pop-push : false ∣ pop-Term ∣ 0 ∣ 0 ⊢ pop-Term
+  pop-push = push (push (push []))
 
-pop-exec : WT pop-Term
-pop-exec = Exec-POP (nat pop-push)
+  pop-exec : WT pop-Term
+  pop-exec = Exec-POP (nat pop-push)
 
 erase : ∀ {b E B N t} → b ∣ E ∣ B ∣ N ⊢ t → Term
 erase [] = []
