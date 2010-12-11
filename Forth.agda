@@ -74,3 +74,12 @@ eg-push = push (push (push (push (push []))))
 
 eg-exec : WT eg-Term
 eg-exec = AND (true (GT (nat (nat eg-push))))
+
+pop-Term : Term
+pop-Term = nat 3 ∷ Exec-POP ∷ GT ∷ []
+
+pop-push : false ∣ pop-Term ∣ 0 ∣ 0 ⊢ pop-Term
+pop-push = push (push (push []))
+
+pop-exec : WT pop-Term
+pop-exec = Exec-POP (nat pop-push)
