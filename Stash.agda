@@ -63,6 +63,9 @@ data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
 Well : {B N : ℕ} → Term → Set
 Well {B} {N} t = t ∶ B ∣ N
 
+Ill : {B N : ℕ} → Term → Set
+Ill {B} {N} t = ¬ (t ∶ B ∣ N)
+
 private
   eg-term : Term
   eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 3 ∷ []
@@ -79,6 +82,11 @@ private
   break-term : Term
   break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 3 ∷ []
 
-  break-type : ∀ N → ¬ (Well {N = N} break-term)
+  break-type : ∀ N → Ill {N = N} break-term
   break-type _ (GT (Exec-POP (nat ())))
   break-type _ (GT (nat ()))
+
+data Typed {B N} (t : Term) : Set where
+  well : Well {B} {N} t → Typed t
+  ill  : Ill  {B} {N} t → Typed t
+
