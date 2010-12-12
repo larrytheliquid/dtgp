@@ -7,7 +7,9 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-POP true false Bool-POP AND NOT Nat-POP ADD LT GT : Word
+  Exec-SWAP Exec-POP
+    true false Bool-POP AND NOT
+    Nat-POP ADD LT GT : Word
   nat : ℕ → Word
 
 Term : Set
@@ -15,6 +17,11 @@ Term = List Word
 
 data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
+
+  Exec-SWAP : ∀ {t B N w₁ w₂ B₂ N₂} →
+                          t ∶ B ∣ N →
+                w₂ ∷ w₁ ∷ t ∶ B₂ ∣ N₂ →
+    w₁ ∷ w₂ ∷ Exec-SWAP ∷ t ∶ B₂ ∣ N₂
 
   Exec-POP : ∀ {t B N w} →
                    t ∶ B ∣ N →
@@ -68,23 +75,50 @@ Ill {B} {N} t = ¬ (t ∶ B ∣ N)
 
 private
   eg-term : Term
-  eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 3 ∷ []
+  eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
 
   eg-type : Well eg-term
   eg-type = AND (true (GT (nat (nat empty))))
 
   fix-term : Term
-  fix-term = GT ∷ Exec-POP ∷ nat 3 ∷ []
+  fix-term = GT ∷ Exec-POP ∷ nat 7 ∷ []
 
   fix-type : Well fix-term
   fix-type = Exec-POP (nat empty)
 
   break-term : Term
-  break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 3 ∷ []
+  break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 7 ∷ []
 
   break-type : ∀ N → Ill {N = N} break-term
   break-type _ (GT (Exec-POP (nat ())))
   break-type _ (GT (nat ()))
+
+  swap-term : Term
+  swap-term = nat 2 ∷ nat 3 ∷ Exec-SWAP ∷ nat 1 ∷ []
+
+  swap-type : Well swap-term
+  swap-type = Exec-SWAP one (nat (nat one))
+    where
+    one : Well (nat 1 ∷ [])
+    one = nat empty
+
+  good-swap-term : Term
+  good-swap-term = GT ∷ NOT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
+
+  good-swap-type : Well good-swap-term
+  good-swap-type = Exec-SWAP two (NOT (GT two))
+    where
+    two : Well (nat 2 ∷ nat 1 ∷ [])
+    two = nat (nat empty)
+
+  bad-swap-term : Term
+  bad-swap-term = NOT ∷ GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
+
+  bad-swap-type : ∀ B N → Ill {B = B} {N = N} bad-swap-term
+  bad-swap-type .(suc (suc B)) N
+    (Exec-SWAP (nat (nat empty)) (GT (NOT {.(nat 2 ∷ nat 1 ∷ [])} {B} (nat (nat ())))))
+  bad-swap-type .(suc B) N
+    (NOT {.(GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ [])} {B} (GT ()))
 
 data Typed {B N} (t : Term) : Set where
   well : Well {B} {N} t → Typed t
