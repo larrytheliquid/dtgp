@@ -75,3 +75,18 @@ private
   pop-type : Well pop-term
   pop-type = Exec-POP (nat push)
 
+data Typed (t : Term) : Set where
+  well : ∀ {B N} →
+    Well {B} {N} t → Typed t
+  ill : ∀ {B N} (w : Word) (E : Term) →
+    t ∶ w ∷ E ∣ B ∣ N → Typed t
+
+yo : Term
+yo = nat 3 ∷ nat 4 ∷ ADD ∷  []
+
+hmm : Typed yo
+hmm = ill (nat 3) (nat 4 ∷ ADD ∷ []) push
+
+mmh : Typed yo
+mmh = ill (nat 4) (ADD ∷ []) (nat push)
+
