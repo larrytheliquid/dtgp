@@ -1,4 +1,5 @@
 module Stash where
+open import Relation.Nullary
 open import Data.Nat
 open import Data.Bool
 open import Data.List
@@ -69,8 +70,15 @@ private
   eg-type : Well eg-term
   eg-type = AND (true (GT (nat (nat empty))))
 
-  pop-term : Term
-  pop-term = GT ∷ Exec-POP ∷ nat 3 ∷ []
+  fix-term : Term
+  fix-term = GT ∷ Exec-POP ∷ nat 3 ∷ []
 
-  pop-type : Well pop-term
-  pop-type = Exec-POP (nat empty)
+  fix-type : Well fix-term
+  fix-type = Exec-POP (nat empty)
+
+  break-term : Term
+  break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 3 ∷ []
+
+  break-type : ∀ N → ¬ (Well {N = N} break-term)
+  break-type _ (GT (Exec-POP (nat ())))
+  break-type _ (GT (nat ()))
