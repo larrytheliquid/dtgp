@@ -63,8 +63,8 @@ data _∣_∣_∣_⊢_ : (Executing : Bool) (Exec : Term) (Bool Nat : ℕ) (t : 
     b ∣ GT ∷ E ∣ B ∣ suc (suc N) ⊢ t →
     true ∣ E ∣ suc B ∣ N ⊢ t
 
-WT : {B N : ℕ} → Term → Set
-WT {B} {N} t = true ∣ [] ∣ B ∣ N ⊢ t
+Well : {B N : ℕ} → Term → Set
+Well {B} {N} t = true ∣ [] ∣ B ∣ N ⊢ t
 
 private
   eg-Term : Term
@@ -73,7 +73,7 @@ private
   eg-push : false ∣ eg-Term ∣ 0 ∣ 0 ⊢ eg-Term
   eg-push = push (push (push (push (push []))))
 
-  eg-exec : WT eg-Term
+  eg-exec : Well eg-Term
   eg-exec = AND (true (GT (nat (nat eg-push))))
 
   pop-Term : Term
@@ -82,7 +82,7 @@ private
   pop-push : false ∣ pop-Term ∣ 0 ∣ 0 ⊢ pop-Term
   pop-push = push (push (push []))
 
-  pop-exec : WT pop-Term
+  pop-exec : Well pop-Term
   pop-exec = Exec-POP (nat pop-push)
 
 erase : ∀ {b E B N t} → b ∣ E ∣ B ∣ N ⊢ t → Term
@@ -99,3 +99,13 @@ erase (Nat-POP d) = Nat-POP ∷ erase d
 erase (ADD d) = ADD ∷ erase d
 erase (LT d) = LT ∷ erase d
 erase (GT d) = GT ∷ erase d
+
+data Typed : Term → Set where
+  well : ∀ {t B N} →
+    true ∣ [] ∣ B ∣ N ⊢ t → Typed t
+  ill-1 : ∀ {w t B N} →
+    true ∣ w ∷ t ∣ B ∣ N ⊢ t → Typed t
+  ill-2 : ∀ {w t B N} →
+    false ∣ w ∷ t ∣ B ∣ N ⊢ t → Typed t
+  ill-3 : ∀ {t B N} →
+    false ∣ [] ∣ B ∣ N ⊢ t → Typed t
