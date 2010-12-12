@@ -7,7 +7,7 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-ROT Exec-SWAP Exec-POP
+  Exec-ROT Exec-SWAP Exec-K Exec-POP
     true false Bool-POP AND NOT
     Nat-POP ADD LT GT : Word
   nat : ℕ → Word
@@ -19,14 +19,19 @@ data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
 
   Exec-ROT : ∀ {t B N w₁ w₂ w₃ B₂ N₂} →
-                          t ∶ B ∣ N →
-                w₂ ∷ w₁ ∷ w₃ ∷ t ∶ B₂ ∣ N₂ →
+                            t ∶ B ∣ N →
+               w₂ ∷ w₁ ∷ w₃ ∷ t ∶ B₂ ∣ N₂ →
     w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t ∶ B₂ ∣ N₂
 
   Exec-SWAP : ∀ {t B N w₁ w₂ B₂ N₂} →
-                          t ∶ B ∣ N →
+                         t ∶ B ∣ N →
                 w₁ ∷ w₂ ∷ t ∶ B₂ ∣ N₂ →
     w₂ ∷ w₁ ∷ Exec-SWAP ∷ t ∶ B₂ ∣ N₂
+
+  Exec-K : ∀ {t B N w₁ w₂ B₂ N₂} →
+                      t ∶ B ∣ N →
+                 w₁ ∷ t ∶ B₂ ∣ N₂ →
+    w₂ ∷ w₁ ∷ Exec-K ∷ t ∶ B₂ ∣ N₂
 
   Exec-POP : ∀ {t B N w} →
                    t ∶ B ∣ N →
@@ -85,11 +90,15 @@ private
   eg-type : Well eg-term
   eg-type = AND (true (GT (nat (nat empty))))
 
+  ----------------------------------------------------------------
+
   fix-term : Term
   fix-term = GT ∷ Exec-POP ∷ nat 7 ∷ []
 
   fix-type : Well fix-term
   fix-type = Exec-POP (nat empty)
+
+  ----------------------------------------------------------------
 
   break-term : Term
   break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 7 ∷ []
@@ -97,6 +106,8 @@ private
   break-type : ∀ N → Ill {N = N} break-term
   break-type _ (GT (Exec-POP (nat ())))
   break-type _ (GT (nat ()))
+
+  ----------------------------------------------------------------
 
   swap-term : Term
   swap-term = nat 2 ∷ nat 3 ∷ Exec-SWAP ∷ nat 1 ∷ []
@@ -107,6 +118,8 @@ private
     one : Well (nat 1 ∷ [])
     one = nat empty
 
+  ----------------------------------------------------------------
+
   good-swap-term : Term
   good-swap-term = GT ∷ NOT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
 
@@ -115,6 +128,8 @@ private
     where
     two : Well (nat 2 ∷ nat 1 ∷ [])
     two = nat (nat empty)
+
+  ----------------------------------------------------------------
 
   bad-swap-term : Term
   bad-swap-term = NOT ∷ GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
@@ -125,6 +140,8 @@ private
   bad-swap-type .(suc B) N
     (NOT {.(GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ [])} {B} (GT ()))
 
+  ----------------------------------------------------------------
+
   good-rot-term : Term
   good-rot-term = true ∷ AND ∷ false ∷ Exec-ROT ∷ []
 
@@ -134,12 +151,31 @@ private
     p : Well (AND ∷ false ∷ true ∷ [])
     p = AND (false (true empty))
 
+  ----------------------------------------------------------------
+
   bad-rot-term : Term
   bad-rot-term = AND ∷ false ∷ true ∷ Exec-ROT ∷ []
 
   bad-rot-type : ∀ B N → Ill {B = B} {N = N} bad-rot-term
   bad-rot-type .(suc (suc (suc B))) _ (Exec-ROT empty (false (true (AND {.[]} {B} ()))))
   bad-rot-type .(suc B) _ (AND {.(false ∷ true ∷ Exec-ROT ∷ [])} {B} (false (true ())))
+
+  ----------------------------------------------------------------
+
+  good-k-term : Term
+  good-k-term = NOT ∷ nat 3 ∷ Exec-K ∷ []
+
+  good-k-type : Well good-k-term
+  good-k-type = Exec-K empty (nat empty)
+
+  ----------------------------------------------------------------
+
+  bad-k-term : Term
+  bad-k-term = nat 3 ∷ NOT ∷ Exec-K ∷ []
+
+  bad-k-type : ∀ B N → Ill {B = B} {N = N} bad-k-term
+  bad-k-type .(suc B) N (Exec-K empty (NOT {.[]} {B} ()))
+  bad-k-type .(suc B) .(suc N) (nat {.(NOT ∷ Exec-K ∷ [])} {.(suc B)} {N} (NOT {.(Exec-K ∷ [])} {B} ()))
 
 data Typed {B N} (t : Term) : Set where
   well : Well {B} {N} t → Typed t
