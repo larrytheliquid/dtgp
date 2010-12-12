@@ -3,7 +3,7 @@ open import Data.Nat
 open import Data.Bool
 open import Data.List
 
-infixr 2 _∶_∣_∣_
+infixr 2 _∶_∣_
 
 data Word : Set where
   Exec-POP true false Bool-POP AND NOT Nat-POP ADD LT GT : Word
@@ -12,81 +12,65 @@ data Word : Set where
 Term : Set
 Term = List Word
 
-data _∶_∣_∣_ (t : Term) : (Exec : Term) (Bool Nat : ℕ) → Set where
-  push : t ∶ t ∣ 0 ∣ 0
+data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
+  empty : [] ∶ 0 ∣ 0
 
-  Exec-POP : ∀ {w E B N} →
-    t ∶ Exec-POP ∷ w ∷ E ∣ B ∣ N →
-    t ∶ E ∣ B ∣ N
+  Exec-POP : ∀ {t B N w} →
+                   t ∶ B ∣ N →
+    w ∷ Exec-POP ∷ t ∶ B ∣ N
 
-  true : ∀ {E B N} →
-    t ∶ true ∷ E ∣ B ∣ N →
-    t ∶ E ∣ suc B ∣ N
+  true : ∀ {t B N} →
+           t ∶     B ∣ N →
+    true ∷ t ∶ suc B ∣ N
 
-  false : ∀ {E B N} →
-    t ∶ false ∷ E ∣ B ∣ N →
-    t ∶ E ∣ suc B ∣ N
+  false : ∀ {t B N} →
+            t ∶     B ∣ N →
+    false ∷ t ∶ suc B ∣ N
 
-  Bool-POP : ∀ {E B N} →
-    t ∶ Bool-POP ∷ E ∣ suc B ∣ N →
-    t ∶ E ∣ B ∣ N
+  Bool-POP : ∀ {t B N} →
+               t ∶ suc B ∣ N →
+    Bool-POP ∷ t ∶     B ∣ N
 
-  AND : ∀ {E B N} →
-    t ∶ AND ∷ E ∣ suc (suc B) ∣ N →
-    t ∶ E ∣ suc B ∣ N
+  AND : ∀ {t B N} →
+          t ∶ suc (suc B) ∣ N →
+    AND ∷ t ∶      suc B  ∣ N
 
-  NOT : ∀ {E B N} →
-    t ∶ NOT ∷ E ∣ suc B ∣ N →
-    t ∶ E ∣ suc B ∣ N
+  NOT : ∀ {t B N} →
+          t ∶ suc B ∣ N →
+    NOT ∷ t ∶ suc B ∣ N
 
-  nat : ∀ {E B N n} →
-    t ∶ (nat n) ∷ E ∣ B ∣ N →
-    t ∶ E ∣ B ∣ suc N
+  nat : ∀ {t B N n} →
+            t ∶ B ∣     N →
+    nat n ∷ t ∶ B ∣ suc N
 
-  Nat-POP : ∀ {E B N} →
-    t ∶ Nat-POP ∷ E ∣ B ∣ suc N →
-    t ∶ E ∣ B ∣ N
+  Nat-POP : ∀ {t B N} →
+              t ∶ B ∣ suc N →
+    Nat-POP ∷ t ∶ B ∣     N
 
-  ADD : ∀ {E B N} →
-    t ∶ ADD ∷ E ∣ B ∣ suc (suc N) →
-    t ∶ E ∣ B ∣ suc N
+  ADD : ∀ {t B N} →
+          t ∶ B ∣ suc (suc N) →
+    ADD ∷ t ∶ B ∣      suc N
 
-  LT : ∀ {E B N} →
-    t ∶ LT ∷ E ∣ B ∣ suc (suc N) →
-    t ∶ E ∣ suc B ∣ N
+  LT : ∀ {t B N} →
+         t ∶     B ∣ suc (suc N) →
+    LT ∷ t ∶ suc B ∣          N
 
-  GT : ∀ {E B N} →
-    t ∶ GT ∷ E ∣ B ∣ suc (suc N) →
-    t ∶ E ∣ suc B ∣ N
+  GT : ∀ {t B N} →
+         t ∶     B ∣ suc (suc N) →
+    GT ∷ t ∶ suc B ∣          N
 
 Well : {B N : ℕ} → Term → Set
-Well {B} {N} t = t ∶ [] ∣ B ∣ N
+Well {B} {N} t = t ∶ B ∣ N
 
 private
   eg-term : Term
-  eg-term = nat 3 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
+  eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 3 ∷ []
 
   eg-type : Well eg-term
-  eg-type = AND (true (GT (nat (nat push))))
+  eg-type = AND (true (GT (nat (nat empty))))
 
   pop-term : Term
-  pop-term = nat 3 ∷ Exec-POP ∷ GT ∷ []
+  pop-term = GT ∷ Exec-POP ∷ nat 3 ∷ []
 
   pop-type : Well pop-term
-  pop-type = Exec-POP (nat push)
-
-data Typed (t : Term) : Set where
-  well : ∀ {B N} →
-    Well {B} {N} t → Typed t
-  ill : ∀ {B N} (w : Word) (E : Term) →
-    t ∶ w ∷ E ∣ B ∣ N → Typed t
-
-yo : Term
-yo = nat 3 ∷ nat 4 ∷ ADD ∷  []
-
-hmm : Typed yo
-hmm = ill (nat 3) (nat 4 ∷ ADD ∷ []) push
-
-mmh : Typed yo
-mmh = ill (nat 4) (ADD ∷ []) (nat push)
-
+  pop-type = Exec-POP (nat empty)
