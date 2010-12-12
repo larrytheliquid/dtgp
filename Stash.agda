@@ -20,13 +20,13 @@ data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
 
   Exec-ROT : ∀ {t B N w₁ w₂ w₃ B₂ N₂} →
                           t ∶ B ∣ N →
-                w₃ ∷ w₂ ∷ w₁ ∷ t ∶ B₂ ∣ N₂ →
-    w₁ ∷ w₃ ∷ w₂ ∷ Exec-ROT ∷ t ∶ B₂ ∣ N₂
+                w₂ ∷ w₁ ∷ w₃ ∷ t ∶ B₂ ∣ N₂ →
+    w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t ∶ B₂ ∣ N₂
 
   Exec-SWAP : ∀ {t B N w₁ w₂ B₂ N₂} →
                           t ∶ B ∣ N →
-                w₂ ∷ w₁ ∷ t ∶ B₂ ∣ N₂ →
-    w₁ ∷ w₂ ∷ Exec-SWAP ∷ t ∶ B₂ ∣ N₂
+                w₁ ∷ w₂ ∷ t ∶ B₂ ∣ N₂ →
+    w₂ ∷ w₁ ∷ Exec-SWAP ∷ t ∶ B₂ ∣ N₂
 
   Exec-POP : ∀ {t B N w} →
                    t ∶ B ∣ N →
