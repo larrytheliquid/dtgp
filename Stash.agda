@@ -7,7 +7,7 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-DUP Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-POP
+  Exec-DUP Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-S Exec-POP
     true false Bool-POP AND NOT
     Nat-POP ADD LT GT : Word
   nat : ℕ → Word
@@ -41,6 +41,11 @@ data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
                       t ∶ B ∣ N →
                  w₁ ∷ t ∶ B₂ ∣ N₂ →
     w₂ ∷ w₁ ∷ Exec-K ∷ t ∶ B₂ ∣ N₂
+
+  Exec-S : ∀ {t B N w₁ w₂ w₃ B₂ N₂} →
+                           t ∶ B ∣ N →
+        w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B₂ ∣ N₂ →
+    w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t ∶ B₂ ∣ N₂
 
   Exec-POP : ∀ {t B N w} →
                    t ∶ B ∣ N →
@@ -178,6 +183,26 @@ private
 
   good-k-type : Well good-k-term
   good-k-type = Exec-K empty (nat empty)
+
+  ----------------------------------------------------------------
+
+  good-s-term : Term
+  good-s-term = NOT ∷ AND ∷ false ∷ Exec-S ∷ true ∷ []
+
+  good-s-type : Well good-s-term
+  good-s-type = Exec-S p (AND (NOT (NOT (false p))))
+    where
+    p : Well (true ∷ [])
+    p = true empty
+
+  ----------------------------------------------------------------
+
+  bad-s-term : Term
+  bad-s-term = AND ∷ NOT ∷ false ∷ Exec-S ∷ true ∷ []
+
+  bad-s-type : ∀ B N → Ill {B = B} {N = N} bad-s-term
+  bad-s-type .(suc B) N (Exec-S (true empty) (NOT {.(AND ∷ AND ∷ false ∷ true ∷ [])} {B} (AND (AND (false (true ()))))))
+  bad-s-type .(suc B) N (AND {.(NOT ∷ false ∷ Exec-S ∷ true ∷ [])} {B} (NOT (false ())))
 
   ----------------------------------------------------------------
 
