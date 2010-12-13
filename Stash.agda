@@ -7,7 +7,7 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-IF Exec-DUP Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-S Exec-POP
+  Exec-DUP Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-S Exec-POP
     true false Bool-POP AND NOT
     Nat-POP ADD LT GT : Word
   nat : ℕ → Word
@@ -17,12 +17,6 @@ Term = List Word
 
 data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
-
-  Exec-IF : ∀ {t B N w₁ w₂ B₂ N₂} →
-                       t ∶     B ∣ N →
-                  w₁ ∷ t ∶ suc B₂ ∣ N₂ →
-                  w₂ ∷ t ∶ suc B₂ ∣ N₂ →
-    w₂ ∷ w₁ ∷ Exec-IF ∷ t ∶     B₂ ∣ N₂
 
   Exec-DUP : ∀ {t B N w B₂ N₂} →
                    t ∶ B ∣ N →
@@ -257,27 +251,8 @@ private
 
   ----------------------------------------------------------------
 
-  good-if-term : Term
-  good-if-term = nat 2 ∷ nat 1 ∷ Exec-IF ∷ true ∷ []
-
-  good-if-type : Well good-if-term
-  good-if-type = Exec-IF p (nat p) (nat p)
-    where
-    p : Well (true ∷ [])
-    p = true empty
-
-  ----------------------------------------------------------------
-
-  bad-if-term : Term
-  bad-if-term = nat 2 ∷ nat 1 ∷ Exec-IF ∷ []
-
-  bad-if-type : ∀ B N → Ill {B = B} {N = N} bad-if-term
-  bad-if-type B .(suc N) (Exec-IF empty (nat {.[]} {.(suc B)} {N} ()) y0)
-  bad-if-type B .(suc (suc N)) (nat (nat {.(Exec-IF ∷ [])} {.B} {N} ()))
-
-  ----------------------------------------------------------------
-
 data Typed {B N} (t : Term) : Set where
   well : Well {B} {N} t → Typed t
   ill  : Ill  {B} {N} t → Typed t
+
 
