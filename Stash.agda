@@ -7,7 +7,7 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-POP
+  Exec-DUP Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-POP
     true false Bool-POP AND NOT
     Nat-POP ADD LT GT : Word
   nat : ℕ → Word
@@ -17,6 +17,11 @@ Term = List Word
 
 data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
+
+  Exec-DUP : ∀ {t B N w B₂ N₂} →
+                   t ∶ B ∣ N →
+           w ∷ w ∷ t ∶ B₂ ∣ N₂ →
+    w ∷ Exec-DUP ∷ t ∶ B₂ ∣ N₂
 
   Exec-EQ : ∀ {t B N w₁ w₂} →
                        t ∶     B ∣ N →
@@ -198,6 +203,26 @@ private
 
   bad-eq-type : ∀ B N → Ill {B = B} {N = N} bad-eq-term
   bad-eq-type .(suc B) N (AND {.(Exec-EQ ∷ [])} {B} ())
+
+  ----------------------------------------------------------------
+
+  good-dup-term : Term
+  good-dup-term = NOT ∷ Exec-DUP ∷ true ∷ []
+
+  good-dup-type : Well good-dup-term
+  good-dup-type = Exec-DUP p (NOT (NOT p))
+    where
+    p : Well (true ∷ [])
+    p = true empty
+
+  ----------------------------------------------------------------
+
+  bad-dup-term : Term
+  bad-dup-term = NOT ∷ Exec-DUP ∷ []
+
+  bad-dup-type : ∀ B N → Ill {B = B} {N = N} bad-dup-term
+  bad-dup-type .(suc B) N (Exec-DUP empty (NOT {.(NOT ∷ [])} {B} (NOT ())))
+  bad-dup-type .(suc B) N (NOT {.(Exec-DUP ∷ [])} {B} ())
 
   ----------------------------------------------------------------
 
