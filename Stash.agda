@@ -1,5 +1,6 @@
 module Stash where
 open import Relation.Nullary
+open import Data.Empty
 open import Data.Nat
 open import Data.Bool
 open import Data.List
@@ -95,7 +96,7 @@ Well : {B N : ℕ} → Term → Set
 Well {B} {N} t = t ∶ B ∣ N
 
 Ill : {B N : ℕ} → Term → Set
-Ill {B} {N} t = ¬ (t ∶ B ∣ N)
+Ill {B} {N} t = ¬ Well {B} {N} t
 
 private
   ----------------------------------------------------------------
@@ -251,8 +252,6 @@ private
 
   ----------------------------------------------------------------
 
-data Typed {B N} (t : Term) : Set where
-  well : Well {B} {N} t → Typed t
-  ill  : Ill  {B} {N} t → Typed t
-
-
+data Typed (t : Term) : Set where
+  well : ∀ {B N} → Well {B} {N} t → Typed t
+  ill  : Typed t
