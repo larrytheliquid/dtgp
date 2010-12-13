@@ -7,7 +7,7 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-ROT Exec-SWAP Exec-K Exec-POP
+  Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-POP
     true false Bool-POP AND NOT
     Nat-POP ADD LT GT : Word
   nat : ℕ → Word
@@ -17,6 +17,10 @@ Term = List Word
 
 data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
+
+  Exec-EQ : ∀ {t B N w₁ w₂} →
+                       t ∶     B ∣ N →
+    w₂ ∷ w₁ ∷ Exec-EQ ∷ t ∶ suc B ∣ N
 
   Exec-ROT : ∀ {t B N w₁ w₂ w₃ B₂ N₂} →
                             t ∶ B ∣ N →
@@ -84,6 +88,8 @@ Ill : {B N : ℕ} → Term → Set
 Ill {B} {N} t = ¬ (t ∶ B ∣ N)
 
 private
+  ----------------------------------------------------------------
+
   eg-term : Term
   eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
 
@@ -176,6 +182,24 @@ private
   bad-k-type : ∀ B N → Ill {B = B} {N = N} bad-k-term
   bad-k-type .(suc B) N (Exec-K empty (NOT {.[]} {B} ()))
   bad-k-type .(suc B) .(suc N) (nat {.(NOT ∷ Exec-K ∷ [])} {.(suc B)} {N} (NOT {.(Exec-K ∷ [])} {B} ()))
+
+  ----------------------------------------------------------------
+
+  good-eq-term : Term
+  good-eq-term = AND ∷ AND ∷ Exec-EQ ∷ []
+
+  good-eq-type : Well good-eq-term
+  good-eq-type = Exec-EQ empty
+
+  ----------------------------------------------------------------
+
+  bad-eq-term : Term
+  bad-eq-term = AND ∷ Exec-EQ ∷ []
+
+  bad-eq-type : ∀ B N → Ill {B = B} {N = N} bad-eq-term
+  bad-eq-type .(suc B) N (AND {.(Exec-EQ ∷ [])} {B} ())
+
+  ----------------------------------------------------------------
 
 data Typed {B N} (t : Term) : Set where
   well : Well {B} {N} t → Typed t
