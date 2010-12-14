@@ -49,7 +49,7 @@ check-4 : ∀ {t} → Typed t → (w₁ w₂ w₃ w₄ : Word) → Typed (w₄ �
 check-4 (well p₁) Exec-S w₁ w₂ w₃ with check-4' (well p₁) w₁ w₃ w₃ w₂
 ... | well p₂ = well (Exec-S p₁ p₂)
 ... | ill = ill
-check-4 p w₁ w₂ w₃ w₄ = check-1 (check-3 p w₁ w₂ w₃) w₄
+check-4 p w₁ w₂ w₃ w₄ = check-4' p w₁ w₂ w₃ w₄
 
 check : (t : Term) → Typed t
 check [] = well empty

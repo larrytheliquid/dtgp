@@ -1,10 +1,12 @@
 module Examples where
 open import Relation.Nullary
+open import Relation.Binary.PropositionalEquality
 open import Data.Empty
 open import Data.Nat
 open import Data.Bool
 open import Data.List
 open import Stash
+open import Check
 
 private
   ----------------------------------------------------------------
@@ -15,6 +17,9 @@ private
   eg-type : Well eg-term
   eg-type = AND (true (GT (nat (nat empty))))
 
+  eg-check : check eg-term ≡ well eg-type
+  eg-check = refl
+
   ----------------------------------------------------------------
 
   fix-term : Term
@@ -22,6 +27,9 @@ private
 
   fix-type : Well fix-term
   fix-type = Exec-POP (nat empty)
+
+  fix-check : check fix-term ≡ well fix-type
+  fix-check = refl
 
   ----------------------------------------------------------------
 
@@ -43,6 +51,9 @@ private
     one : Well (nat 1 ∷ [])
     one = nat empty
 
+  swap-check : check swap-term ≡ well swap-type
+  swap-check = refl
+
   ----------------------------------------------------------------
 
   good-swap-term : Term
@@ -53,6 +64,9 @@ private
     where
     two : Well (nat 2 ∷ nat 1 ∷ [])
     two = nat (nat empty)
+
+  good-swap-check : check good-swap-term ≡ well good-swap-type
+  good-swap-check = refl
 
   ----------------------------------------------------------------
 
@@ -76,6 +90,9 @@ private
     p : Well (AND ∷ false ∷ true ∷ [])
     p = AND (false (true empty))
 
+  good-rot-check : check good-rot-term ≡ well good-rot-type
+  good-rot-check = refl
+
   ----------------------------------------------------------------
 
   bad-rot-term : Term
@@ -93,6 +110,9 @@ private
   good-k-type : Well good-k-term
   good-k-type = Exec-K empty (nat empty)
 
+  good-k-check : check good-k-term ≡ well good-k-type
+  good-k-check = refl
+
   ----------------------------------------------------------------
 
   good-s-term : Term
@@ -103,6 +123,9 @@ private
     where
     p : Well (true ∷ [])
     p = true empty
+
+  good-s-check : check good-s-term ≡ well good-s-type
+  good-s-check = refl
 
   ----------------------------------------------------------------
 
@@ -130,6 +153,9 @@ private
   good-eq-type : Well good-eq-term
   good-eq-type = Exec-EQ empty
 
+  good-eq-check : check good-eq-term ≡ well good-eq-type
+  good-eq-check = refl
+
   ----------------------------------------------------------------
 
   bad-eq-term : Term
@@ -148,6 +174,9 @@ private
     where
     p : Well (true ∷ [])
     p = true empty
+
+  good-dup-check : check good-dup-term ≡ well good-dup-type
+  good-dup-check = refl
 
   ----------------------------------------------------------------
 
