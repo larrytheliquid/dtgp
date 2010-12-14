@@ -13,8 +13,8 @@ check (w ∷ Exec-DUP ∷ t) = check-2 (check t) Exec-DUP w
 check (_ ∷ _ ∷ Exec-EQ ∷ t) with check t
 ... | well p = well (Exec-EQ p)
 ... | ill = ill
-check (w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t) = ill -- TODO3
-check (w₂ ∷ w₁ ∷ Exec-SWAP ∷ t) = ill -- TODO2
+check (w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t) = ill -- TODO4
+check (w₂ ∷ w₁ ∷ Exec-SWAP ∷ t) = check-3 (check t) Exec-SWAP w₁ w₂
 check (w₂ ∷ w₁ ∷ Exec-K ∷ t) with check t
 ... | ill = ill
 ... | well p₁ with check-1 (well p₁) w₁
