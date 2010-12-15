@@ -5,8 +5,10 @@ open import Data.Empty
 open import Data.Nat
 open import Data.Bool
 open import Data.List
+open import Data.Vec
 open import Stash
 open import Check
+open import Run
 
 private
   ----------------------------------------------------------------
@@ -20,6 +22,9 @@ private
   eg-check : check eg-term ≡ well eg-type
   eg-check = refl
 
+  eg-run : run eg-type ≡ env (true ∷ []) []
+  eg-run = refl
+
   ----------------------------------------------------------------
 
   fix-term : Term
@@ -30,6 +35,9 @@ private
 
   fix-check : check fix-term ≡ well fix-type
   fix-check = refl
+
+  fix-run : run fix-type ≡ env [] (7 ∷ [])
+  fix-run = refl
 
   ----------------------------------------------------------------
 
@@ -54,6 +62,9 @@ private
   swap-check : check swap-term ≡ well swap-type
   swap-check = refl
 
+  swap-run : run swap-type ≡ env [] (3 ∷ 2 ∷ 1 ∷ [])
+  swap-run = refl
+
   ----------------------------------------------------------------
 
   good-swap-term : Term
@@ -67,6 +78,9 @@ private
 
   good-swap-check : check good-swap-term ≡ well good-swap-type
   good-swap-check = refl
+
+  good-swap-run : run good-swap-type ≡ env (true ∷ []) []
+  good-swap-run = refl
 
   ----------------------------------------------------------------
 
@@ -93,6 +107,9 @@ private
   good-rot-check : check good-rot-term ≡ well good-rot-type
   good-rot-check = refl
 
+  good-rot-run : run good-rot-type ≡ env (false ∷ []) []
+  good-rot-run = refl
+
   ----------------------------------------------------------------
 
   bad-rot-term : Term
@@ -113,6 +130,9 @@ private
   good-k-check : check good-k-term ≡ well good-k-type
   good-k-check = refl
 
+  good-k-run : run good-k-type ≡ env [] (3 ∷ [])
+  good-k-run = refl
+
   ----------------------------------------------------------------
 
   good-s-term : Term
@@ -126,6 +146,9 @@ private
 
   good-s-check : check good-s-term ≡ well good-s-type
   good-s-check = refl
+
+  good-s-run : run good-s-type ≡ env (false ∷ []) []
+  good-s-run = refl
 
   ----------------------------------------------------------------
 
@@ -156,6 +179,8 @@ private
   good-eq-check : check good-eq-term ≡ well good-eq-type
   good-eq-check = refl
 
+  -- TODO: good-eq-run
+
   ----------------------------------------------------------------
 
   bad-eq-term : Term
@@ -177,6 +202,9 @@ private
 
   good-dup-check : check good-dup-term ≡ well good-dup-type
   good-dup-check = refl
+
+  good-dup-run : run good-dup-type ≡ env (true ∷ []) []
+  good-dup-run = refl
 
   ----------------------------------------------------------------
 
