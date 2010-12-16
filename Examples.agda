@@ -41,12 +41,12 @@ private
 
   ----------------------------------------------------------------
 
-  break-term : Term
-  break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 7 ∷ []
+  -- break-term : Term
+  -- break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 7 ∷ []
 
-  break-type : ∀ N → Ill {N = N} break-term
-  break-type _ (GT (Exec-POP (nat ())))
-  break-type _ (GT (nat ()))
+  -- break-type : ∀ N → Ill {N = N} break-term
+  -- break-type _ (GT (Exec-POP (nat ())))
+  -- break-type _ (GT (nat ()))
 
   ----------------------------------------------------------------
 
@@ -78,14 +78,14 @@ private
 
   ----------------------------------------------------------------
 
-  bad-swap-term : Term
-  bad-swap-term = NOT ∷ GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
+  -- bad-swap-term : Term
+  -- bad-swap-term = NOT ∷ GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
 
-  bad-swap-type : ∀ B N → Ill {B = B} {N = N} bad-swap-term
-  bad-swap-type .(suc (suc B)) N
-    (Exec-SWAP (GT (NOT {.(nat 2 ∷ nat 1 ∷ [])} {B} (nat (nat ())))))
-  bad-swap-type .(suc B) N
-    (NOT {.(GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ [])} {B} (GT ()))
+  -- bad-swap-type : ∀ B N → Ill {B = B} {N = N} bad-swap-term
+  -- bad-swap-type .(suc (suc B)) N
+  --   (Exec-SWAP (GT (NOT {.(nat 2 ∷ nat 1 ∷ [])} {B} (nat (nat ())))))
+  -- bad-swap-type .(suc B) N
+  --   (NOT {.(GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ [])} {B} (GT ()))
 
   ----------------------------------------------------------------
 
@@ -106,12 +106,12 @@ private
 
   ----------------------------------------------------------------
 
-  bad-rot-term : Term
-  bad-rot-term = AND ∷ false ∷ true ∷ Exec-ROT ∷ []
+  -- bad-rot-term : Term
+  -- bad-rot-term = AND ∷ false ∷ true ∷ Exec-ROT ∷ []
 
-  bad-rot-type : ∀ B N → Ill {B = B} {N = N} bad-rot-term
-  bad-rot-type .(suc (suc (suc B))) _ (Exec-ROT (false (true (AND {.[]} {B} ()))))
-  bad-rot-type .(suc B) _ (AND {.(false ∷ true ∷ Exec-ROT ∷ [])} {B} (false (true ())))
+  -- bad-rot-type : ∀ B N → Ill {B = B} {N = N} bad-rot-term
+  -- bad-rot-type .(suc (suc (suc B))) _ (Exec-ROT (false (true (AND {.[]} {B} ()))))
+  -- bad-rot-type .(suc B) _ (AND {.(false ∷ true ∷ Exec-ROT ∷ [])} {B} (false (true ())))
 
   ----------------------------------------------------------------
 
@@ -129,12 +129,12 @@ private
 
   ----------------------------------------------------------------
 
-  bad-k-term : Term
-  bad-k-term = nat 3 ∷ NOT ∷ Exec-K ∷ []
+  -- bad-k-term : Term
+  -- bad-k-term = nat 3 ∷ NOT ∷ Exec-K ∷ []
 
-  bad-k-type : ∀ B N → Ill {B = B} {N = N} bad-k-term
-  bad-k-type .(suc B) N (Exec-K (NOT {.[]} {B} ()))
-  bad-k-type .(suc B) .(suc N) (nat {.(NOT ∷ Exec-K ∷ [])} {.(suc B)} {N} (NOT {.(Exec-K ∷ [])} {B} ()))
+  -- bad-k-type : ∀ B N → Ill {B = B} {N = N} bad-k-term
+  -- bad-k-type .(suc B) N (Exec-K (NOT {.[]} {B} ()))
+  -- bad-k-type .(suc B) .(suc N) (nat {.(NOT ∷ Exec-K ∷ [])} {.(suc B)} {N} (NOT {.(Exec-K ∷ [])} {B} ()))
 
   ----------------------------------------------------------------
 
@@ -152,12 +152,12 @@ private
 
   ----------------------------------------------------------------
 
-  bad-s-term : Term
-  bad-s-term = AND ∷ NOT ∷ false ∷ Exec-S ∷ true ∷ []
+  -- bad-s-term : Term
+  -- bad-s-term = AND ∷ NOT ∷ false ∷ Exec-S ∷ true ∷ []
 
-  bad-s-type : ∀ B N → Ill {B = B} {N = N} bad-s-term
-  bad-s-type .(suc B) N (Exec-S (NOT {.(AND ∷ AND ∷ false ∷ true ∷ [])} {B} (AND (AND (false (true ()))))))
-  bad-s-type .(suc B) N (AND {.(NOT ∷ false ∷ Exec-S ∷ true ∷ [])} {B} (NOT (false ())))
+  -- bad-s-type : ∀ B N → Ill {B = B} {N = N} bad-s-term
+  -- bad-s-type .(suc B) N (Exec-S (NOT {.(AND ∷ AND ∷ false ∷ true ∷ [])} {B} (AND (AND (false (true ()))))))
+  -- bad-s-type .(suc B) N (AND {.(NOT ∷ false ∷ Exec-S ∷ true ∷ [])} {B} (NOT (false ())))
 
   ----------------------------------------------------------------
 
@@ -175,11 +175,11 @@ private
 
   ----------------------------------------------------------------
 
-  bad-eq-term : Term
-  bad-eq-term = AND ∷ Exec-EQ ∷ []
+  -- bad-eq-term : Term
+  -- bad-eq-term = AND ∷ Exec-EQ ∷ []
 
-  bad-eq-type : ∀ B N → Ill {B = B} {N = N} bad-eq-term
-  bad-eq-type .(suc B) N (AND {.(Exec-EQ ∷ [])} {B} ())
+  -- bad-eq-type : ∀ B N → Ill {B = B} {N = N} bad-eq-term
+  -- bad-eq-type .(suc B) N (AND {.(Exec-EQ ∷ [])} {B} ())
 
   ----------------------------------------------------------------
 
@@ -197,11 +197,23 @@ private
 
   ----------------------------------------------------------------
 
-  bad-dup-term : Term
-  bad-dup-term = NOT ∷ Exec-DUP ∷ []
+  -- bad-dup-term : Term
+  -- bad-dup-term = NOT ∷ Exec-DUP ∷ []
 
-  bad-dup-type : ∀ B N → Ill {B = B} {N = N} bad-dup-term
-  bad-dup-type .(suc B) N (Exec-DUP (NOT {.(NOT ∷ [])} {B} (NOT ())))
-  bad-dup-type .(suc B) N (NOT {.(Exec-DUP ∷ [])} {B} ())
+  -- bad-dup-type : ∀ B N → Ill {B = B} {N = N} bad-dup-term
+  -- bad-dup-type .(suc B) N (Exec-DUP (NOT {.(NOT ∷ [])} {B} (NOT ())))
+  -- bad-dup-type .(suc B) N (NOT {.(Exec-DUP ∷ [])} {B} ())
+
+  ----------------------------------------------------------------
+
+  good-depth-term : Term
+  good-depth-term = NOT ∷ NOT ∷ NOT ∷ Exec-STACKDEPTH ∷ true ∷ []
+
+  good-depth-type : Well good-depth-term
+  good-depth-type = Exec-STACKDEPTH (NOT ∷ NOT ∷ NOT ∷ [])
+    (NOT (NOT (NOT (true empty))))
+
+  good-depth-run : run good-depth-type ≡ env (false ∷ []) (3 ∷ [])
+  good-depth-run = refl
 
   ----------------------------------------------------------------

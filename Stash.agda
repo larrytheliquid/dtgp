@@ -8,7 +8,8 @@ open import Data.List
 infixr 2 _∶_∣_
 
 data Word : Set where
-  Exec-DUP Exec-EQ Exec-ROT Exec-SWAP Exec-K Exec-S Exec-POP
+  Exec-STACKDEPTH Exec-DUP Exec-EQ Exec-ROT
+    Exec-SWAP Exec-K Exec-S Exec-POP
     true false Bool-POP AND NOT
     Nat-POP ADD LT GT : Word
   nat : ℕ → Word
@@ -18,6 +19,11 @@ Term = List Word
 
 data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
+
+  Exec-STACKDEPTH : ∀ {t₁ B N} →
+                      (t₂ : Term) →
+                      t₂ ++ t₁ ∶ B ∣ N →
+    t₂ ++ Exec-STACKDEPTH ∷ t₁ ∶ B ∣ suc N
 
   Exec-DUP : ∀ {t B N w} →
            w ∷ w ∷ t ∶ B ∣ N →

@@ -17,6 +17,8 @@ data Env (t : Term) (B N : ℕ) : Set where
 run : ∀ {B N t} →
   Well {B} {N} t → Env t B N
 run empty = env [] []
+run (Exec-STACKDEPTH t₂ d) with run d
+... | env bs ns = env bs (length t₂ ∷ ns)
 run (Exec-DUP d) with run d
 ... | env bs ns = env bs ns
 run (Exec-EQ {w₁ = w₁} {w₂ = w₂} d) with run d
