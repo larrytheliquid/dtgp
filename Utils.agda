@@ -1,5 +1,6 @@
 module Utils where
 open import Relation.Nullary
+open import Relation.Binary.PropositionalEquality
 open import Data.Bool
 open import Data.Nat
 open import Stash
@@ -35,3 +36,13 @@ eq-Word (nat m) (nat n) with Data.Nat._≟_ m n
 ... | yes _ = true
 ... | no _ = false
 eq-Word _ _ = false
+
+lem-add1 : ∀ n → suc n ≡ n + 1
+lem-add1 zero = refl
+lem-add1 (suc n) with lem-add1 n
+... | p rewrite p = refl
+
+lem-add2 : ∀ n → suc (suc n) ≡ n + 2
+lem-add2 zero = refl
+lem-add2 (suc n) with lem-add2 n
+... | p rewrite p = refl
