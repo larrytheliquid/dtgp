@@ -6,16 +6,7 @@ open import Data.Bool
 open import Data.List
 open import Data.Vec
 open import Stash
-
-_lt_ : ℕ → ℕ → Bool
-zero lt (suc n) = true
-(suc n) lt (suc m) = n lt m
-_ lt _ = false
-
-_gt_ : ℕ → ℕ → Bool
-(suc n) gt zero = true
-(suc n) gt (suc m) = n gt m
-_ gt _ = false
+open import Utils
 
 data Env (t : Term) (B N : ℕ) : Set where
   env :
@@ -28,9 +19,8 @@ run : ∀ {B N t} →
 run empty = env [] []
 run (Exec-DUP _ d) with run d
 ... | env bs ns = env bs ns
--- TODO: equality for terms/bools/nats
-run (Exec-EQ d) with run d
-... | env bs ns = env (false ∷ bs) ns
+run (Exec-EQ {w₁ = w₁} {w₂ = w₂} d) with run d
+... | env bs ns = env (eq-Word w₁ w₂ ∷ bs) ns
 run (Exec-ROT _ d) with run d
 ... | env bs ns = env bs ns
 run (Exec-SWAP _ d) with run d

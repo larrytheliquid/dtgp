@@ -179,7 +179,8 @@ private
   good-eq-check : check good-eq-term ≡ well good-eq-type
   good-eq-check = refl
 
-  -- TODO: good-eq-run
+  good-eq-run : run good-eq-type ≡ env (true ∷ []) []
+  good-eq-run = refl
 
   ----------------------------------------------------------------
 
