@@ -20,7 +20,7 @@ Term n = Vec Word n
 data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
 
-  Exec-STACKDEPTH : ∀ {n₁ n₂ B N} {t₁ : Term n₁} →
+  Exec-STACKDEPTH : ∀ {n₁ n₂ B N} {t₁ : Term n₁}
                       (t₂ : Term n₂) →
                       t₂ ++ t₁ ∶ B ∣ N →
     t₂ ++ Exec-STACKDEPTH ∷ t₁ ∶ B ∣ suc N
