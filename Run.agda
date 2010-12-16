@@ -8,17 +8,17 @@ open import Data.Vec
 open import Stash
 open import Utils
 
-data Env (t : Term) (B N : ℕ) : Set where
+data Env {n} (t : Term n) (B N : ℕ) : Set where
   env :
     Vec Bool B →
     Vec ℕ N →
     Env t B N
 
-run : ∀ {B N t} →
-  Well {B} {N} t → Env t B N
+run : ∀ {n B N} {t : Term n} →
+  Well {B = B} {N = N} t → Env t B N
 run empty = env [] []
-run (Exec-STACKDEPTH t₂ d) with run d
-... | env bs ns = env bs (length t₂ ∷ ns)
+-- run (Exec-STACKDEPTH t₂ d) with run d
+-- ... | env bs ns = {!!} -- env bs (length t₂ ∷ ns)
 run (Exec-DUP d) with run d
 ... | env bs ns = env bs ns
 run (Exec-EQ {w₁ = w₁} {w₂ = w₂} d) with run d
@@ -43,8 +43,8 @@ run (AND d) with run d
 ... | env (b₂ ∷ b₁ ∷ bs) ns = env (b₁ ∧ b₂ ∷ bs) ns
 run (NOT d) with run d
 ... | env (b ∷ bs) ns = env (not b ∷ bs) ns
-run (nat {n = n} d) with run d
-... | env bs ns = env bs (n ∷ ns)
+run (nat {v = v} d) with run d
+... | env bs ns = env bs (v ∷ ns)
 run (Nat-POP d) with run d
 ... | env bs (_ ∷ ns) = env bs ns
 run (ADD d) with run d
