@@ -19,34 +19,29 @@ Term = List Word
 data _∶_∣_ : (t : Term) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
 
-  Exec-DUP : ∀ {t B N w B₂ N₂} →
-                   t ∶ B ∣ N →
-           w ∷ w ∷ t ∶ B₂ ∣ N₂ →
-    w ∷ Exec-DUP ∷ t ∶ B₂ ∣ N₂
+  Exec-DUP : ∀ {t B N w} →
+           w ∷ w ∷ t ∶ B ∣ N →
+    w ∷ Exec-DUP ∷ t ∶ B ∣ N
 
   Exec-EQ : ∀ {t B N w₁ w₂} →
                        t ∶     B ∣ N →
     w₂ ∷ w₁ ∷ Exec-EQ ∷ t ∶ suc B ∣ N
 
-  Exec-ROT : ∀ {t B N w₁ w₂ w₃ B₂ N₂} →
-                            t ∶ B ∣ N →
-               w₂ ∷ w₁ ∷ w₃ ∷ t ∶ B₂ ∣ N₂ →
-    w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t ∶ B₂ ∣ N₂
+  Exec-ROT : ∀ {t B N w₁ w₂ w₃} →
+               w₂ ∷ w₁ ∷ w₃ ∷ t ∶ B ∣ N →
+    w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t ∶ B ∣ N
 
-  Exec-SWAP : ∀ {t B N w₁ w₂ B₂ N₂} →
-                         t ∶ B ∣ N →
-                w₁ ∷ w₂ ∷ t ∶ B₂ ∣ N₂ →
-    w₂ ∷ w₁ ∷ Exec-SWAP ∷ t ∶ B₂ ∣ N₂
+  Exec-SWAP : ∀ {t B N w₁ w₂} →
+                w₁ ∷ w₂ ∷ t ∶ B ∣ N →
+    w₂ ∷ w₁ ∷ Exec-SWAP ∷ t ∶ B ∣ N
 
-  Exec-K : ∀ {t B N w₁ w₂ B₂ N₂} →
-                      t ∶ B ∣ N →
-                 w₁ ∷ t ∶ B₂ ∣ N₂ →
-    w₂ ∷ w₁ ∷ Exec-K ∷ t ∶ B₂ ∣ N₂
+  Exec-K : ∀ {t B N w₁ w₂} →
+                 w₁ ∷ t ∶ B ∣ N →
+    w₂ ∷ w₁ ∷ Exec-K ∷ t ∶ B ∣ N
 
-  Exec-S : ∀ {t B N w₁ w₂ w₃ B₂ N₂} →
-                           t ∶ B ∣ N →
-        w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B₂ ∣ N₂ →
-    w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t ∶ B₂ ∣ N₂
+  Exec-S : ∀ {t B N w₁ w₂ w₃} →
+        w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B ∣ N →
+    w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t ∶ B ∣ N
 
   Exec-POP : ∀ {t B N w} →
                    t ∶ B ∣ N →

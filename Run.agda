@@ -17,17 +17,17 @@ data Env (t : Term) (B N : ℕ) : Set where
 run : ∀ {B N t} →
   Well {B} {N} t → Env t B N
 run empty = env [] []
-run (Exec-DUP _ d) with run d
+run (Exec-DUP d) with run d
 ... | env bs ns = env bs ns
 run (Exec-EQ {w₁ = w₁} {w₂ = w₂} d) with run d
 ... | env bs ns = env (eq-Word w₁ w₂ ∷ bs) ns
-run (Exec-ROT _ d) with run d
+run (Exec-ROT d) with run d
 ... | env bs ns = env bs ns
-run (Exec-SWAP _ d) with run d
+run (Exec-SWAP d) with run d
 ... | env bs ns = env bs ns
-run (Exec-K _ d) with run d
+run (Exec-K d) with run d
 ... | env bs ns = env bs ns
-run (Exec-S _ d) with run d
+run (Exec-S d) with run d
 ... | env bs ns = env bs ns
 run (Exec-POP d) with run d
 ... | env bs ns = env bs ns
