@@ -62,12 +62,5 @@ check (w₂ ∷ w₁ ∷ Exec-SWAP ∷ t) = check-3 (check t) Exec-SWAP w₁ w�
 check (w₂ ∷ w₁ ∷ Exec-K ∷ t) = check-3 (check t) Exec-K w₁ w₂
 check (w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t) = check-4 (check t) Exec-S w₁ w₂ w₃
 check (w ∷ Exec-POP ∷ t) = check-2 (check t) Exec-POP w
-check {n = suc m} t rewrite lem-add1 m with splitAt m {1} t
-check {suc _} ._ | xs ++' (Exec-STACKDEPTH ∷ []) with check xs
-... | wut = {!!}
-check {suc _} ._ | xs ++' ys with check xs -- but not ys!
-... | lul = {!!}
--- check (w ∷ t) = check-1 (check t) w
+check (w ∷ t) = check-1 (check t) w
 
--- xs ++' (Exec-STACKDEPTH ∷ ys)
--- check-n (check ys) Exec-STACKDEPTH xs
