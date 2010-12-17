@@ -54,17 +54,40 @@ check-4 (well p₁) Exec-S w₁ w₂ w₃ with check-4' (well p₁) w₁ w₃ w�
 ... | ill = ill
 check-4 p w₁ w₂ w₃ w₄ = check-4' p w₁ w₂ w₃ w₄
 
-check : ∀ {m n} {t : Term (m + n)} → SplitAt m t → Typed t
-check ((w ∷ []) ++' (Exec-POP ∷ t)) = check-2 (check ([] ++' t)) Exec-POP w
-check ((w ∷ []) ++' (Exec-DUP ∷ t)) = check-2 (check ([] ++' t)) Exec-DUP w
-check ((w₂ ∷ w₁ ∷ []) ++' (Exec-EQ ∷ t)) = check-3 (check ([] ++' t)) Exec-EQ w₁ w₂
-check ((w₂ ∷ w₁ ∷ []) ++' (Exec-K ∷ t)) = check-3 (check ([] ++' t)) Exec-K w₁ w₂
-check ((w₂ ∷ w₁ ∷ []) ++' (Exec-SWAP ∷ t)) = check-3 (check ([] ++' t)) Exec-SWAP w₁ w₂
-check ((w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-ROT ∷ t)) = check-4 (check ([] ++' t)) Exec-ROT w₁ w₂ w₃
-check ((w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-S ∷ t)) = check-4 (check ([] ++' t)) Exec-S w₁ w₂ w₃
-check (ws ++' (Exec-STACKDEPTH ∷ t)) with check (ws ++' t)
+-- TODO: maybe full m should be Fin m
+split : ∀ {m n} (t : Term (m + n)) → SplitAt m t
+split {0} [] = [] ++' []
+split {1} (w ∷ Exec-POP ∷ t) = (w ∷ []) ++' (Exec-POP ∷ t)
+split {1} (w ∷ Exec-DUP ∷ t) = (w ∷ []) ++' (Exec-DUP ∷ t)
+split {2} (w₂ ∷ w₁ ∷ Exec-EQ ∷ t) = (w₂ ∷ w₁ ∷ []) ++' (Exec-EQ ∷ t)
+split {2} (w₂ ∷ w₁ ∷ Exec-K ∷ t) = (w₂ ∷ w₁ ∷ []) ++' (Exec-K ∷ t)
+split {2} (w₂ ∷ w₁ ∷ Exec-SWAP ∷ t) = (w₂ ∷ w₁ ∷ []) ++' (Exec-SWAP ∷ t)
+split {3} (w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t) = (w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-ROT ∷ t)
+split {3} (w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t) = (w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-S ∷ t)
+split {1} (w ∷ t) = (w ∷ []) ++' t
+split {m} t = splitAt m t
+
+check-split : ∀ {m n} {t : Term (m + n)} → SplitAt m t → Typed t
+check-split ([] ++' []) = well empty
+-- TODO: check-split on [] ++' t should be on split t
+check-split ((w ∷ []) ++' (Exec-POP ∷ t)) = check-2 (check-split ([] ++' t)) Exec-POP w
+check-split ((w ∷ []) ++' (Exec-DUP ∷ t)) = check-2 (check-split ([] ++' t)) Exec-DUP w
+check-split ((w₂ ∷ w₁ ∷ []) ++' (Exec-EQ ∷ t)) = check-3 (check-split ([] ++' t)) Exec-EQ w₁ w₂
+check-split ((w₂ ∷ w₁ ∷ []) ++' (Exec-K ∷ t)) = check-3 (check-split ([] ++' t)) Exec-K w₁ w₂
+check-split ((w₂ ∷ w₁ ∷ []) ++' (Exec-SWAP ∷ t)) = check-3 (check-split ([] ++' t)) Exec-SWAP w₁ w₂
+check-split ((w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-ROT ∷ t)) = check-4 (check-split ([] ++' t)) Exec-ROT w₁ w₂ w₃
+check-split ((w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-S ∷ t)) = check-4 (check-split ([] ++' t)) Exec-S w₁ w₂ w₃
+check-split (ws ++' (Exec-STACKDEPTH ∷ t)) with check-split (ws ++' t)
 ... | well p = well (Exec-STACKDEPTH ws p)
 ... | ill = ill
+<<<<<<< HEAD
+check-split ([] ++' (y ∷ ys)) = check-split ((y ∷ []) ++' ys)
+check-split ((x ∷ xs) ++' []) = ill
+check-split ((x ∷ xs) ++' (y ∷ ys)) = ill
+
+-- check : ∀ {n} (t : Term n) → Typed t
+-- check t = {!!}
+=======
 check ([] ++' []) = well empty
 check ([] ++' (y ∷ ys)) = check ((y ∷ []) ++' ys)
 check ((x ∷ xs) ++' []) = ill
@@ -82,3 +105,4 @@ split {3} (w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t) = (w₃ ∷ w₂ ∷ w₁ �
 split {1} (w ∷ t) = (w ∷ []) ++' t
 split {m} t = splitAt m t
 
+>>>>>>> 70270e9... split
