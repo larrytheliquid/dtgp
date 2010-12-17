@@ -212,3 +212,6 @@ private
   -- good-depth-run = refl
 
   ----------------------------------------------------------------
+
+  my-term : Term 4
+  my-term = true ∷ Exec-K ∷ Exec-DUP ∷ Exec-K ∷ []
