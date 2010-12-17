@@ -78,8 +78,10 @@ check-split ((w₂ ∷ w₁ ∷ []) ++' (Exec-SWAP ∷ t)) = check-3 (check-spli
 check-split ((w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-ROT ∷ t)) = check-4 (check-split ([] ++' t)) Exec-ROT w₁ w₂ w₃
 check-split ((w₃ ∷ w₂ ∷ w₁ ∷ []) ++' (Exec-S ∷ t)) = check-4 (check-split ([] ++' t)) Exec-S w₁ w₂ w₃
 check-split (ws ++' (Exec-STACKDEPTH ∷ t)) with check-split (ws ++' t)
+-- TODO: what happens here for the ws ++' t recurse case?
 ... | well p = well (Exec-STACKDEPTH ws p)
 ... | ill = ill
+check-split ((w ∷ []) ++' t) = check-1 (check-split ([] ++' t)) w
 check-split ([] ++' (y ∷ ys)) = check-split ((y ∷ []) ++' ys)
 check-split ((x ∷ xs) ++' []) = ill
 check-split ((x ∷ xs) ++' (y ∷ ys)) = ill
