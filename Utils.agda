@@ -3,6 +3,7 @@ open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Bool
 open import Data.Nat
+open import Data.Vec
 open import Stash
 
 _lt_ : ℕ → ℕ → Bool
@@ -36,6 +37,19 @@ eq-Word (nat m) (nat n) with Data.Nat._≟_ m n
 ... | yes _ = true
 ... | no _ = false
 eq-Word _ _ = false
+
+lem-add0 : ∀ n → n + 0 ≡ n
+lem-add0 zero = refl
+lem-add0 (suc n) with lem-add0 n
+... | p rewrite p = refl
+
+huh-add0 : ∀ n → n ≡ n + 0
+huh-add0 zero = refl
+huh-add0 (suc n) rewrite lem-add0 n = refl
+
+wtf : ∀ {n} {t₁ : Term (0 + n)} {t₂ : Term (n + 0)} →
+  SplitAt 0 t₁ → SplitAt n t₂
+wtf ([] ++' ys) = ys ++' []
 
 lem-add1 : ∀ n → suc n ≡ n + 1
 lem-add1 zero = refl
