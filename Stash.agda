@@ -1,11 +1,10 @@
 module Stash where
 open import Relation.Nullary
-open import Data.Empty
 open import Data.Nat
 open import Data.Bool
 open import Data.Vec
 
-infixr 2 _∶_∣_
+infixl 2 _∶_∣_
 
 data Word : Set where
   Exec-STACKDEPTH Exec-DUP Exec-EQ Exec-ROT
@@ -18,87 +17,86 @@ Term : ℕ → Set
 Term n = Vec Word n
 
 data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
-  empty : [] ∶ 0 ∣ 0
+  empty : ∀ {B N} → [] ∶ B ∣ N
 
-  Exec-STACKDEPTH : ∀ {n B N} {t : Term n} →
-                      t ∶ B ∣ N →
-    Exec-STACKDEPTH ∷ t ∶ B ∣ suc N
+  Exec-POP : ∀ {n B N w} {t : Term n} →
+                   t ∶ B ∣ N →
+    Exec-POP ∷ w ∷ t ∶ B ∣ N
 
   Exec-DUP : ∀ {n B N w} {t : Term n} →
            w ∷ w ∷ t ∶ B ∣ N →
     Exec-DUP ∷ w ∷ t ∶ B ∣ N
 
   Exec-EQ : ∀ {n B N w₁ w₂} {t : Term n} →
-                       t ∶     B ∣ N →
-    Exec-EQ ∷ w₁ ∷ w₂ ∷ t ∶ suc B ∣ N
-
-  Exec-ROT : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
-               w₃ ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N →
-    Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
-
-  Exec-SWAP : ∀ {n B N w₁ w₂} {t : Term n} →
-                w₂ ∷ w₁ ∷ t ∶ B ∣ N →
-    Exec-SWAP ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
+                       t ∶ suc B ∣ N →
+    Exec-EQ ∷ w₁ ∷ w₂ ∷ t ∶     B ∣ N
 
   Exec-K : ∀ {n B N w₁ w₂} {t : Term n} →
                  w₁ ∷ t ∶ B ∣ N →
     Exec-K ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
 
+  Exec-SWAP : ∀ {n B N w₁ w₂} {t : Term n} →
+                w₂ ∷ w₁ ∷ t ∶ B ∣ N →
+    Exec-SWAP ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
+
+  Exec-ROT : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
+               w₃ ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N →
+    Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
+
   Exec-S : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
-  -- TODO: confirm with old w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B ∣ N →
         w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B ∣ N →
     Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
 
-  Exec-POP : ∀ {n B N w} {t : Term n} →
-                   t ∶ B ∣ N →
-    Exec-POP ∷ w ∷ t ∶ B ∣ N
+  Exec-STACKDEPTH : ∀ {n B N} {t : Term n} →
+                      t ∶ B ∣ suc N →
+    Exec-STACKDEPTH ∷ t ∶ B ∣     N
 
   true : ∀ {n B N} {t : Term n} →
-           t ∶     B ∣ N →
-    true ∷ t ∶ suc B ∣ N
+           t ∶ suc B ∣ N →
+    true ∷ t ∶     B ∣ N
 
   false : ∀ {n B N} {t : Term n} →
-            t ∶     B ∣ N →
-    false ∷ t ∶ suc B ∣ N
+            t ∶ suc B ∣ N →
+    false ∷ t ∶     B ∣ N
 
   Bool-POP : ∀ {n B N} {t : Term n} →
-               t ∶ suc B ∣ N →
-    Bool-POP ∷ t ∶     B ∣ N
+               t ∶     B ∣ N →
+    Bool-POP ∷ t ∶ suc B ∣ N
 
   AND : ∀ {n B N} {t : Term n} →
-          t ∶ suc (suc B) ∣ N →
-    AND ∷ t ∶      suc B  ∣ N
+          t ∶      suc B  ∣ N →
+    AND ∷ t ∶ suc (suc B) ∣ N
 
   NOT : ∀ {n B N} {t : Term n} →
           t ∶ suc B ∣ N →
     NOT ∷ t ∶ suc B ∣ N
 
   nat : ∀ {n B N v} {t : Term n} →
-            t ∶ B ∣     N →
-    nat v ∷ t ∶ B ∣ suc N
+            t ∶ B ∣ suc N →
+    nat v ∷ t ∶ B ∣     N
 
   Nat-POP : ∀ {n B N} {t : Term n} →
-              t ∶ B ∣ suc N →
-    Nat-POP ∷ t ∶ B ∣     N
+              t ∶ B ∣     N →
+    Nat-POP ∷ t ∶ B ∣ suc N
 
   ADD : ∀ {n B N} {t : Term n} →
-          t ∶ B ∣ suc (suc N) →
-    ADD ∷ t ∶ B ∣      suc N
+          t ∶ B ∣      suc N →
+    ADD ∷ t ∶ B ∣ suc (suc N)
 
   LT : ∀ {n B N} {t : Term n} →
-         t ∶     B ∣ suc (suc N) →
-    LT ∷ t ∶ suc B ∣          N
+         t ∶ suc B ∣          N →
+    LT ∷ t ∶     B ∣ suc (suc N)
 
   GT : ∀ {n B N} {t : Term n} →
-         t ∶     B ∣ suc (suc N) →
-    GT ∷ t ∶ suc B ∣          N
+         t ∶ suc B ∣          N →
+    GT ∷ t ∶     B ∣ suc (suc N)
 
-Well : {n B N : ℕ} → Term n → Set
-Well {B = B} {N = N} t = t ∶ B ∣ N
+Well : {n : ℕ} → Term n → Set
+Well t = t ∶ 0 ∣ 0
 
-Ill : {n B N : ℕ} → Term n → Set
-Ill {B = B} {N = N} t = ¬ Well {B = B} {N = N} t
+Ill : {n : ℕ} → Term n → Set
+Ill t = ¬ Well t
 
 data Typed {n} (t : Term n) : Set where
-  well : ∀ {B N} → Well {B = B} {N = N} t → Typed t
+  well : Well t → Typed t
   ill  : Typed t
