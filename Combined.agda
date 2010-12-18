@@ -1,4 +1,5 @@
 module Combined where
+open import Relation.Nullary
 open import Data.Empty
 open import Data.Nat
 open import Data.Bool
@@ -19,25 +20,25 @@ data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
            w ∷ w ∷ t ∶ B ∣ N →
     Exec-DUP ∷ w ∷ t ∶ B ∣ N
 
-  -- Exec-EQ : ∀ {m n B N w₁ w₂} {E : Term m} {t : Term n} →
-  --                      E ⊢ t ∶     B ∣ N →
-  --   Exec-EQ ∷ w₁ ∷ w₂ ∷ E ⊢ t ∶ suc B ∣ N
+  Exec-EQ : ∀ {n B N w₁ w₂} {t : Term n} →
+                       t ∶ suc B ∣ N →
+    Exec-EQ ∷ w₁ ∷ w₂ ∷ t ∶     B ∣ N
 
   Exec-K : ∀ {n B N w₁ w₂} {t : Term n} →
                  w₁ ∷ t ∶ B ∣ N →
     Exec-K ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
 
-  -- Exec-SWAP : ∀ {m n B N w₁ w₂} {E : Term m} {t : Term n} →
-  --               w₂ ∷ w₁ ∷ E ⊢ t ∶ B ∣ N →
-  --   Exec-SWAP ∷ w₁ ∷ w₂ ∷ E ⊢ t ∶ B ∣ N
+  Exec-SWAP : ∀ {n B N w₁ w₂} {t : Term n} →
+                w₂ ∷ w₁ ∷ t ∶ B ∣ N →
+    Exec-SWAP ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
 
-  -- Exec-ROT : ∀ {m n B N w₁ w₂ w₃} {E : Term m} {t : Term n} →
-  --              w₃ ∷ w₁ ∷ w₂ ∷ E ⊢ t ∶ B ∣ N →
-  --   Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ E ⊢ t ∶ B ∣ N
+  Exec-ROT : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
+               w₃ ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N →
+    Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
 
-  -- Exec-S : ∀ {m n B N w₁ w₂ w₃} {E : Term m} {t : Term n} →
-  --       w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ E ⊢ t ∶ B ∣ N →
-  --   Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ E ⊢ t ∶ B ∣ N
+  Exec-S : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
+        w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B ∣ N →
+    Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
 
   Exec-STACKDEPTH : ∀ {n B N} {t : Term n} →
                       t ∶ B ∣ suc N →
@@ -82,3 +83,13 @@ data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
   GT : ∀ {n B N} {t : Term n} →
          t ∶ suc B ∣          N →
     GT ∷ t ∶     B ∣ suc (suc N)
+
+Well : {n : ℕ} → Term n → Set
+Well t = t ∶ 0 ∣ 0
+
+Ill : {n : ℕ} → Term n → Set
+Ill t = ¬ Well t
+
+data Typed {n} (t : Term n) : Set where
+  well : Well t → Typed t
+  ill  : Typed t
