@@ -4,214 +4,243 @@ open import Relation.Binary.PropositionalEquality
 open import Data.Empty
 open import Data.Nat
 open import Data.Bool
-open import Data.List
 open import Data.Vec
 open import Stash
-open import Check
-open import Run
+-- open import Check
+-- open import Another
+-- open import Run
 
 private
   ----------------------------------------------------------------
 
-  eg-term : Term 5
-  eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
+  -- crap-term : Term 1
+  -- crap-term = NOT ∷ []
 
-  eg-type : Well eg-term
-  eg-type = AND (true (GT (nat (nat empty))))
+  -- crap-type : Well crap-term
+  -- crap-type = NOT empty
 
-  eg-check : check eg-term ≡ well eg-type
-  eg-check = refl
+  simp-term : Term 2
+  -- simp-term = true ∷ NOT ∷ []
+  simp-term = NOT ∷ true ∷ []
+  
+  simp-type : Well simp-term
+  -- simp-type = true (NOT empty)
+  simp-type = NOT (true empty)
 
-  eg-run : run eg-type ≡ env (true ∷ []) []
-  eg-run = refl
+  -- eg-term : Term 5
+  -- -- eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
+  -- eg-term = nat 7 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
 
-  ----------------------------------------------------------------
+  -- eg-type : Well eg-term
+  -- -- eg-type = AND (true (GT (nat (nat empty))))
+  -- eg-type = nat (nat (GT (true (AND {!!}))))
 
-  fix-term : Term 3
-  fix-term = GT ∷ Exec-POP ∷ nat 7 ∷ []
+  -- eg-check : ona eg-term ≡ well eg-type
+  -- eg-check = refl
 
-  fix-type : Well fix-term
-  fix-type = Exec-POP (nat empty)
+  -- eg-run : run eg-type ≡ env (true ∷ []) []
+  -- eg-run = refl
 
-  fix-check : check fix-term ≡ well fix-type
-  fix-check = refl
+  -- ----------------------------------------------------------------
 
-  fix-run : run fix-type ≡ env [] (7 ∷ [])
-  fix-run = refl
+  -- fix-term : Term 3
+  -- fix-term = GT ∷ Exec-POP ∷ nat 7 ∷ []
 
-  ----------------------------------------------------------------
+  -- fix-type : Well fix-term
+  -- fix-type = Exec-POP (nat empty)
 
-  -- break-term : Term 4
-  -- break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 7 ∷ []
+  -- fix-check : check fix-term ≡ well fix-type
+  -- fix-check = refl
 
-  -- break-type : ∀ N → Ill {N = N} break-term
-  -- break-type _ (GT (Exec-POP (nat ())))
-  -- break-type _ (GT (nat ()))
+  -- fix-run : run fix-type ≡ env [] (7 ∷ [])
+  -- fix-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  swap-term : Term 4
-  swap-term = nat 2 ∷ nat 3 ∷ Exec-SWAP ∷ nat 1 ∷ []
+  -- -- break-term : Term 4
+  -- -- break-term = GT ∷ nat 4 ∷ Exec-POP ∷ nat 7 ∷ []
 
-  swap-type : Well swap-term
-  swap-type = Exec-SWAP (nat (nat (nat empty)))
+  -- -- break-type : ∀ N → Ill {N = N} break-term
+  -- -- break-type _ (GT (Exec-POP (nat ())))
+  -- -- break-type _ (GT (nat ()))
 
-  swap-check : check swap-term ≡ well swap-type
-  swap-check = refl
+  -- ----------------------------------------------------------------
 
-  swap-run : run swap-type ≡ env [] (3 ∷ 2 ∷ 1 ∷ [])
-  swap-run = refl
+  -- swap-term : Term 4
+  -- swap-term = nat 2 ∷ nat 3 ∷ Exec-SWAP ∷ nat 1 ∷ []
 
-  ----------------------------------------------------------------
+  -- swap-type : Well swap-term
+  -- swap-type = Exec-SWAP (nat (nat (nat empty)))
 
-  good-swap-term : Term 5
-  good-swap-term = GT ∷ NOT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
+  -- swap-check : check swap-term ≡ well swap-type
+  -- swap-check = refl
 
-  good-swap-type : Well good-swap-term
-  good-swap-type = Exec-SWAP (NOT (GT (nat (nat empty))))
+  -- swap-run : run swap-type ≡ env [] (3 ∷ 2 ∷ 1 ∷ [])
+  -- swap-run = refl
 
-  good-swap-check : check good-swap-term ≡ well good-swap-type
-  good-swap-check = refl
+  -- ----------------------------------------------------------------
 
-  good-swap-run : run good-swap-type ≡ env (true ∷ []) []
-  good-swap-run = refl
+  -- good-swap-term : Term 5
+  -- good-swap-term = GT ∷ NOT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
 
-  ----------------------------------------------------------------
+  -- good-swap-type : Well good-swap-term
+  -- good-swap-type = Exec-SWAP (NOT (GT (nat (nat empty))))
 
-  -- bad-swap-term : Term 5
-  -- bad-swap-term = NOT ∷ GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
+  -- good-swap-check : check good-swap-term ≡ well good-swap-type
+  -- good-swap-check = refl
 
-  -- bad-swap-type : ∀ B N → Ill {B = B} {N = N} bad-swap-term
-  -- bad-swap-type .(suc (suc B)) N (Exec-SWAP (GT (NOT {.2} {B} (nat (nat ())))))
-  -- bad-swap-type .(suc B) N (NOT {.4} {B} (GT ()))
+  -- good-swap-run : run good-swap-type ≡ env (true ∷ []) []
+  -- good-swap-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  good-rot-term : Term 4
-  good-rot-term = true ∷ AND ∷ false ∷ Exec-ROT ∷ []
+  -- -- bad-swap-term : Term 5
+  -- -- bad-swap-term = NOT ∷ GT ∷ Exec-SWAP ∷ nat 2 ∷ nat 1 ∷ []
 
-  good-rot-type : Well good-rot-term
-  good-rot-type = Exec-ROT (AND (false (true empty)))
+  -- -- bad-swap-type : ∀ B N → Ill {B = B} {N = N} bad-swap-term
+  -- -- bad-swap-type .(suc (suc B)) N (Exec-SWAP (GT (NOT {.2} {B} (nat (nat ())))))
+  -- -- bad-swap-type .(suc B) N (NOT {.4} {B} (GT ()))
 
-  good-rot-check : check good-rot-term ≡ well good-rot-type
-  good-rot-check = refl
+  -- ----------------------------------------------------------------
 
-  good-rot-run : run good-rot-type ≡ env (false ∷ []) []
-  good-rot-run = refl
+  -- good-rot-term : Term 4
+  -- good-rot-term = true ∷ AND ∷ false ∷ Exec-ROT ∷ []
 
-  ----------------------------------------------------------------
+  -- good-rot-type : Well good-rot-term
+  -- good-rot-type = Exec-ROT (AND (false (true empty)))
 
-  -- bad-rot-term : Term 4
-  -- bad-rot-term = AND ∷ false ∷ true ∷ Exec-ROT ∷ []
+  -- good-rot-check : check good-rot-term ≡ well good-rot-type
+  -- good-rot-check = refl
 
-  -- bad-rot-type : ∀ B N → Ill {B = B} {N = N} bad-rot-term
-  -- bad-rot-type .(suc (suc (suc B))) N (Exec-ROT (false (true (AND {.0} {B} ()))))
-  -- bad-rot-type .(suc B) N (AND {.3} {B} (false (true ())))
+  -- good-rot-run : run good-rot-type ≡ env (false ∷ []) []
+  -- good-rot-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  good-k-term : Term 3
-  good-k-term = NOT ∷ nat 3 ∷ Exec-K ∷ []
+  -- -- bad-rot-term : Term 4
+  -- -- bad-rot-term = AND ∷ false ∷ true ∷ Exec-ROT ∷ []
 
-  good-k-type : Well good-k-term
-  good-k-type = Exec-K (nat empty)
+  -- -- bad-rot-type : ∀ B N → Ill {B = B} {N = N} bad-rot-term
+  -- -- bad-rot-type .(suc (suc (suc B))) N (Exec-ROT (false (true (AND {.0} {B} ()))))
+  -- -- bad-rot-type .(suc B) N (AND {.3} {B} (false (true ())))
 
-  good-k-check : check good-k-term ≡ well good-k-type
-  good-k-check = refl
+  -- ----------------------------------------------------------------
 
-  good-k-run : run good-k-type ≡ env [] (3 ∷ [])
-  good-k-run = refl
+  -- good-k-term : Term 3
+  -- good-k-term = NOT ∷ nat 3 ∷ Exec-K ∷ []
 
-  ----------------------------------------------------------------
+  -- good-k-type : Well good-k-term
+  -- good-k-type = Exec-K (nat empty)
 
-  -- bad-k-term : Term 3
-  -- bad-k-term = nat 3 ∷ NOT ∷ Exec-K ∷ []
+  -- good-k-check : check good-k-term ≡ well good-k-type
+  -- good-k-check = refl
 
-  -- bad-k-type : ∀ B N → Ill {B = B} {N = N} bad-k-term
-  -- bad-k-type .(suc B) N (Exec-K (NOT {.0} {B} ()))
-  -- bad-k-type .(suc B) .(suc N) (nat {.2} {.(suc B)} {N} (NOT {.1} {B} ()))
+  -- good-k-run : run good-k-type ≡ env [] (3 ∷ [])
+  -- good-k-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  good-s-term : Term 5
-  good-s-term = NOT ∷ AND ∷ false ∷ Exec-S ∷ true ∷ []
+  -- -- bad-k-term : Term 3
+  -- -- bad-k-term = nat 3 ∷ NOT ∷ Exec-K ∷ []
 
-  good-s-type : Well good-s-term
-  good-s-type = Exec-S (AND (NOT (NOT (false (true empty)))))
+  -- -- bad-k-type : ∀ B N → Ill {B = B} {N = N} bad-k-term
+  -- -- bad-k-type .(suc B) N (Exec-K (NOT {.0} {B} ()))
+  -- -- bad-k-type .(suc B) .(suc N) (nat {.2} {.(suc B)} {N} (NOT {.1} {B} ()))
 
-  good-s-check : check good-s-term ≡ well good-s-type
-  good-s-check = refl
+  -- ----------------------------------------------------------------
 
-  good-s-run : run good-s-type ≡ env (false ∷ []) []
-  good-s-run = refl
+  -- good-s-term : Term 5
+  -- good-s-term = NOT ∷ AND ∷ false ∷ Exec-S ∷ true ∷ []
 
-  ----------------------------------------------------------------
+  -- good-s-type : Well good-s-term
+  -- good-s-type = Exec-S (AND (NOT (NOT (false (true empty)))))
 
-  -- bad-s-term : Term 5
-  -- bad-s-term = AND ∷ NOT ∷ false ∷ Exec-S ∷ true ∷ []
+  -- good-s-check : check good-s-term ≡ well good-s-type
+  -- good-s-check = refl
 
-  -- bad-s-type : ∀ B N → Ill {B = B} {N = N} bad-s-term
-  -- bad-s-type .(suc B) N (Exec-S (NOT {.4} {B} (AND (AND (false (true ()))))))
-  -- bad-s-type .(suc B) N (AND {.4} {B} (NOT (false ())))
+  -- good-s-run : run good-s-type ≡ env (false ∷ []) []
+  -- good-s-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  good-eq-term : Term 3
-  good-eq-term = AND ∷ AND ∷ Exec-EQ ∷ []
+  -- -- bad-s-term : Term 5
+  -- -- bad-s-term = AND ∷ NOT ∷ false ∷ Exec-S ∷ true ∷ []
 
-  good-eq-type : Well good-eq-term
-  good-eq-type = Exec-EQ empty
+  -- -- bad-s-type : ∀ B N → Ill {B = B} {N = N} bad-s-term
+  -- -- bad-s-type .(suc B) N (Exec-S (NOT {.4} {B} (AND (AND (false (true ()))))))
+  -- -- bad-s-type .(suc B) N (AND {.4} {B} (NOT (false ())))
 
-  good-eq-check : check good-eq-term ≡ well good-eq-type
-  good-eq-check = refl
+  -- ----------------------------------------------------------------
 
-  good-eq-run : run good-eq-type ≡ env (true ∷ []) []
-  good-eq-run = refl
+  -- good-eq-term : Term 3
+  -- good-eq-term = AND ∷ AND ∷ Exec-EQ ∷ []
 
-  ----------------------------------------------------------------
+  -- good-eq-type : Well good-eq-term
+  -- good-eq-type = Exec-EQ empty
 
-  -- bad-eq-term : Term 2
-  -- bad-eq-term = AND ∷ Exec-EQ ∷ []
+  -- good-eq-check : check good-eq-term ≡ well good-eq-type
+  -- good-eq-check = refl
 
-  -- bad-eq-type : ∀ B N → Ill {B = B} {N = N} bad-eq-term
-  -- bad-eq-type .(suc B) N (AND {.1} {B} ())
+  -- good-eq-run : run good-eq-type ≡ env (true ∷ []) []
+  -- good-eq-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  good-dup-term : Term 3
-  good-dup-term = NOT ∷ Exec-DUP ∷ true ∷ []
+  -- -- bad-eq-term : Term 2
+  -- -- bad-eq-term = AND ∷ Exec-EQ ∷ []
 
-  good-dup-type : Well good-dup-term
-  good-dup-type = Exec-DUP (NOT (NOT (true empty)))
+  -- -- bad-eq-type : ∀ B N → Ill {B = B} {N = N} bad-eq-term
+  -- -- bad-eq-type .(suc B) N (AND {.1} {B} ())
 
-  good-dup-check : check good-dup-term ≡ well good-dup-type
-  good-dup-check = refl
+  -- ----------------------------------------------------------------
 
-  good-dup-run : run good-dup-type ≡ env (true ∷ []) []
-  good-dup-run = refl
+  -- good-dup-term : Term 3
+  -- good-dup-term = NOT ∷ Exec-DUP ∷ true ∷ []
 
-  ----------------------------------------------------------------
+  -- good-dup-type : Well good-dup-term
+  -- good-dup-type = Exec-DUP (NOT (NOT (true empty)))
 
-  -- bad-dup-term : Term 2
-  -- bad-dup-term = NOT ∷ Exec-DUP ∷ []
+  -- good-dup-check : check good-dup-term ≡ well good-dup-type
+  -- good-dup-check = refl
 
-  -- bad-dup-type : ∀ B N → Ill {B = B} {N = N} bad-dup-term
-  -- bad-dup-type .(suc B) N (Exec-DUP (NOT {.1} {B} (NOT ())))
-  -- bad-dup-type .(suc B) N (NOT {.1} {B} ())
+  -- good-dup-run : run good-dup-type ≡ env (true ∷ []) []
+  -- good-dup-run = refl
 
-  ----------------------------------------------------------------
+  -- ----------------------------------------------------------------
 
-  good-depth-term : Term 5
-  good-depth-term = NOT ∷ NOT ∷ NOT ∷ Exec-STACKDEPTH ∷ true ∷ []
+  -- -- bad-dup-term : Term 2
+  -- -- bad-dup-term = NOT ∷ Exec-DUP ∷ []
 
-  good-depth-type : Well good-depth-term
-  good-depth-type = Exec-STACKDEPTH (NOT ∷ NOT ∷ NOT ∷ [])
-    (NOT (NOT (NOT (true empty))))
+  -- -- bad-dup-type : ∀ B N → Ill {B = B} {N = N} bad-dup-term
+  -- -- bad-dup-type .(suc B) N (Exec-DUP (NOT {.1} {B} (NOT ())))
+  -- -- bad-dup-type .(suc B) N (NOT {.1} {B} ())
 
-  -- good-depth-run : run good-depth-type ≡ env (false ∷ []) (3 ∷ [])
-  -- good-depth-run = refl
+  -- ----------------------------------------------------------------
 
-  ----------------------------------------------------------------
+  -- good-depth-term : Term 5
+  -- good-depth-term = NOT ∷ NOT ∷ NOT ∷ Exec-STACKDEPTH ∷ true ∷ []
 
-  my-term : Term 4
-  my-term = true ∷ Exec-K ∷ Exec-DUP ∷ Exec-K ∷ []
+  -- good-depth-type : Well good-depth-term
+  -- good-depth-type = Exec-STACKDEPTH (NOT ∷ NOT ∷ NOT ∷ [])
+  --   (NOT (NOT (NOT (true empty))))
+
+  -- -- good-depth-run : run good-depth-type ≡ env (false ∷ []) (3 ∷ [])
+  -- -- good-depth-run = refl
+
+  -- ----------------------------------------------------------------
+
+  -- my-term : Term 4
+  -- my-term = true ∷ nat 3 ∷ Exec-DUP ∷ Exec-K ∷ []
+
+  -- my-term : Term 3
+  -- my-term = Exec-K ∷ true ∷ Exec-DUP ∷ []
+
+  -- my-type : Well my-term
+  -- my-type = Exec-K (true empty)
+
+  -- my-term : Term 4
+  -- my-term = Exec-K ∷ Exec-DUP ∷ Exec-K ∷ true ∷ []
+
+  -- my-type : Well my-term
+  -- my-type = Exec-K (Exec-DUP (true (true empty)))
+

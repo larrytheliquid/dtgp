@@ -20,38 +20,38 @@ Term n = Vec Word n
 data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
   empty : [] ∶ 0 ∣ 0
 
-  Exec-STACKDEPTH : ∀ {n₁ n₂ B N} {t₁ : Term n₁}
-                      (t₂ : Term n₂) →
-                      t₂ ++ t₁ ∶ B ∣ N →
-    t₂ ++ Exec-STACKDEPTH ∷ t₁ ∶ B ∣ suc N
+  Exec-STACKDEPTH : ∀ {n B N} {t : Term n} →
+                      t ∶ B ∣ N →
+    Exec-STACKDEPTH ∷ t ∶ B ∣ suc N
 
   Exec-DUP : ∀ {n B N w} {t : Term n} →
            w ∷ w ∷ t ∶ B ∣ N →
-    w ∷ Exec-DUP ∷ t ∶ B ∣ N
+    Exec-DUP ∷ w ∷ t ∶ B ∣ N
 
   Exec-EQ : ∀ {n B N w₁ w₂} {t : Term n} →
                        t ∶     B ∣ N →
-    w₂ ∷ w₁ ∷ Exec-EQ ∷ t ∶ suc B ∣ N
+    Exec-EQ ∷ w₁ ∷ w₂ ∷ t ∶ suc B ∣ N
 
   Exec-ROT : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
-               w₂ ∷ w₁ ∷ w₃ ∷ t ∶ B ∣ N →
-    w₃ ∷ w₂ ∷ w₁ ∷ Exec-ROT ∷ t ∶ B ∣ N
+               w₃ ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N →
+    Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
 
   Exec-SWAP : ∀ {n B N w₁ w₂} {t : Term n} →
-                w₁ ∷ w₂ ∷ t ∶ B ∣ N →
-    w₂ ∷ w₁ ∷ Exec-SWAP ∷ t ∶ B ∣ N
+                w₂ ∷ w₁ ∷ t ∶ B ∣ N →
+    Exec-SWAP ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
 
   Exec-K : ∀ {n B N w₁ w₂} {t : Term n} →
                  w₁ ∷ t ∶ B ∣ N →
-    w₂ ∷ w₁ ∷ Exec-K ∷ t ∶ B ∣ N
+    Exec-K ∷ w₁ ∷ w₂ ∷ t ∶ B ∣ N
 
   Exec-S : ∀ {n B N w₁ w₂ w₃} {t : Term n} →
+  -- TODO: confirm with old w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B ∣ N →
         w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ t ∶ B ∣ N →
-    w₃ ∷ w₂ ∷ w₁ ∷ Exec-S ∷ t ∶ B ∣ N
+    Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ t ∶ B ∣ N
 
   Exec-POP : ∀ {n B N w} {t : Term n} →
                    t ∶ B ∣ N →
-    w ∷ Exec-POP ∷ t ∶ B ∣ N
+    Exec-POP ∷ w ∷ t ∶ B ∣ N
 
   true : ∀ {n B N} {t : Term n} →
            t ∶     B ∣ N →
