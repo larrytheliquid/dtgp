@@ -5,34 +5,19 @@ open import Data.Empty
 open import Data.Nat
 open import Data.Bool
 open import Data.Vec
-open import Stash
--- open import Check
--- open import Another
--- open import Run
+open import Term
+open import Macro
+open import Expanded
 
 private
   ----------------------------------------------------------------
 
-  -- crap-term : Term 1
-  -- crap-term = NOT ∷ []
-
-  -- crap-type : Well crap-term
-  -- crap-type = NOT empty
-
-  simp-term : Term 2
-  -- simp-term = true ∷ NOT ∷ []
-  simp-term = NOT ∷ true ∷ []
-  
-  simp-type : Well simp-term
-  -- simp-type = true (NOT empty)
-  simp-type = NOT (true empty)
-
-  -- eg-term : Term 5
-  -- -- eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
+  eg-term : Term 5
+  eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
   -- eg-term = nat 7 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
 
-  -- eg-type : Well eg-term
-  -- -- eg-type = AND (true (GT (nat (nat empty))))
+  eg-type : eg-term ∶ 1 ∣ 0
+  eg-type = AND (true (GT (nat (nat empty))))
   -- eg-type = nat (nat (GT (true (AND {!!}))))
 
   -- eg-check : ona eg-term ≡ well eg-type
@@ -227,20 +212,22 @@ private
   -- -- good-depth-run : run good-depth-type ≡ env (false ∷ []) (3 ∷ [])
   -- -- good-depth-run = refl
 
-  -- ----------------------------------------------------------------
+  ----------------------------------------------------------------
 
-  -- my-term : Term 4
-  -- my-term = true ∷ nat 3 ∷ Exec-DUP ∷ Exec-K ∷ []
+  my-macro : Term 4
+  my-macro = Exec-K ∷ Exec-DUP ∷ Exec-K ∷ true ∷ []
 
-  -- my-term : Term 3
-  -- my-term = Exec-K ∷ true ∷ Exec-DUP ∷ []
+  my-expanded : Term 2
+  my-expanded = true ∷ true ∷ []
 
-  -- my-type : Well my-term
-  -- my-type = Exec-K (true empty)
+  my-expansion : my-macro ⊢ my-expanded
+  my-expansion = Exec-K (Exec-DUP (true (true empty)))
 
-  -- my-term : Term 4
-  -- my-term = Exec-K ∷ Exec-DUP ∷ Exec-K ∷ true ∷ []
+  my-expand : expand my-macro ≡ well my-expansion
+  my-expand = refl
 
-  -- my-type : Well my-term
-  -- my-type = Exec-K (Exec-DUP (true (true empty)))
+  my-type : my-expanded ∶ 2 ∣ 0
+  my-type = true (true empty)
 
+  my-check : check my-expanded ≡ well my-type
+  my-check = refl
