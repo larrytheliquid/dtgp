@@ -50,11 +50,8 @@ data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
          t ∶     B ∣ suc (suc N) →
     GT ∷ t ∶ suc B ∣          N
 
-Well : {n B N : ℕ} → Term n → Set
-Well {B = B} {N = N} t = t ∶ B ∣ N
-
 data Typed {n} (t : Term n) : Set where
-  well : ∀ {B N} → Well {B = B} {N = N} t → Typed t
+  well : ∀ {B N} → t ∶ B ∣ N → Typed t
   ill  : Typed t
 
 check' : ∀ {n} {t : Term n} → Typed t → (w : Word) → Typed (w ∷ t)
