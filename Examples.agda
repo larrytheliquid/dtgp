@@ -6,21 +6,18 @@ open import Data.Nat
 open import Data.Bool
 open import Data.Vec
 open import Term
-open import Macro
-open import Expanded
+open import Combined
 
 private
   ----------------------------------------------------------------
 
   eg-term : Term 5
-  eg-term = AND ∷ true ∷ GT ∷ nat 4 ∷ nat 7 ∷ []
-  -- eg-term = nat 7 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
+  eg-term = nat 7 ∷ nat 4 ∷ GT ∷ true ∷ AND ∷ []
 
-  eg-type : eg-term ∶ 1 ∣ 0
-  eg-type = AND (true (GT (nat (nat empty))))
-  -- eg-type = nat (nat (GT (true (AND {!!}))))
+  eg-type : eg-term ∶ 0 ∣ 0
+  eg-type = nat (nat (GT (true (AND empty))))
 
-  -- eg-check : ona eg-term ≡ well eg-type
+  -- eg-check : check eg-term ≡ well eg-type
   -- eg-check = refl
 
   -- eg-run : run eg-type ≡ env (true ∷ []) []
@@ -214,20 +211,11 @@ private
 
   ----------------------------------------------------------------
 
-  my-macro : Term 4
-  my-macro = Exec-K ∷ Exec-DUP ∷ Exec-K ∷ true ∷ []
+  my-term : Term 4
+  my-term = Exec-K ∷ Exec-DUP ∷ Exec-K ∷ true ∷ []
 
-  my-expanded : Term 2
-  my-expanded = true ∷ true ∷ []
+  my-type : my-term ∶ 0 ∣ 0
+  my-type = Exec-K (Exec-DUP (true (true empty)))
 
-  my-expansion : my-macro ⊢ my-expanded
-  my-expansion = Exec-K (Exec-DUP (true (true empty)))
-
-  my-expand : expand my-macro ≡ well my-expansion
-  my-expand = refl
-
-  my-type : my-expanded ∶ 2 ∣ 0
-  my-type = true (true empty)
-
-  my-check : check my-expanded ≡ well my-type
-  my-check = refl
+  -- my-check : check my-term ≡ well my-type
+  -- my-check = refl
