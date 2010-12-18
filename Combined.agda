@@ -9,7 +9,7 @@ open import Term
 infixl 2 _⊢_∶_∣_
 
 data _⊢_∶_∣_ : ∀ {m n} (E : Term m) (t : Term n) (Bool Nat : ℕ) → Set where
-  empty : [] ⊢ [] ∶ 0 ∣ 0
+  empty : ∀ {n B} {t : Term n} → [] ⊢ t ∶ B ∣ 0
 
   Exec-POP : ∀ {m n B N w} {E : Term m} {t : Term n} →
                    E ⊢ t ∶ B ∣ N →
@@ -44,24 +44,24 @@ data _⊢_∶_∣_ : ∀ {m n} (E : Term m) (t : Term n) (Bool Nat : ℕ) → Se
     Exec-STACKDEPTH ∷ E ⊢ t ∶ B ∣ suc N
 
   true : ∀ {m n B N} {E : Term m} {t : Term n} →
-           E ⊢ t         ∶     B ∣ N →
-    true ∷ E ⊢ t ∷ʳ true ∶ suc B ∣ N
+           E ⊢ t ∷ʳ true ∶ suc B ∣ N →
+    true ∷ E ⊢ t         ∶     B ∣ N
 
   false : ∀ {m n B N} {E : Term m} {t : Term n} →
-            E ⊢ t          ∶     B ∣ N →
-    false ∷ E ⊢ t ∷ʳ false ∶ suc B ∣ N
+            E ⊢ t ∷ʳ false ∶ suc B ∣ N →
+    false ∷ E ⊢ t          ∶     B ∣ N
 
   Bool-POP : ∀ {m n B N} {E : Term m} {t : Term n} →
                E ⊢ t             ∶ suc B ∣ N →
     Bool-POP ∷ E ⊢ t ∷ʳ Bool-POP ∶     B ∣ N
 
   AND : ∀ {m n B N} {E : Term m} {t : Term n} →
-          E ⊢ t        ∶ suc (suc B) ∣ N →
-    AND ∷ E ⊢ t ∷ʳ AND ∶      suc B  ∣ N
+          E ⊢ t ∷ʳ AND ∶      suc B  ∣ N →
+    AND ∷ E ⊢ t        ∶ suc (suc B) ∣ N
 
   NOT : ∀ {m n B N} {E : Term m} {t : Term n} →
-          E ⊢ t        ∶ suc B ∣ N →
-    NOT ∷ E ⊢ t ∷ʳ NOT ∶ suc B ∣ N
+          E ⊢ t ∷ʳ NOT ∶ suc B ∣ N →
+    NOT ∷ E ⊢ t        ∶ suc B ∣ N
 
   nat : ∀ {m n B N v} {E : Term m} {t : Term n} →
             E ⊢ t          ∶     B ∣     N →
