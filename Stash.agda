@@ -98,5 +98,5 @@ Ill : {n : ℕ} → Term n → Set
 Ill t = ¬ Well t
 
 data Typed {n} (t : Term n) : Set where
-  well : Well t → Typed t
+  well : ∀ {B N} → t ∶ B ∣ N → Typed t
   ill  : Typed t

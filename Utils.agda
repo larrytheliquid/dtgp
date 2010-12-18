@@ -1,9 +1,7 @@
 module Utils where
 open import Relation.Nullary
-open import Relation.Binary.PropositionalEquality
 open import Data.Bool
 open import Data.Nat
-open import Data.Vec
 open import Stash
 
 _lt_ : ℕ → ℕ → Bool
