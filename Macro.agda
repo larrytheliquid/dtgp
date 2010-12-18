@@ -11,122 +11,124 @@ infixl 2 _⊢_
 data _⊢_ : ∀ {m n} (E : Term m) (t : Term n) → Set where
   empty : [] ⊢ []
 
-  Exec-DUP : ∀ {n w} {t : Term n} →
-           w ∷ w ∷ t ⊢ t →
-    Exec-DUP ∷ w ∷ t ⊢ t
+  Exec-POP : ∀ {m n w} {E : Term m} {t : Term n} →
+                   E ⊢ t →
+    Exec-POP ∷ w ∷ E ⊢ t
 
-  Exec-K : ∀ {n w₁ w₂} {t : Term n} →
-                 w₁ ∷ t ⊢ t →
-    Exec-K ∷ w₁ ∷ w₂ ∷ t ⊢ t
+  Exec-DUP : ∀ {m n w} {E : Term m} {t : Term n} →
+           w ∷ w ∷ E ⊢ t →
+    Exec-DUP ∷ w ∷ E ⊢ t
 
-  true : ∀ {n} {t : Term n} →
-           t ⊢ t →
-    true ∷ t ⊢ t ∷ʳ true
+  Exec-EQ : ∀ {m n w₁ w₂} {E : Term m} {t : Term n} →
+                       E ⊢ t →
+    Exec-EQ ∷ w₁ ∷ w₂ ∷ E ⊢ t
 
-  false : ∀ {n} {t : Term n} →
-            t ⊢ t →
-    false ∷ t ⊢ t ∷ʳ false
+  Exec-K : ∀ {m n w₁ w₂} {E : Term m} {t : Term n} →
+                 w₁ ∷ E ⊢ t →
+    Exec-K ∷ w₁ ∷ w₂ ∷ E ⊢ t
 
-  Bool-POP : ∀ {n} {t : Term n} →
-               t ⊢ t →
-    Bool-POP ∷ t ⊢ t ∷ʳ Bool-POP
+  Exec-SWAP : ∀ {m n w₁ w₂} {E : Term m} {t : Term n} →
+                w₂ ∷ w₁ ∷ E ⊢ t →
+    Exec-SWAP ∷ w₁ ∷ w₂ ∷ E ⊢ t
 
-  AND : ∀ {n} {t : Term n} →
-          t ⊢ t →
-    AND ∷ t ⊢ t ∷ʳ AND
+  Exec-ROT : ∀ {m n w₁ w₂ w₃} {E : Term m} {t : Term n} →
+               w₃ ∷ w₁ ∷ w₂ ∷ E ⊢ t →
+    Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ E ⊢ t
 
-  NOT : ∀ {n} {t : Term n} →
-          t ⊢ t →
-    NOT ∷ t ⊢ t ∷ʳ NOT
+  Exec-S : ∀ {m n w₁ w₂ w₃} {E : Term m} {t : Term n} →
+        w₂ ∷ w₃ ∷ w₃ ∷ w₁ ∷ E ⊢ t →
+    Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ E ⊢ t
 
-  nat : ∀ {n v} {t : Term n} →
-            t ⊢ t →
-    nat v ∷ t ⊢ t ∷ʳ nat v
+  Exec-STACKDEPTH : ∀ {m n} {E : Term m} {t : Term n} →
+                      E ⊢ t →
+    Exec-STACKDEPTH ∷ E ⊢ t
 
-  Nat-POP : ∀ {n} {t : Term n} →
-              t ⊢ t →
-    Nat-POP ∷ t ⊢ t ∷ʳ Nat-POP
+  true : ∀ {m n} {E : Term m} {t : Term n} →
+           E ⊢ t →
+    true ∷ E ⊢ t ∷ʳ true
 
-  ADD : ∀ {n} {t : Term n} →
-          t ⊢ t →
-    ADD ∷ t ⊢ t ∷ʳ ADD
+  false : ∀ {m n} {E : Term m} {t : Term n} →
+            E ⊢ t →
+    false ∷ E ⊢ t ∷ʳ false
 
-  LT : ∀ {n} {t : Term n} →
-         t ⊢ t →
-    LT ∷ t ⊢ t ∷ʳ LT
+  Bool-POP : ∀ {m n} {E : Term m} {t : Term n} →
+               E ⊢ t →
+    Bool-POP ∷ E ⊢ t ∷ʳ Bool-POP
 
-  GT : ∀ {n} {t : Term n} →
-         t ⊢ t →
-    GT ∷ t ⊢ t ∷ʳ GT
+  AND : ∀ {m n} {E : Term m} {t : Term n} →
+          E ⊢ t →
+    AND ∷ E ⊢ t ∷ʳ AND
+
+  NOT : ∀ {m n} {E : Term m} {t : Term n} →
+          E ⊢ t →
+    NOT ∷ E ⊢ t ∷ʳ NOT
+
+  nat : ∀ {m n v} {E : Term m} {t : Term n} →
+            E ⊢ t →
+    nat v ∷ E ⊢ t ∷ʳ nat v
+
+  Nat-POP : ∀ {m n} {E : Term m} {t : Term n} →
+              E ⊢ t →
+    Nat-POP ∷ E ⊢ t ∷ʳ Nat-POP
+
+  ADD : ∀ {m n} {E : Term m} {t : Term n} →
+          E ⊢ t →
+    ADD ∷ E ⊢ t ∷ʳ ADD
+
+  LT : ∀ {m n} {E : Term m} {t : Term n} →
+         E ⊢ t →
+    LT ∷ E ⊢ t ∷ʳ LT
+
+  GT : ∀ {m n} {E : Term m} {t : Term n} →
+         E ⊢ t →
+    GT ∷ E ⊢ t ∷ʳ GT
 
 data Expanded {m} (E : Term m) : Set where
   well : ∀ {n} {t : Term n} → E ⊢ t → Expanded E
   ill  : Expanded E
 
--- expand-1 : ∀ {m} {E : Term m} → Expanded E → (w : Word) → Expanded (w ∷ E)
--- expand-1 (well p) true = well (true {!!})
--- -- expand-1 (well p) false = well (false p)
--- -- expand-1 (well p) Bool-POP = well (Bool-POP p)
--- -- expand-1 (well p) AND = well (AND p)
--- -- expand-1 (well p) NOT = well (NOT p)
--- -- expand-1 (well p) Nat-POP = well (Nat-POP p)
--- -- expand-1 (well p) ADD = well (ADD p)
--- -- expand-1 (well p) LT = well (LT p)
--- -- expand-1 (well p) GT = well (GT p)
--- -- expand-1 (well p) (nat _) = well (nat p)
--- expand-1 _ _ = ill
+expand' : ∀ {m} {E : Term m} → (w : Word) → Expanded E → Expanded (w ∷ E)
+expand' true (well p) = well (true p)
+expand' false (well p) = well (false p)
+expand' Bool-POP (well p) = well (Bool-POP p)
+expand' AND (well p) = well (AND p)
+expand' NOT (well p) = well (NOT p)
+expand' Nat-POP (well p) = well (Nat-POP p)
+expand' ADD (well p) = well (ADD p)
+expand' LT (well p) = well (LT p)
+expand' GT (well p) = well (GT p)
+expand' (nat _) (well p) = well (nat p)
+expand' _ _ = ill
 
--- expand-2' : ∀ {n} {t : Term n} → Typed t → (w₁ w₂ : Word) → Typed (w₂ ∷ w₁ ∷ t)
--- expand-2' (well p) Exec-POP w = well (Exec-POP p)
--- expand-2' p w₁ w₂ = expand-1 (expand-1 p w₁) w₂
-
--- expand-2 : ∀ {n} {t : Term n} → Typed t → (w₁ w₂ : Word) → Typed (w₂ ∷ w₁ ∷ t)
--- expand-2 (well p₁) Exec-DUP w with expand-2' (well p₁) w w
--- ... | well p₂ = well (Exec-DUP p₂)
--- ... | ill = ill
--- expand-2 p w₁ w₂ = expand-2' p w₁ w₂
-
--- expand-3 : ∀ {n} {t : Term n} → Typed t → (w₁ w₂ w₃ : Word) → Typed (w₃ ∷ w₂ ∷ w₁ ∷ t)
--- expand-3 (well p) Exec-EQ w₁ w₂ = well (Exec-EQ p)
--- expand-3 (well p₁) Exec-SWAP w₁ w₂ with expand-2 (well p₁) w₂ w₁
--- ... | well p₂ = well (Exec-SWAP p₂)
--- ... | ill = ill
--- expand-3 (well p₁) Exec-K w₁ w₂ with expand-1 (well p₁) w₁
--- ... | well p₂ = well (Exec-K p₂)
--- ... | ill = ill
--- expand-3 p w₁ w₂ w₃ = expand-1 (expand-2 p w₁ w₂) w₃
-
--- expand-4' : ∀ {n} {t : Term n} → Typed t → (w₁ w₂ w₃ w₄ : Word) → Typed (w₄ ∷ w₃ ∷ w₂ ∷ w₁ ∷ t)
--- expand-4' (well p₁) Exec-ROT w₁ w₂ w₃ with expand-3 (well p₁) w₃ w₁ w₂
--- ... | well p₂ = well (Exec-ROT p₂)
--- ... | ill = ill
--- expand-4' p w₁ w₂ w₃ w₄ = expand-1 (expand-3 p w₁ w₂ w₃) w₄
-
--- expand-4 : ∀ {n} {t : Term n} → Typed t → (w₁ w₂ w₃ w₄ : Word) → Typed (w₄ ∷ w₃ ∷ w₂ ∷ w₁ ∷ t)
--- expand-4 (well p₁) Exec-S w₁ w₂ w₃ with expand-4' (well p₁) w₁ w₃ w₃ w₂
--- ... | well p₂ = well (Exec-S p₂)
--- ... | ill = ill
--- expand-4 p w₁ w₂ w₃ w₄ = expand-4' p w₁ w₂ w₃ w₄
-
--- expand : ∀ {m} (E : Term m) → Expanded E
--- expand [] = well empty
--- expand (Exec-POP ∷ t) = ill -- TODO
--- expand (Exec-DUP ∷ w ∷ t) = {!!}
--- expand (Exec-EQ ∷ t) = ill -- TODO
--- expand (Exec-K ∷ w₁ ∷ w₂ ∷ t) = {!!}
--- expand (Exec-SWAP ∷ t) = ill -- TODO
--- expand (Exec-ROT ∷ t) = ill -- TODO
--- expand (Exec-S ∷ t) = ill -- TODO
--- expand (Exec-STACKDEPTH ∷ t) = ill -- TODO
--- expand (true ∷ t) = {!!}
--- expand (false ∷ t) = {!!}
--- expand (Bool-POP ∷ t) = {!!}
--- expand (AND ∷ t) = {!!}
--- expand (NOT ∷ t) = {!!}
--- expand (Nat-POP ∷ t) = {!!}
--- expand (ADD ∷ t) = {!!}
--- expand (LT ∷ t) = {!!}
--- expand (GT ∷ t) = {!!}
--- expand (nat v ∷ t) = {!!}
--- expand (_ ∷ _) = ill
+expand : ∀ {m} (E : Term m) → Expanded E
+expand [] = well empty
+expand (Exec-POP ∷ w ∷ E) with expand E
+... | well p = well (Exec-POP p)
+... | ill = ill
+-- TODO: analyze
+expand (Exec-DUP ∷ w ∷ E) with expand (w ∷ E)
+... | ih with expand' w ih
+... | well p = well (Exec-DUP p)
+... | ill = ill
+expand (Exec-EQ ∷ w₁ ∷ w₂ ∷ E) with expand E
+... | well p = well (Exec-EQ p)
+... | ill = ill
+expand (Exec-K ∷ w₁ ∷ w₂ ∷ E) with expand (w₁ ∷ E)
+... | well p = well (Exec-K p)
+... | ill = ill
+expand (Exec-SWAP ∷ w₁ ∷ w₂ ∷ E) with expand (w₂ ∷ w₁ ∷ E)
+... | well p = well (Exec-SWAP p)
+... | ill = ill
+expand (Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ E) with expand (w₃ ∷ w₁ ∷ w₂ ∷ E)
+... | well p = well (Exec-ROT p)
+... | ill = ill
+-- TODO: analyze
+expand (Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ E) with expand (w₃ ∷ w₃ ∷ w₁ ∷ E)
+... | ih with expand' w₂ ih
+... | well p = well (Exec-S p)
+... | ill = ill
+expand (Exec-STACKDEPTH ∷ E) with expand E
+... | well p = well (Exec-STACKDEPTH p)
+... | ill = ill
+expand (w ∷ E) = expand' w (expand E)
 
