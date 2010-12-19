@@ -7,51 +7,67 @@ open import Data.Bool
 open import Data.Vec
 open import Stash
 
-check' : ∀ {n} {t : Term n} → (w : Word) → Typed t → Typed (w ∷ t)
-check' true (well {B = suc _} p) = well (true p)
-check' false (well {B = suc _} p) = well (false p)
-check' Bool-POP (well p) = well (Bool-POP p)
-check' AND (well {B = suc _} p) = well (AND p)
-check' NOT (well {B = suc _} p) = well (NOT p)
-check' Nat-POP (well p) = well (Nat-POP p)
-check' ADD (well {N = suc _} p) = well (ADD p)
-check' LT (well {B = suc _} p) = well (LT p)
-check' GT (well {B = suc _} p) = well (GT p)
-check' (nat v) (well {N = suc _} p) = well (nat p)
-check' _ _ = ill
-
-check : ∀ {n} (t : Term n) → Typed t
--- TODO: need B ∣ N
-check [] = well {B = 0} {N = 0} empty
-check (Exec-POP ∷ w ∷ E) with check E
+infer : ∀ {n} (t : Term n) (B N : ℕ) → Typed t B N
+infer [] B N = well empty
+infer (Exec-POP ∷ w ∷ t) B N with infer t B N
 ... | well p = well (Exec-POP p)
 ... | ill = ill
 -- TODO: analyze
-check (Exec-DUP ∷ w ∷ E) with check (w ∷ E)
-... | ih with check' w ih
-... | well p = well (Exec-DUP p)
+-- infer (Exec-DUP ∷ w ∷ t) B N with infer (w ∷ t) B N
+-- with infer-1 w ih B N
+-- ... | well p = well (Exec-DUP p)
+-- ... | ill = ill
+infer (Exec-EQ ∷ w₁ ∷ w₂ ∷ t) B N with infer t (suc B) N
+... | well p = well (Exec-EQ p)
 ... | ill = ill
-check (Exec-EQ ∷ w₁ ∷ w₂ ∷ E) with check E
-... | well {B = suc _} p = well (Exec-EQ p)
-... | well {B = zero} p = ill
-... | ill = ill
-check (Exec-K ∷ w₁ ∷ w₂ ∷ E) with check (w₁ ∷ E)
+infer (Exec-K ∷ w₁ ∷ w₂ ∷ t) B N with infer (w₁ ∷ t) B N
 ... | well p = well (Exec-K p)
 ... | ill = ill
-check (Exec-SWAP ∷ w₁ ∷ w₂ ∷ E) with check (w₂ ∷ w₁ ∷ E)
+infer (Exec-SWAP ∷ w₁ ∷ w₂ ∷ t) B N with infer (w₂ ∷ w₁ ∷ t) B N
 ... | well p = well (Exec-SWAP p)
 ... | ill = ill
-check (Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ E) with check (w₃ ∷ w₁ ∷ w₂ ∷ E)
+infer (Exec-ROT ∷ w₁ ∷ w₂ ∷ w₃ ∷ t) B N with infer (w₃ ∷ w₁ ∷ w₂ ∷ t) B N
 ... | well p = well (Exec-ROT p)
 ... | ill = ill
 -- TODO: analyze
-check (Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ E) with check (w₃ ∷ w₃ ∷ w₁ ∷ E)
-... | ih with check' w₂ ih
-... | well p = well (Exec-S p)
+-- infer (Exec-S ∷ w₁ ∷ w₂ ∷ w₃ ∷ t) B N with infer (w₃ ∷ w₃ ∷ w₁ ∷ t) B N
+-- ... | ih with infer-1 w₂ ih B N
+-- ... | well p = well (Exec-S p)
+-- ... | ill = ill
+infer (Exec-STACKDEPTH ∷ t) B N with infer t B (suc N)
+... | well p = well (Exec-STACKDEPTH p)
 ... | ill = ill
-check (Exec-STACKDEPTH ∷ E) with check E
-... | well {N = suc _} p = well (Exec-STACKDEPTH p)
-... | well {N = zero} p = ill
+infer (true ∷ t) B N with infer t (suc B) N
+... | well p = well (true p)
 ... | ill = ill
-check (w ∷ E) = check' w (check E)
+infer (false ∷ t) B N with infer t (suc B) N
+... | well p = well (false p)
+... | ill = ill
+infer (Bool-POP ∷ t) (suc B) N with infer t B N
+... | well p = well (Bool-POP p)
+... | ill = ill
+infer (AND ∷ t) (suc (suc B)) N with infer t (suc B) N
+... | well p = well (AND p)
+... | ill = ill
+infer (NOT ∷ t) (suc B) N with infer t (suc B) N
+... | well p = well (NOT p)
+... | ill = ill
+infer (Nat-POP ∷ t) B (suc N) with infer t B N
+... | well p = well (Nat-POP p)
+... | ill = ill
+infer (ADD ∷ t) B (suc (suc N)) with infer t B (suc N)
+... | well p = well (ADD p)
+... | ill = ill
+infer (LT ∷ t) B (suc (suc N)) with infer t (suc B) N
+... | well p = well (LT p)
+... | ill = ill
+infer (GT ∷ t) B (suc (suc N)) with infer t (suc B) N
+... | well p = well (GT p)
+... | ill = ill
+infer (nat v ∷ t) B N with infer t B (suc N)
+... | well p = well (nat p)
+... | ill = ill
+infer (_ ∷ _) _ _ = ill
 
+check : ∀ {n} (t : Term n) → Typed t 0 0
+check t = infer t 0 0

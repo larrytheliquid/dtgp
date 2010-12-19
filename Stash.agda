@@ -97,6 +97,6 @@ Well t = t ∶ 0 ∣ 0
 Ill : {n : ℕ} → Term n → Set
 Ill t = ¬ Well t
 
-data Typed {n} (t : Term n) : Set where
-  well : ∀ {B N} → t ∶ B ∣ N → Typed t
-  ill  : Typed t
+data Typed {n} (t : Term n) (B N : ℕ) : Set where
+  well : t ∶ B ∣ N → Typed t B N
+  ill  : Typed t B N
