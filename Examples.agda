@@ -22,8 +22,8 @@ private
   eg-check : check eg-term ≡ well eg-type
   eg-check = refl
 
-  -- eg-run : run eg-type ≡ env (true ∷ []) []
-  -- eg-run = refl
+  eg-run : run eg-type ≡ env empty (true ∷ []) []
+  eg-run = refl
 
   ----------------------------------------------------------------
 
@@ -36,8 +36,8 @@ private
   fix-check : check fix-term ≡ well fix-type
   fix-check = refl
 
-  -- fix-run : run fix-type ≡ env [] (7 ∷ [])
-  -- fix-run = refl
+  fix-run : run fix-type ≡ env empty [] (7 ∷ [])
+  fix-run = refl
 
   ----------------------------------------------------------------
 
@@ -58,8 +58,8 @@ private
   swap-check : check swap-term ≡ well swap-type
   swap-check = refl
 
-  -- swap-run : run swap-type ≡ env [] (3 ∷ 2 ∷ 1 ∷ [])
-  -- swap-run = refl
+  swap-run : run swap-type ≡ env empty [] (3 ∷ 2 ∷ 1 ∷ [])
+  swap-run = refl
 
   ----------------------------------------------------------------
 
@@ -72,8 +72,8 @@ private
   good-swap-check : check good-swap-term ≡ well good-swap-type
   good-swap-check = refl
 
-  -- good-swap-run : run good-swap-type ≡ env (true ∷ []) []
-  -- good-swap-run = refl
+  good-swap-run : run good-swap-type ≡ env empty (true ∷ []) []
+  good-swap-run = refl
 
   ----------------------------------------------------------------
 
@@ -94,8 +94,8 @@ private
   good-rot-check : check good-rot-term ≡ well good-rot-type
   good-rot-check = refl
 
-  -- good-rot-run : run good-rot-type ≡ env (false ∷ []) []
-  -- good-rot-run = refl
+  good-rot-run : run good-rot-type ≡ env empty (false ∷ []) []
+  good-rot-run = refl
 
   ----------------------------------------------------------------
 
@@ -116,8 +116,8 @@ private
   good-k-check : check good-k-term ≡ well good-k-type
   good-k-check = refl
 
-  -- good-k-run : run good-k-type ≡ env [] (3 ∷ [])
-  -- good-k-run = refl
+  good-k-run : run good-k-type ≡ env empty [] (3 ∷ [])
+  good-k-run = refl
 
   ----------------------------------------------------------------
 
@@ -138,7 +138,7 @@ private
   -- good-s-check : check good-s-term ≡ well good-s-type
   -- good-s-check = refl
 
-  -- good-s-run : run good-s-type ≡ env (false ∷ []) []
+  -- good-s-run : run good-s-type ≡ env empty (false ∷ []) []
   -- good-s-run = refl
 
   ----------------------------------------------------------------
@@ -160,7 +160,7 @@ private
   good-eq-check : check good-eq-term ≡ well good-eq-type
   good-eq-check = refl
 
-  -- good-eq-run : run good-eq-type ≡ env (true ∷ []) []
+  -- good-eq-run : run good-eq-type ≡ env empty (true ∷ []) []
   -- good-eq-run = refl
 
   ----------------------------------------------------------------
@@ -182,7 +182,7 @@ private
   -- good-dup-check : check good-dup-term ≡ well good-dup-type
   -- good-dup-check = refl
 
-  -- good-dup-run : run good-dup-type ≡ env (true ∷ []) []
+  -- good-dup-run : run good-dup-type ≡ env empty (true ∷ []) []
   -- good-dup-run = refl
 
   ----------------------------------------------------------------
@@ -204,7 +204,7 @@ private
   good-depth-check : check good-depth-term ≡ well good-depth-type
   good-depth-check = refl
 
-  -- good-depth-run : run good-depth-type ≡ env (false ∷ []) (3 ∷ [])
+  -- good-depth-run : run good-depth-type ≡ env empty (false ∷ []) (3 ∷ [])
   -- good-depth-run = refl
 
   ----------------------------------------------------------------
