@@ -130,16 +130,16 @@ private
   ----------------------------------------------------------------
 
   good-s-term : Term 5
-  good-s-term = true ∷ Exec-S ∷ AND ∷ NOT ∷ false ∷ []
+  good-s-term = true ∷ Exec-S ∷ AND ∷ false ∷ NOT ∷ []
 
   good-s-type : Well good-s-term
-  good-s-type = true (Exec-S (NOT (false (false (AND empty)))))
+  good-s-type = true (Exec-S (false (NOT (NOT (AND empty)))))
 
   -- good-s-check : check good-s-term ≡ well good-s-type
   -- good-s-check = refl
 
-  -- good-s-run : run good-s-type ≡ env empty (false ∷ []) []
-  -- good-s-run = refl
+  good-s-run : run good-s-type ≡ env empty (false ∷ []) []
+  good-s-run = refl
 
   ----------------------------------------------------------------
 
@@ -160,8 +160,8 @@ private
   good-eq-check : check good-eq-term ≡ well good-eq-type
   good-eq-check = refl
 
-  -- good-eq-run : run good-eq-type ≡ env empty (true ∷ []) []
-  -- good-eq-run = refl
+  good-eq-run : run good-eq-type ≡ env empty (true ∷ []) []
+  good-eq-run = refl
 
   ----------------------------------------------------------------
 
@@ -182,8 +182,8 @@ private
   -- good-dup-check : check good-dup-term ≡ well good-dup-type
   -- good-dup-check = refl
 
-  -- good-dup-run : run good-dup-type ≡ env empty (true ∷ []) []
-  -- good-dup-run = refl
+  good-dup-run : run good-dup-type ≡ env empty (true ∷ []) []
+  good-dup-run = refl
 
   ----------------------------------------------------------------
 
@@ -204,8 +204,8 @@ private
   good-depth-check : check good-depth-term ≡ well good-depth-type
   good-depth-check = refl
 
-  -- good-depth-run : run good-depth-type ≡ env empty (false ∷ []) (3 ∷ [])
-  -- good-depth-run = refl
+  good-depth-run : run good-depth-type ≡ env empty (false ∷ []) (3 ∷ [])
+  good-depth-run = refl
 
   ----------------------------------------------------------------
 
@@ -217,3 +217,7 @@ private
 
   -- meta-check : check meta-term ≡ well meta-type
   -- meta-check = refl
+
+  meta-run : run meta-type ≡ env empty (true ∷ true ∷ []) []
+  meta-run = refl
+

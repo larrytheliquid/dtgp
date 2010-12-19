@@ -28,8 +28,10 @@ run' (env (Exec-ROT d) bs ns) = run' (env d bs ns)
 run' (env (Exec-S d) bs ns) = run' (env d bs ns)
 run' (env (Exec-STACKDEPTH {n = n} d) bs ns) =
   run' (env d bs (n ∷ ns))
-run' (env (true d) bs ns) = run' (env d (true ∷ bs) ns)
-run' (env (false d) bs ns) = run' (env d (false ∷ bs) ns)
+run' (env (true d) bs ns) =
+  run' (env d (true ∷ bs) ns)
+run' (env (false d) bs ns) =
+  run' (env d (false ∷ bs) ns)
 run' (env (Bool-POP d) (b ∷ bs) ns) =
   run' (env d bs ns)
 run' (env (Bool-POP d) bs ns) = run' (env d bs ns)
