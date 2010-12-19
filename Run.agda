@@ -4,6 +4,7 @@ open import Data.Empty
 open import Data.Nat
 open import Data.Bool
 open import Data.Vec
+open import Data.Product
 open import Stash
 open import Utils
 
@@ -13,43 +14,28 @@ data Env {n} (t : Term n) (B N : ℕ) : Set where
     Vec ℕ N →
     Env t B N
 
+return-type : ∀ {n B N} {t : Term n} → t ∶ B ∣ N → ℕ × ℕ
+return-type (empty {B = B} {N = N}) = B , N
+return-type (Exec-POP d) = return-type d
+return-type (Exec-DUP d) = return-type d
+return-type (Exec-EQ d) = return-type d
+return-type (Exec-K d) = return-type d
+return-type (Exec-SWAP d) = return-type d
+return-type (Exec-ROT d) = return-type d
+return-type (Exec-S d) = return-type d
+return-type (Exec-STACKDEPTH d) = return-type d
+return-type (true d) = return-type d
+return-type (false d) = return-type d
+return-type (Bool-POP d) = return-type d
+return-type (AND d) = return-type d
+return-type (NOT d) = return-type d
+return-type (nat d) = return-type d
+return-type (Nat-POP d) = return-type d
+return-type (ADD d) = return-type d
+return-type (LT d) = return-type d
+return-type (GT d) = return-type d
+
 run : ∀ {n B N} {t : Term n} →
-  Well {B = B} {N = N} t → Env t B N
-run empty = env [] []
-run (Exec-STACKDEPTH {n₂ = n₂} t₂ d) with run d
-... | env bs ns = env bs (n₂ ∷ ns)
-run (Exec-DUP d) with run d
-... | env bs ns = env bs ns
-run (Exec-EQ {w₁ = w₁} {w₂ = w₂} d) with run d
-... | env bs ns = env (eq-Word w₁ w₂ ∷ bs) ns
-run (Exec-ROT d) with run d
-... | env bs ns = env bs ns
-run (Exec-SWAP d) with run d
-... | env bs ns = env bs ns
-run (Exec-K d) with run d
-... | env bs ns = env bs ns
-run (Exec-S d) with run d
-... | env bs ns = env bs ns
-run (Exec-POP d) with run d
-... | env bs ns = env bs ns
-run (true d) with run d
-... | env bs ns = env (true ∷ bs) ns
-run (false d) with run d
-... | env bs ns = env (false ∷ bs) ns
-run (Bool-POP d) with run d
-... | env (_ ∷ bs) ns = env bs ns
-run (AND d) with run d
-... | env (b₂ ∷ b₁ ∷ bs) ns = env (b₁ ∧ b₂ ∷ bs) ns
-run (NOT d) with run d
-... | env (b ∷ bs) ns = env (not b ∷ bs) ns
-run (nat {v = v} d) with run d
-... | env bs ns = env bs (v ∷ ns)
-run (Nat-POP d) with run d
-... | env bs (_ ∷ ns) = env bs ns
-run (ADD d) with run d
-... | env bs (n₂ ∷ n₁ ∷ ns) = env bs (n₁ + n₂ ∷ ns)
-run (LT d) with run d
-... | env bs (n₂ ∷ n₁ ∷ ns) = env (n₁ lt n₂ ∷ bs) ns
-run (GT d) with run d
-... | env bs (n₂ ∷ n₁ ∷ ns) = env (n₁ gt n₂ ∷ bs) ns
+  t ∶ B ∣ N → ∃₂ λ b n → Env t b n
+run d = {!!}
 
