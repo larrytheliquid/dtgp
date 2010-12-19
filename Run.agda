@@ -8,12 +8,6 @@ open import Data.Product
 open import Stash
 open import Utils
 
-data Env {n} (t : Term n) (B N : ℕ) : Set where
-  env :
-    Vec Bool B →
-    Vec ℕ N →
-    Env t B N
-
 return-type : ∀ {n B N} {t : Term n} → t ∶ B ∣ N → ℕ × ℕ
 return-type (empty {B = B} {N = N}) = B , N
 return-type (Exec-POP d) = return-type d
@@ -35,7 +29,27 @@ return-type (ADD d) = return-type d
 return-type (LT d) = return-type d
 return-type (GT d) = return-type d
 
-run : ∀ {n B N} {t : Term n} →
-  t ∶ B ∣ N → ∃₂ λ b n → Env t b n
-run d = {!!}
+data Env {n} (t : Term n) (B N : ℕ) : Set where
+  env :
+    Vec Bool B →
+    Vec ℕ N →
+    Env t B N
+
+return-Env : ∀ {n} {t : Term n} → Well t → Set
+return-Env {t = t} d with return-type d
+... | (B , N) = Env t B N
+
+run : ∀ {n} {t : Term n} (d : Well t) → return-Env d
+run empty = env [] []
+run (Exec-POP d) = {!!}
+run (Exec-DUP d) = {!!}
+run (Exec-EQ d) = {!!}
+run (Exec-K d) = {!!}
+run (Exec-SWAP d) = {!!}
+run (Exec-ROT d) = {!!}
+run (Exec-S d) = {!!}
+run (Exec-STACKDEPTH d) = {!!}
+run (true d) = {!!}
+run (false d) = {!!}
+run (nat d) = {!!}
 
