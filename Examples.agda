@@ -4,9 +4,11 @@ open import Relation.Binary.PropositionalEquality
 open import Data.Empty
 open import Data.Nat
 open import Data.Bool
+open import Data.List
 open import Data.Vec
 open import Stash
 open import Check
+open import Run
 
 private
   ----------------------------------------------------------------
