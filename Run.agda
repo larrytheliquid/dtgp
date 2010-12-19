@@ -29,27 +29,34 @@ return-type (ADD d) = return-type d
 return-type (LT d) = return-type d
 return-type (GT d) = return-type d
 
-data Env {n} (t : Term n) (B N : ℕ) : Set where
+data Env {n B N} {t : Term n} (d : t ∶ B ∣ N) (B' N' : ℕ) : Set where
   env :
-    Vec Bool B →
-    Vec ℕ N →
-    Env t B N
+    Vec Bool B' →
+    Vec ℕ N' →
+    Env d B' N'
 
-return-Env : ∀ {n} {t : Term n} → Well t → Set
-return-Env {t = t} d with return-type d
-... | (B , N) = Env t B N
+return-Env : ∀ {n B N} {t : Term n} → t ∶ B ∣ N → Set
+return-Env d with return-type d
+... | (B , N) = Env d B N
 
-run : ∀ {n} {t : Term n} (d : Well t) → return-Env d
-run empty = env [] []
-run (Exec-POP d) = {!!}
-run (Exec-DUP d) = {!!}
-run (Exec-EQ d) = {!!}
-run (Exec-K d) = {!!}
-run (Exec-SWAP d) = {!!}
-run (Exec-ROT d) = {!!}
-run (Exec-S d) = {!!}
-run (Exec-STACKDEPTH d) = {!!}
-run (true d) = {!!}
-run (false d) = {!!}
-run (nat d) = {!!}
+run : ∀ {n B N} {t : Term n} (d : t ∶ B ∣ N) → return-Env d
+run empty = {!!}
+run (Exec-POP y) = {!!}
+run (Exec-DUP y) = {!!}
+run (Exec-EQ y) = {!!}
+run (Exec-K y) = {!!}
+run (Exec-SWAP y) = {!!}
+run (Exec-ROT y) = {!!}
+run (Exec-S y) = {!!}
+run (Exec-STACKDEPTH y) = {!!}
+run (true y) = {!!}
+run (false y) = {!!}
+run (Bool-POP y) = {!!}
+run (AND y) = {!!}
+run (NOT y) = {!!}
+run (nat y) = {!!}
+run (Nat-POP y) = {!!}
+run (ADD y) = {!!}
+run (LT y) = {!!}
+run (GT y) = {!!}
 
