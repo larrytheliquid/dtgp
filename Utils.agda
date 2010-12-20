@@ -5,10 +5,6 @@ open import Data.Nat
 open import Data.List
 open import Stash
 
-_∷ʳ_ : ∀ {A} → List A → A → List A
-[]       ∷ʳ y = [ y ]
-(x ∷ xs) ∷ʳ y = x ∷ (xs ∷ʳ y)
-
 _lt_ : ℕ → ℕ → Bool
 zero lt (suc n) = true
 (suc n) lt (suc m) = n lt m
