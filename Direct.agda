@@ -7,12 +7,12 @@ infixl 2 _⟶_
 infixr 5 _,_
 
 data Word : Set where
-  Exec-EQ Exec-K
-    true false Bool-POP Bool-DUP AND NOT : Word
+  -- Exec-EQ Exec-K
+  true false Bool-POP Bool-DUP AND NOT : Word
 
 In-Exec : Word → ℕ
-In-Exec Exec-EQ = 2
-In-Exec Exec-K = 2
+-- In-Exec Exec-EQ = 2
+-- In-Exec Exec-K = 2
 In-Exec true = 0
 In-Exec false = 0
 In-Exec Bool-POP = 0
@@ -21,8 +21,8 @@ In-Exec AND = 0
 In-Exec NOT = 0
 
 Out-Exec : Word → ℕ
-Out-Exec Exec-EQ = 0
-Out-Exec Exec-K = 1
+-- Out-Exec Exec-EQ = 0
+-- Out-Exec Exec-K = 1
 Out-Exec true = 0
 Out-Exec false = 0
 Out-Exec Bool-POP = 0
@@ -31,8 +31,8 @@ Out-Exec AND = 0
 Out-Exec NOT = 0
 
 In-Bool : Word → ℕ
-In-Bool Exec-EQ = 0
-In-Bool Exec-K = 0
+-- In-Bool Exec-EQ = 0
+-- In-Bool Exec-K = 0
 In-Bool true = 0
 In-Bool false = 0
 In-Bool Bool-POP = 1
@@ -41,8 +41,8 @@ In-Bool AND = 2
 In-Bool NOT = 1
 
 Out-Bool : Word → ℕ
-Out-Bool Exec-EQ = 1
-Out-Bool Exec-K = 0
+-- Out-Bool Exec-EQ = 1
+-- Out-Bool Exec-K = 0
 Out-Bool true = 1
 Out-Bool false = 1
 Out-Bool Bool-POP = 0
@@ -73,4 +73,18 @@ private
   long : 0 ⟶ 1
   long = false , NOT , true , AND , []
 
-
+run : {n B B' : ℕ} →
+  B ⟶ B' → Vec Bool (n + B) → Vec Bool (n + B')
+run {zero} [] [] = []
+run {suc n} [] (x ∷ xs) = x ∷ xs
+run (true , d) xs = run d (true ∷ xs)
+run (false , d) xs = run d (false ∷ xs)
+run {zero} (Bool-POP , d) (x ∷ xs) = run d xs
+run {suc n} (Bool-POP , d) (x ∷ xs) = run d xs
+run {zero} (Bool-DUP , d) (x ∷ xs) = run d (x ∷ x ∷ xs)
+run {suc n} (Bool-DUP , d) (x ∷ xs) = run d (x ∷ x ∷ xs)
+run {zero} (AND , d) (x ∷ x' ∷ xs) = run d (x ∧ x' ∷ xs)
+run {suc zero} (AND , d) (x ∷ x' ∷ xs) = run d (x ∧ x' ∷ xs)
+run {suc (suc n)} (AND , d) (x ∷ x' ∷ xs) = run d (x ∧ x' ∷ xs)
+run {zero} (NOT , d) (x ∷ xs) = run d (not x ∷ xs)
+run {suc n} (NOT , d) (x ∷ xs) = run d (not x ∷ xs)
