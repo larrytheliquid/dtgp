@@ -19,7 +19,7 @@ lem (suc n) = refl
 
 data Word : Set where
   -- Exec-EQ Exec-K
-  true false Bool-POP Bool-DUP AND NOT : Word
+  true false Bool-POP AND NOT : Word
 
 In-Exec : Word → ℕ
 -- In-Exec Exec-EQ = 2
@@ -27,7 +27,6 @@ In-Exec : Word → ℕ
 In-Exec true = 0
 In-Exec false = 0
 In-Exec Bool-POP = 0
-In-Exec Bool-DUP = 0
 In-Exec AND = 0
 In-Exec NOT = 0
 
@@ -37,7 +36,6 @@ Out-Exec : Word → ℕ
 Out-Exec true = 0
 Out-Exec false = 0
 Out-Exec Bool-POP = 0
-Out-Exec Bool-DUP = 0
 Out-Exec AND = 0
 Out-Exec NOT = 0
 
@@ -47,7 +45,6 @@ In-Bool : Word → ℕ
 In-Bool true = 0
 In-Bool false = 0
 In-Bool Bool-POP = 1
-In-Bool Bool-DUP = 1
 In-Bool AND = 2
 In-Bool NOT = 1
 
@@ -57,7 +54,6 @@ Out-Bool : Word → ℕ
 Out-Bool true = 1
 Out-Bool false = 1
 Out-Bool Bool-POP = 0
-Out-Bool Bool-DUP = 2
 Out-Bool AND = 1
 Out-Bool NOT = 1
 
@@ -69,9 +65,6 @@ data _⟶_ : (B B' : ℕ) → Set where
     (Out-Bool w ∸ B) + B'
 
 private
-  dup,dup : 1 ⟶ 3
-  dup,dup = Bool-DUP , Bool-DUP , []
-
   and,and : 3 ⟶ 1
   and,and = AND , AND , []
 
@@ -102,11 +95,6 @@ run (_,_ {zero}  Bool-POP d) (x ∷ []) =
   run d []
 run (_,_ {suc n} Bool-POP d) (x ∷ xs) rewrite lem n =
   run d xs
-
-run (_,_ {zero}  Bool-DUP d) (x ∷ []) =
-  x ∷ x ∷ run d []
-run (_,_ {suc n} Bool-DUP d) (x ∷ xs) rewrite lem n =
-  {!!} -- run d (x ∷ x ∷ xs)
 
 run (_,_ {zero}  AND d) (x₁ ∷ x₂ ∷ xs) =
   x₂ ∧ x₁ ∷ run d []
