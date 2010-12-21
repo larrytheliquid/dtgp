@@ -1,10 +1,21 @@
 module Direct where
-open import Data.Nat
+open import Relation.Binary.PropositionalEquality
+open import Data.Nat hiding (_∸_)
 open import Data.Bool
 open import Data.Vec
 
 infixl 2 _⟶_
 infixr 5 _,_
+infixl 6 _∸_
+
+_∸_ : ℕ → ℕ → ℕ
+zero  ∸ m = zero
+m ∸ zero  = m
+suc m ∸ suc n = m ∸ n
+
+lem : ∀ n → n ∸ 0 ≡ n
+lem zero = refl
+lem (suc n) = refl
 
 data Word : Set where
   -- Exec-EQ Exec-K
@@ -55,7 +66,7 @@ data _⟶_ : (B B' : ℕ) → Set where
   _,_ : ∀ {B B'} → (w : Word) →
     B ⟶ B' →
     In-Bool w + (B ∸ Out-Bool w) ⟶
-    B' + (Out-Bool w ∸ B)
+    (Out-Bool w ∸ B) + B'
 
 private
   dup,dup : 1 ⟶ 3
@@ -73,18 +84,39 @@ private
   long : 0 ⟶ 1
   long = false , NOT , true , AND , []
 
-run : {n B B' : ℕ} →
-  B ⟶ B' → Vec Bool (n + B) → Vec Bool (n + B')
-run {zero} [] [] = []
-run {suc n} [] (x ∷ xs) = x ∷ xs
-run (true , d) xs = run d (true ∷ xs)
-run (false , d) xs = run d (false ∷ xs)
-run {zero} (Bool-POP , d) (x ∷ xs) = run d xs
-run {suc n} (Bool-POP , d) (x ∷ xs) = run d xs
-run {zero} (Bool-DUP , d) (x ∷ xs) = run d (x ∷ x ∷ xs)
-run {suc n} (Bool-DUP , d) (x ∷ xs) = run d (x ∷ x ∷ xs)
-run {zero} (AND , d) (x ∷ x' ∷ xs) = run d (x ∧ x' ∷ xs)
-run {suc zero} (AND , d) (x ∷ x' ∷ xs) = run d (x ∧ x' ∷ xs)
-run {suc (suc n)} (AND , d) (x ∷ x' ∷ xs) = run d (x ∧ x' ∷ xs)
-run {zero} (NOT , d) (x ∷ xs) = run d (not x ∷ xs)
-run {suc n} (NOT , d) (x ∷ xs) = run d (not x ∷ xs)
+run : {B B' : ℕ} →
+  B ⟶ B' → Vec Bool B → Vec Bool B'
+run [] [] = []
+
+run (_,_ {zero} true d) xs =
+  true ∷ run d []
+run (_,_ {suc n} true d) xs rewrite lem n =
+  run d (true ∷ xs)
+
+run (_,_ {zero} false d) xs =
+  false ∷ run d []
+run (_,_ {suc n} false d) xs rewrite lem n =
+  run d (false ∷ xs)
+
+run (_,_ {zero}  Bool-POP d) (x ∷ []) =
+  run d []
+run (_,_ {suc n} Bool-POP d) (x ∷ xs) rewrite lem n =
+  run d xs
+
+run (_,_ {zero}  Bool-DUP d) (x ∷ []) =
+  x ∷ x ∷ run d []
+run (_,_ {suc n} Bool-DUP d) (x ∷ xs) rewrite lem n =
+  {!!} -- run d (x ∷ x ∷ xs)
+
+run (_,_ {zero}  AND d) (x₁ ∷ x₂ ∷ xs) =
+  x₂ ∧ x₁ ∷ run d []
+run (_,_ {suc n} AND d) (x₁ ∷ x₂ ∷ xs) rewrite lem n =
+  run d (x₂ ∧ x₁ ∷ xs)
+
+run (_,_ {zero}  NOT d) (x ∷ []) =
+  not x ∷ run d []
+run (_,_ {suc n} NOT d) (x ∷ xs) rewrite lem n =
+  run d (not x ∷ xs)
+
+
+
