@@ -20,6 +20,7 @@ lem (suc n) = refl
 data Word (B : ℕ) : ℕ → ℕ → Set where
   true  : Word B      B  (1 + B)
   false : Word B      B  (1 + B)
+  DEPTH : Word B      B  (1 + B)
   POP   : Word B (1 + B)      B
   NOT   : Word B (1 + B) (1 + B)
   AND   : Word B (2 + B) (1 + B)
@@ -63,6 +64,11 @@ run (_,_ {zero} false d) xs =
 run (_,_ {suc n} false d) xs rewrite lem n =
   run d (false ∷ xs)
 
+run (_,_ {zero} DEPTH d) xs =
+  true ∷ run d []
+run (_,_ {suc n} DEPTH d) xs rewrite lem n =
+  run d (false ∷ xs)
+
 run (_,_ {zero}  POP d) (x ∷ []) =
   run d []
 run (_,_ {suc n} POP d) (x ∷ xs) rewrite lem n =
@@ -77,4 +83,3 @@ run (_,_ {zero}  NOT d) (x ∷ []) =
   not x ∷ run d []
 run (_,_ {suc n} NOT d) (x ∷ xs) rewrite lem n =
   run d (not x ∷ xs)
-
