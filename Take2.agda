@@ -17,7 +17,6 @@ data Word (B : ℕ) : ℕ → ℕ → Set where
   true  : Word B      B  (1 + B)
   false : Word B      B  (1 + B)
   POP   : Word B (1 + B)      B
-  DUP   : Word B (1 + B) (2 + B)
   NOT   : Word B (1 + B) (1 + B)
   AND   : Word B (2 + B) (1 + B)
 
@@ -33,9 +32,6 @@ private
 
   and,and : 0 ⊢ 3 ⟶ 1
   and,and = AND , AND , []
-
-  dup,dup : 0 ⊢ 1 ⟶ 3
-  dup,dup = DUP , DUP , []
 
   not,and : 0 ⊢ 2 ⟶ 1
   not,and = NOT , AND , []
