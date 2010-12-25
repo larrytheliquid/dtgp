@@ -34,6 +34,9 @@ private
   and,and : 0 ⊢ 3 ⟶ 1
   and,and = AND , AND , []
 
+  dup,dup : 0 ⊢ 1 ⟶ 3
+  dup,dup = DUP , DUP , []
+
   not,and : 0 ⊢ 2 ⟶ 1
   not,and = NOT , AND , []
 
@@ -45,3 +48,4 @@ private
 
   long : 0 ⊢ 0 ⟶ 1
   long = false , NOT , true , AND , []
+
