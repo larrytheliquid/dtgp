@@ -17,8 +17,17 @@ lem : ∀ n → n ∸ 0 ≡ n
 lem zero = refl
 lem (suc n) = refl
 
+-- data Least : ℕ → Set where
+--   zero : {n : ℕ} → Least n
+--   suc  : {n : ℕ} (i : Least n) → Least (suc n)
+
+-- one : Least 3
+-- one = suc (suc (suc (suc zero)))
+
 data Word : Set where
   true false Bool-POP AND NOT : Word
+
+-- In : Word → (n : ℕ) → Least n
 
 In : Word → ℕ
 In true = 0
