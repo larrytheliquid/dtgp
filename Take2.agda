@@ -17,6 +17,20 @@ lem : ∀ n → n ∸ 0 ≡ n
 lem zero = refl
 lem (suc n) = refl
 
+lem-in : ∀ n → n + 0 ≡ n
+lem-in zero = refl
+lem-in (suc n) with lem-in n
+... | p rewrite p = refl
+
+lem-out : ∀ n → (n ∸ 0) + 0 ≡ n
+lem-out zero = refl
+lem-out (suc n) with lem-out n
+... | p rewrite p | lem-in n = refl
+
+lem-min : ∀ n → (n ∸ 0) ≡ n
+lem-min zero = refl
+lem-min (suc n) = refl
+
 data Word (B : ℕ) : ℕ → ℕ → Set where
   true  : Word B      B  (1 + B)
   false : Word B      B  (1 + B)
@@ -30,6 +44,27 @@ data _⊢_⟶_ (Bot : ℕ) : (B B' : ℕ) → Set where
   _,_ : ∀ {B B' In Out} → (w : Word Bot In Out) →
     Bot ⊢ B ⟶ B' →
     Bot ⊢ In + (B ∸ Out) ⟶ (Out ∸ B) + B'
+
+append : {B B' In Out : ℕ} →
+  0 ⊢ B ⟶ B' →
+  0 ⊢ In ⟶ Out →
+  0 ⊢ In + (B ∸ Out) ⟶ (Out ∸ B) + B'
+append {In = In} {Out = Out} [] ys
+  rewrite lem-in In | lem-out Out = ys
+
+append {In = In} {Out = Out} (_,_ {zero} true xs) ys
+  with append xs ys
+... | p rewrite lem-in In | lem-min Out with true , p
+... | hm = {!!}
+
+append (false , xs) ys = {!!}
+append (DEPTH , xs) ys = {!!}
+append (POP , xs) ys = {!!}
+append (NOT , xs) ys = {!!}
+append (AND , xs) ys = {!!}
+
+append (x , xs) ys = {!!}
+
 
 private
   and : 0 ⊢ 2 ⟶ 1
