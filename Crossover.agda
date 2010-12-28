@@ -2,6 +2,7 @@ module Crossover where
 open import Relation.Nullary
 open import Data.Bool
 open import Data.Nat
+open import Data.Nat.DivMod
 open import Data.Fin
 open import Data.List
 open import Data.List.All hiding (lookup)
@@ -44,4 +45,7 @@ lookup : ∀ {ts B N} →
 lookup [] ()
 lookup (d ∷ ds) zero = _ , to-term d
 lookup (d ∷ ds) (suc i) = lookup ds i
+
+rand : (ts : Terms) → (n : ℕ) → Fin (suc (length ts))
+rand ts n = n mod suc (length ts)
 
