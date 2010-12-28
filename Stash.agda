@@ -91,6 +91,10 @@ data _∶_∣_ : ∀ {n} (t : Term n) (Bool Nat : ℕ) → Set where
          t ∶ suc B ∣          N →
     GT ∷ t ∶     B ∣ suc (suc N)
 
+to-term : ∀ {n B N} {t : Term n} →
+  t ∶ B ∣ N → Term n
+to-term {t = t} _ = t
+
 Well : {n : ℕ} → Term n → Set
 Well t = t ∶ 0 ∣ 0
 
