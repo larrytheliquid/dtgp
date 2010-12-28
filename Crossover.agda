@@ -12,13 +12,13 @@ open import Check
 Terms : Set
 Terms = List (Σ ℕ Term)
 
-Checks : Terms → ℕ → ℕ → Set
-Checks ts B N = All (λ t → Typed (proj₂ t) B N) ts
-
 subterms : ∀ {n} → Term n → Terms
 subterms [] = []
 subterms (t ∷ ts) with subterms ts
 ... | xs = (_ , t ∷ ts) ∷ xs
+
+Checks : Terms → ℕ → ℕ → Set
+Checks ts B N = All (λ t → Typed (proj₂ t) B N) ts
 
 checks : (ts : Terms) (B N : ℕ) → Checks ts B N
 checks [] B N = []
