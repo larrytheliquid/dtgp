@@ -34,8 +34,22 @@ data Exec {B B' : ℕ} (E : B ⟶ B') :
   const : ∀ {m₁ n₁ m₂ n₂} 
           {w₁ : Bool 0 m₁ n₁}
           {w₂ : Bool n₁ m₂ n₂}
-          {w₃ : Bool 0 m₂ n₂}→
-    Exec E (w₂ , w₁ , []) (w₃ , [])
+          {w₁′ : Bool 0 m₂ n₂} →
+    Exec E (w₂ , w₁ , []) (w₁′ , [])
+
+  swap : ∀ {m₁ n₁ m₂ n₂} 
+         {w₁ : Bool 0 m₁ n₁}
+         {w₂ : Bool n₁ m₂ n₂}
+         {w₁′ : Bool n₂ m₁ n₁}
+         {w₂′ : Bool 0 m₂ n₂} →
+    Exec E (w₂ , w₁ , []) (w₁′ , w₂′ , [])
+
+  pop : ∀ {m n} {w : Bool 0 m n} →
+    Exec E (w , []) []
+
+  depth : Exec E [] []
+
+  flush : Exec E E []
 
 private
   not,[] : 1 ⟶ 1
