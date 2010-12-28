@@ -1,10 +1,11 @@
 module Crossover where
 open import Relation.Nullary
-open import Data.Nat
 open import Data.Bool
+open import Data.Nat
+open import Data.Fin
 open import Data.List
-open import Data.List.All
-open import Data.Vec
+open import Data.List.All hiding (lookup)
+open import Data.Vec hiding (lookup)
 open import Data.Product
 open import Stash
 open import Check
@@ -37,3 +38,10 @@ choices : ∀ {ts B N} → (ps : Checks ts B N) →
 choices [] = []
 choices (well d ∷ ps) = d ∷ choices ps
 choices (ill ∷ ps) = choices ps
+
+lookup : ∀ {ts B N} →
+  Choices ts B N → Fin (length ts) → Σ ℕ Term
+lookup [] ()
+lookup (d ∷ ds) zero = _ , to-term d
+lookup (d ∷ ds) (suc i) = lookup ds i
+
