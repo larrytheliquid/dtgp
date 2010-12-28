@@ -1,89 +1,89 @@
 module Take3 where
 open import Relation.Binary.PropositionalEquality
+open import Data.Bool hiding (not)
 open import Data.Nat hiding (_∸_)
+open import Data.List hiding (and)
 
-infixl 2 _⟶_
 infixr 5 _,_
 infixl 6 _∸_
+infixl 6 _∸∸_
 
 _∸_ : ℕ → ℕ → ℕ
 zero  ∸ m = zero
 m ∸ zero  = m
 suc m ∸ suc n = m ∸ n
 
-data Bool (B : ℕ) : ℕ → ℕ → Set where
-  true  : Bool B 0 1
-  not   : Bool B 1 1
-  and   : Bool B 2 1
-  dup   : Bool B 1 2
-  flush : Bool B B 0
+data Word : Set where
+  true not and bool-flush : Word
 
-data _⟶_ : ℕ → ℕ → Set where
-  []  : 0 ⟶ 0
+eq-Word : Word → Word → Bool
+eq-Word true true = true
+eq-Word not not = true
+eq-Word and and = true
+eq-Word bool-flush bool-flush = true
+eq-Word _ _ = false
 
-  _,_ :  ∀ {B B' In Out} →
-    (w : Bool B' In Out) →
-    B ⟶ B' →
-    B + (In ∸ B') ⟶ (B' ∸ In) + Out
+Term : Set
+Term = List Word
 
-data Exec {B B' : ℕ} (E : B ⟶ B') :
-  {C C' : ℕ} → C ⟶ C' →
-  {D D' : ℕ} → D ⟶ D' →
-  Set where
+_∸∸_ : Term → Term → Term
+[] ∸∸ ys = []
+(x ∷ xs) ∸∸ [] = x ∷ xs
+(x ∷ xs) ∸∸ (y ∷ ys) with eq-Word x y
+... | true = xs ∸∸ ys
+... | false = x ∷ xs
 
-  const : ∀ {m₁ n₁ m₂ n₂} 
-          {w₁ : Bool 0 m₁ n₁}
-          {w₂ : Bool n₁ m₂ n₂}
-          {w₁′ : Bool 0 m₂ n₂} →
-    Exec E (w₂ , w₁ , []) (w₁′ , [])
+data Type (E : Term) (B : ℕ) : Term → Term → ℕ → ℕ → Set where
+  true  : Type E B [] (true ∷ []) 0 1
+  not   : Type E B [] (not ∷ []) 1 1
+  and   : Type E B [] (and ∷ []) 2 1
+  bool-flush : Type E B [] (bool-flush ∷ []) B 0
 
-  swap : ∀ {m₁ n₁ m₂ n₂} 
-         {w₁ : Bool 0 m₁ n₁}
-         {w₂ : Bool n₁ m₂ n₂}
-         {w₁′ : Bool n₂ m₁ n₁}
-         {w₂′ : Bool 0 m₂ n₂} →
-    Exec E (w₂ , w₁ , []) (w₁′ , w₂′ , [])
+data Deriv : Term → Term → ℕ → ℕ → Set where
+  []  : Deriv [] [] 0 0
 
-  pop : ∀ {m n} {w : Bool 0 m n} →
-    Exec E (w , []) []
-
-  depth : Exec E [] []
-
-  flush : Exec E E []
+  _,_ :  ∀ {E E' B B' E-In E-Out B-In B-Out} →
+    (w : Type E' B' E-In E-Out B-In B-Out) →
+    Deriv E E' B B' →
+    Deriv
+      (E ++ (E-In ∸∸ E'))
+      ((E' ∸∸ E-In) ++ E-Out)
+      (B + (B-In ∸ B'))
+      ((B' ∸ B-In) + B-Out)
 
 private
-  not,[] : 1 ⟶ 1
+  not,[] : Deriv [] (not ∷ []) 1 1
   not,[] = not , []
 
-  and,[] : 2 ⟶ 1
+  and,[] : Deriv [] (and ∷ []) 2 1
   and,[] = and , []
 
-  true,[] : 0 ⟶ 1
+  true,[] : Deriv [] (true ∷ []) 0 1
   true,[] = true , []
 
-  not,not,[] : 1 ⟶ 1
+  not,not,[] : Deriv [] (not ∷ not ∷ []) 1 1
   not,not,[] = not , not , []
 
-  and,not,[] : 2 ⟶ 1
+  and,not,[] : Deriv [] (not ∷ and ∷ []) 2 1
   and,not,[] = and , not,[]
 
-  true,and,[] : 2 ⟶ 2
+  true,and,[] : Deriv [] (and ∷ true ∷ []) 2 2
   true,and,[] = true , and,[]
 
-  and,and,[] : 3 ⟶ 1
+  and,and,[] : Deriv [] (and ∷ and ∷ []) 3 1
   and,and,[] = and , and,[]
 
-  true,true,[] : 0 ⟶ 2
+  true,true,[] : Deriv [] (true ∷ true ∷ []) 0 2
   true,true,[] = true , true,[]
 
-  true,true,not,[] : 1 ⟶ 3
+  true,true,not,[] : Deriv [] (not ∷ true ∷ true ∷ []) 1 3
   true,true,not,[] = true , true , not , []
 
-  not,true,true,not,[] : 1 ⟶ 3
+  not,true,true,not,[] : Deriv [] (not ∷ true ∷ true ∷ not ∷ []) 1 3
   not,true,true,not,[] = not , true,true,not,[]
 
-  true,and,flush,[] : 2 ⟶ 2
-  true,and,flush,[] = true , and , flush , []
+  true,and,flush,[] : Deriv [] (bool-flush ∷ and ∷ true ∷ []) 2 2
+  true,and,flush,[] = true , and , bool-flush , []
 
-  flush,true,and,[] : 2 ⟶ 0
-  flush,true,and,[] = flush , true,and,[]
+  flush,true,and,[] : Deriv [] (and ∷ true ∷ bool-flush ∷ []) 2 0
+  flush,true,and,[] = bool-flush , true,and,[]
