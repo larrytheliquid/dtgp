@@ -1,26 +1,41 @@
 module Take3 where
 open import Relation.Binary.PropositionalEquality
-open import Data.Nat
-open import Data.Bool hiding (not)
-open import Data.Vec
+open import Data.Nat hiding (_∸_)
 
 infixl 2 _⟶_
 infixr 5 _,_
+infixl 6 _∸_
 
-data Word (B : ℕ) : ℕ → ℕ → Set where
-  true  : Word B 0 1
-  not   : Word B 1 1
-  and   : Word B 2 1
-  dup   : Word B 1 2
-  flush : Word B B 0
+_∸_ : ℕ → ℕ → ℕ
+zero  ∸ m = zero
+m ∸ zero  = m
+suc m ∸ suc n = m ∸ n
+
+data Bool (B : ℕ) : ℕ → ℕ → Set where
+  true  : Bool B 0 1
+  not   : Bool B 1 1
+  and   : Bool B 2 1
+  dup   : Bool B 1 2
+  flush : Bool B B 0
 
 data _⟶_ : ℕ → ℕ → Set where
   []  : 0 ⟶ 0
 
-  _,_ : ∀ {B B' In Out} →
-    (w : Word B' In Out) →
+  _,_ :  ∀ {B B' In Out} →
+    (w : Bool B' In Out) →
     B ⟶ B' →
     B + (In ∸ B') ⟶ (B' ∸ In) + Out
+
+data Exec {B B' : ℕ} (E : B ⟶ B') :
+  {C C' : ℕ} → C ⟶ C' →
+  {D D' : ℕ} → D ⟶ D' →
+  Set where
+
+  const : ∀ {m₁ n₁ m₂ n₂} 
+          {w₁ : Bool 0 m₁ n₁}
+          {w₂ : Bool n₁ m₂ n₂}
+          {w₃ : Bool 0 m₂ n₂}→
+    Exec E (w₂ , w₁ , []) (w₃ , [])
 
 private
   not,[] : 1 ⟶ 1
