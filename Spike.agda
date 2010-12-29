@@ -2,8 +2,11 @@ module Spike where
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat
-open import Data.List hiding (and)
+open import Data.Nat.DivMod
+open import Data.Fin hiding (_+_)
+open import Data.Vec
 open import Data.Product
+open import Data.Maybe
 
 infixl 2 _⟶_
 infixr 5 _,_
@@ -27,14 +30,20 @@ Term : Set
 Term = ∃₂ _⟶_
 
 Choices : ℕ → ℕ → Set
-Choices B B' = List (B ⟶ B')
+Choices B B' = ∃ (Vec (B ⟶ B'))
 
 choices : Term → (B B' : ℕ) → Choices B B'
-choices (.zero , .zero , []) B B' = []
+choices (.0 , .0 , []) B B' = _ , []
 choices (.(B + (In ∸ B')) , .(B' ∸ In + Out) , _,_ {B} {B'} {In} {Out} w ws) C C'
   with choices (_ , _ , ws) C C' | C ≟ (B + (In ∸ B')) | C' ≟ (B' ∸ In + Out)
-... | ih | yes p | yes p' rewrite p | p' = (w , ws) ∷ ih
+... | _ , ih | yes p | yes p' rewrite p | p' = _ , ((w , ws) ∷ ih)
 ... | ih | _ | _ = ih
+
+choice : (seed B B' : ℕ) → Term → Maybe (B ⟶ B')
+choice seed B B' t with choices t B B'
+choice seed 0 0 _ | zero , [] = just []
+choice seed _ _ _ | zero , [] = nothing
+... | suc n , c ∷ cs = just (lookup (seed mod suc n) (c ∷ cs))
 
 private
   not,[] : 1 ⟶ 1
