@@ -4,7 +4,7 @@ open import Data.Bool
 open import Data.Nat
 open import Data.Nat.DivMod
 open import Data.Fin
-open import Data.List
+open import Data.List hiding (_++_)
 open import Data.List.All hiding (lookup)
 open import Data.Vec hiding (lookup)
 open import Data.Product
@@ -40,12 +40,24 @@ choices [] = []
 choices (well d ∷ ps) = d ∷ choices ps
 choices (ill ∷ ps) = choices ps
 
+to-terms : ∀ {ts B N} →
+  Choices ts B N → Σ Terms (λ ts → Choices ts B N)
+to-terms ds = _ , ds
+
+rand : (ts : Terms) → ℕ → Fin (suc (length ts))
+rand ts n = n mod suc (length ts)
+
 lookup : ∀ {ts B N} →
-  Choices ts B N → Fin (length ts) → Σ ℕ Term
-lookup [] ()
+  Choices ts B N → Fin (suc (length ts)) → Σ ℕ Term
+lookup [] i = 0 , []
 lookup (d ∷ ds) zero = _ , to-term d
 lookup (d ∷ ds) (suc i) = lookup ds i
 
-rand : (ts : Terms) → (n : ℕ) → Fin (suc (length ts))
-rand ts n = n mod suc (length ts)
+subterm : ∀ {n} (seed B N : ℕ) → (t : Term n) → Σ ℕ Term
+subterm seed B N t with choices (checks (subterms t) B N)
+... | ds = lookup ds (rand (proj₁ (to-terms ds)) seed)
 
+crossover : ∀ {m n} (seed B N : ℕ) → 
+  (male : Term m) (female : Term n) → Σ ℕ Term
+crossover seed B N male female =
+  _ , (male ++ proj₂ (subterm seed B N female))
