@@ -60,4 +60,17 @@ subterm seed B N t with choices (checks (subterms t) B N)
 crossover : ∀ {m n} (seed B N : ℕ) → 
   (male : Term m) (female : Term n) → Σ ℕ Term
 crossover seed B N male female =
-  _ , (male ++ proj₂ (subterm seed B N female))
+  _ , (proj₂ (subterm seed B N female) ++ male)
+
+private
+  male : Term 3
+  male = GT ∷ true ∷ AND ∷ []
+
+  female : Term 4
+  female = true ∷ NOT ∷ nat 7 ∷ nat 4 ∷ []
+
+  seed : ℕ
+  seed = 6
+
+  offspring : Σ ℕ Term
+  offspring = crossover seed 0 0 male female
