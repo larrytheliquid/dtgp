@@ -1,8 +1,9 @@
 module Spike where
+open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat
-open import Data.Bool hiding (not)
-open import Data.Vec
+open import Data.List hiding (and)
+open import Data.Product
 
 infixl 2 _⟶_
 infixr 5 _,_
@@ -21,6 +22,19 @@ data _⟶_ : ℕ → ℕ → Set where
     (w : Word B' In Out) →
     B ⟶ B' →
     B + (In ∸ B') ⟶ (B' ∸ In) + Out
+
+Term : Set
+Term = ∃₂ _⟶_
+
+Choices : ℕ → ℕ → Set
+Choices B B' = List (B ⟶ B')
+
+choices : Term → (B B' : ℕ) → Choices B B'
+choices (.zero , .zero , []) B B' = []
+choices (.(B + (In ∸ B')) , .(B' ∸ In + Out) , _,_ {B} {B'} {In} {Out} w ws) C C'
+  with choices (_ , _ , ws) C C' | C ≟ (B + (In ∸ B')) | C' ≟ (B' ∸ In + Out)
+... | ih | yes p | yes p' rewrite p | p' = (w , ws) ∷ ih
+... | ih | _ | _ = ih
 
 private
   not,[] : 1 ⟶ 1
