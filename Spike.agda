@@ -50,8 +50,8 @@ _++_ : ∀ {R In Out B B'} → R ⊢ In ⟶ Out → R ⊢ B ⟶ B' → R ⊢ B +
 
 -- xs   : .R ⊢ .B0 ⟶ .B1
 -- ys   : .R ⊢ .B ⟶ .B'
--- ih   : .R ⊢ .B + (.B0 ∸ .B') ⟶ .B' ∸ .B0 + .B1
 -- x    : .R .B1 .In .Out
+-- ih   : .R ⊢ .B + (.B0 ∸ .B') ⟶ .B' ∸ .B0 + .B1
 -- Goal: .R ⊢ .B + (.B0 + (.In ∸ .B1) ∸ .B') ⟶
 --       .B' ∸ (.B0 + (.In ∸ .B1)) + (.B1 ∸ .In + .Out)
 
