@@ -8,8 +8,8 @@ open import Data.Fin hiding (_+_)
 open import Data.Product
 open import Data.Maybe
 
-infixl 2 _⊢_⟶_
-infixr 5 _∷_ -- _++_
+infixl 2 _∣_∣_⊢_⟶_
+infixr 5 _∷_ _++_
 infixl 6 _∸_
 
 _∸_ : ℕ → ℕ → ℕ
@@ -24,25 +24,34 @@ data Word (B : ℕ) : ℕ → ℕ → Set where
   dup   : Word B 1 2
   flush : Word B B 0
 
-Req : Set₁
-Req = ℕ → ℕ → ℕ → Set
+data _∣_∣_⊢_⟶_ (W : Set) (In Out : W → ℕ → ℕ) : ℕ → ℕ → Set where
+  []  : W ∣ In ∣ Out ⊢ 0 ⟶ 0
 
-data _⊢_⟶_ (R : Req) : ℕ → ℕ → Set where
-  []  : R ⊢ 0 ⟶ 0
+  _∷_ : ∀ {B B'} →
+    (w : W) →
+    W ∣ In ∣ Out ⊢ B ⟶ B' →
+    W ∣ In ∣ Out ⊢ B + (In w B' ∸ B') ⟶ (B' ∸ In w B') + Out w B'
 
-  _∷_ : ∀ {B B' In Out} →
-    (w : R B' In Out) →
-    R ⊢ B ⟶ B' →
-    R ⊢ B + (In ∸ B') ⟶ (B' ∸ In) + Out
+Term : (W : Set) (In : W → ℕ → ℕ) (Out : W → ℕ → ℕ) → Set
+Term W In Out = ∃₂ (_∣_∣_⊢_⟶_ W In Out)
 
-Term : Req → Set
-Term R = ∃₂ (_⊢_⟶_ R)
-
-_++_ : ∀ {R In Out B B'} → R ⊢ In ⟶ Out → R ⊢ B ⟶ B' → R ⊢ B + (In ∸ B') ⟶ (B' ∸ In) + Out
-[] ++ ys = {!!}
+_++_ : ∀ {W A A' B B'} {In Out : W → ℕ → ℕ} →
+  W ∣ In ∣ Out ⊢ A ⟶ A' →
+  W ∣ In ∣ Out ⊢ B ⟶ B' →
+  Term W In Out
+[] ++ ys = _ , _ , ys
 (x ∷ xs) ++ ys with xs ++ ys
-... | ih with x ∷ ih
-... | hm = {!!}
+... | _ , _ , ih = _ , _ , (x ∷ xs)
+
+-- [] ++ ys = {!!}
+-- (x ∷ xs) ++ ys with xs ++ ys
+-- ... | ih with x ∷ ih
+-- ... | hope = {!hope!}
+
+-- [] ++ ys = {!!}
+-- (x ∷ xs) ++ ys with xs ++ ys
+-- ... | ih with x ∷ ih
+-- ... | hm = {!!}
 
 -- .B' ∸ .B0 + .B1 != .B1 of type ℕ
 -- when checking that the expression ih has type
