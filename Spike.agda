@@ -4,7 +4,7 @@ open import Relation.Binary.PropositionalEquality
 open import Data.Nat hiding (_∸_)
 open import Data.Nat.DivMod
 open import Data.Fin hiding (_+_)
-open import Data.Vec hiding (_++_)
+-- open import Data.Vec hiding (_++_)
 open import Data.Product
 open import Data.Maybe
 
@@ -38,10 +38,22 @@ data _⊢_⟶_ (R : Req) : ℕ → ℕ → Set where
 Term : Req → Set
 Term R = ∃₂ (_⊢_⟶_ R)
 
-_++_ : ∀ {R In Out B B'} → R ⊢ In ⟶ Out → R ⊢ B ⟶ B' → Term R
-[] ++ ys = _ , _ , ys
+_++_ : ∀ {R In Out B B'} → R ⊢ In ⟶ Out → R ⊢ B ⟶ B' → R ⊢ B + (In ∸ B') ⟶ (B' ∸ In) + Out
+[] ++ ys = {!!}
 (x ∷ xs) ++ ys with xs ++ ys
-... | _ , _ , ih = _ , _ , (x ∷ ih)
+... | ih with x ∷ ih
+... | hm = {!!}
+
+-- .B' ∸ .B0 + .B1 != .B1 of type ℕ
+-- when checking that the expression ih has type
+-- (λ x' x0 x1 → .R x' x0 x1) ⊢ .B + (.B0 ∸ .B') ⟶ .B1
+
+-- xs   : .R ⊢ .B0 ⟶ .B1
+-- ys   : .R ⊢ .B ⟶ .B'
+-- ih   : .R ⊢ .B + (.B0 ∸ .B') ⟶ .B' ∸ .B0 + .B1
+-- x    : .R .B1 .In .Out
+-- Goal: .R ⊢ .B + (.B0 + (.In ∸ .B1) ∸ .B') ⟶
+--       .B' ∸ (.B0 + (.In ∸ .B1)) + (.B1 ∸ .In + .Out)
 
 -- [] ++ ys = _ , _ , ys
 -- (x ∷ xs) ++ ys with xs ++ ys
