@@ -42,3 +42,10 @@ choice seed B B' t with choices t B B'
 choice seed 0 0 _ | zero , [] = just []
 choice seed _ _ _ | zero , [] = nothing
 ... | suc n , c ∷ cs = just (lookup (seed mod suc n) (c ∷ cs))
+
+crossover : (seed B B' : ℕ) → 
+  (male : Term) → (female : Term) → Term
+crossover seed B B' male female
+  with choice seed B B' female
+... | nothing = male
+... | just t = proj₂ (proj₂ male) ++ t
