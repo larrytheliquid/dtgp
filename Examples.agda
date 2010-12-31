@@ -1,15 +1,25 @@
 module Examples where
+open import Relation.Binary.PropositionalEquality
+open import Data.Bool hiding (not)
 open import Data.Nat
+open import Data.Vec
 import Stash
 open import Syntax
 open Stash Word In Out
+open import Semantics
 
 private
   not∷[] : 1 ⟶ 1
   not∷[] = not ∷ []
 
+  not∷[]' : run not∷[] (false ∷ []) ≡ (true ∷ [])
+  not∷[]' = refl
+
   and∷[] : 2 ⟶ 1
   and∷[] = and ∷ []
+
+  and∷[]' : run and∷[] (true ∷ true ∷ []) ≡ (true ∷ [])
+  and∷[]' = refl
 
   true∷[] : 0 ⟶ 1
   true∷[] = true ∷ []
@@ -40,3 +50,4 @@ private
 
   flush∷true∷and∷[] : 2 ⟶ 0
   flush∷true∷and∷[] = flush ∷ true∷and∷[]
+
