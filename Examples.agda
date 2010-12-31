@@ -24,14 +24,26 @@ private
   true∷[] : 0 ⟶ 1
   true∷[] = true ∷ []
 
+  true∷[]' : run true∷[] [] ≡ (true ∷ [])
+  true∷[]' = refl
+
   not∷not∷[] : 1 ⟶ 1
   not∷not∷[] = not ∷ not ∷ []
+
+  not∷not∷[]' : run not∷not∷[] (false ∷ []) ≡ (false ∷ [])
+  not∷not∷[]' = refl
 
   and∷not∷[] : 2 ⟶ 1
   and∷not∷[] = and ∷ not∷[]
 
+  and∷not∷[]' : run and∷not∷[] (true ∷ false ∷ []) ≡ (true ∷ [])
+  and∷not∷[]' = refl
+
   true∷and∷[] : 2 ⟶ 2
   true∷and∷[] = true ∷ and∷[]
+
+  true∷and∷[]' : run true∷and∷[] (false ∷ true ∷ []) ≡ (true ∷ false ∷ [])
+  true∷and∷[]' = refl
 
   and∷and∷[] : 3 ⟶ 1
   and∷and∷[] = and ∷ and∷[]
