@@ -1,5 +1,5 @@
 open import Data.Nat
-module Spike (W : Set) (In Out : W → ℕ → ℕ) where
+module Stash (W : Set) (In Out : W → ℕ → ℕ) where
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat.DivMod

@@ -1,9 +1,9 @@
-module SpikeRun where
+module Run where
 open import Relation.Binary.PropositionalEquality
 open import Data.Bool hiding (not)
 open import Data.Nat
 open import Data.Vec
-import Spike
+import Stash
 
 data Word : Set where
   true not and dup flush : Word
@@ -22,7 +22,7 @@ Out and   B = 1
 Out dup   B = 2
 Out flush B = 0
 
-open Spike Word In Out
+open Stash Word In Out
 
 private
   plus0 : ∀ n → n + 0 ≡ n
@@ -52,51 +52,51 @@ private
   lem m n rewrite 0minus n | plus0 m = refl
 
 run : {B B' : ℕ} → B ⟶ B' → Vec Bool B → Vec Bool B'
-run Spike.[] [] = []
+run Stash.[] [] = []
 
-run (Spike._∷_ {zero} {n} true t) xs =
+run (Stash._∷_ {zero} {n} true t) xs =
   true ∷ run t []
-run (Spike._∷_ {suc m} {n} true t) xs
+run (Stash._∷_ {suc m} {n} true t) xs
   rewrite lem m n =
   true ∷ run t xs
 
-run (Spike._∷_ {zero} {suc n} not t) xs rewrite 0minus n
+run (Stash._∷_ {zero} {suc n} not t) xs rewrite 0minus n
   with run t []
 ... | y ∷ ys = Data.Bool.not y ∷ ys
-run (Spike._∷_ {suc m} {suc n} not t) (x ∷ xs) rewrite lem m n =
+run (Stash._∷_ {suc m} {suc n} not t) (x ∷ xs) rewrite lem m n =
   run t (Data.Bool.not x ∷ xs)
-run (Spike._∷_ {m} {zero} not t) xs rewrite plus1 m =
+run (Stash._∷_ {m} {zero} not t) xs rewrite plus1 m =
   Data.Bool.not (head xs) ∷ []
 
-run (Spike._∷_ {zero} {suc zero} and t) (x ∷ [])
+run (Stash._∷_ {zero} {suc zero} and t) (x ∷ [])
   with run t []
 ... | y ∷ [] = x ∧ y ∷ []
-run (Spike._∷_ {zero} {suc (suc n)} and t) xs rewrite 0minus n
+run (Stash._∷_ {zero} {suc (suc n)} and t) xs rewrite 0minus n
   with run t []
 ... | y₂ ∷ y₁ ∷ ys = y₁ ∧ y₂ ∷ ys
-run (Spike._∷_ {suc m} {suc zero} and t) (x ∷ xs) rewrite plus1 m
+run (Stash._∷_ {suc m} {suc zero} and t) (x ∷ xs) rewrite plus1 m
   with run t xs
 ... | y ∷ [] = x ∧ y ∷ []
-run (Spike._∷_ {suc m} {suc (suc n)} and t) xs
+run (Stash._∷_ {suc m} {suc (suc n)} and t) xs
   rewrite lem m n
   with run t xs
 ... | y₂ ∷ y₁ ∷ ys = y₁ ∧ y₂ ∷ ys
-run (Spike._∷_ {m} {zero} and t) xs rewrite plus2 m =
+run (Stash._∷_ {m} {zero} and t) xs rewrite plus2 m =
   (head (tail xs)) ∧ (head xs) ∷ []
 
-run (Spike._∷_ {zero} {suc n} dup t) xs
+run (Stash._∷_ {zero} {suc n} dup t) xs
   with run t []
 ... | y ∷ ys = y ∷ y ∷ ys
-run (Spike._∷_ {m} {zero} dup t) xs
+run (Stash._∷_ {m} {zero} dup t) xs
   rewrite plus1 m
   = head xs ∷ head xs ∷ []
-run (Spike._∷_ {suc m} {suc n} dup t) (x ∷ xs)
+run (Stash._∷_ {suc m} {suc n} dup t) (x ∷ xs)
   rewrite lem m n
   = x ∷ run t (x ∷ xs)
 
-run (Spike._∷_ {zero} {n} flush t) xs
+run (Stash._∷_ {zero} {n} flush t) xs
   rewrite minus n
   = []
-run (Spike._∷_ {m} {n} flush t) xs
+run (Stash._∷_ {m} {n} flush t) xs
   rewrite minus n
   = []

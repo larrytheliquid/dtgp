@@ -1,6 +1,6 @@
-module SpikeExamples where
+module Examples where
 open import Data.Nat
-import Spike
+import Stash
 
 data Word : Set where
   true not and dup flush : Word
@@ -19,7 +19,7 @@ Out and   B = 1
 Out dup   B = 2
 Out flush B = 0
 
-open Spike Word In Out
+open Stash Word In Out
 
 private
   not∷[] : 1 ⟶ 1
