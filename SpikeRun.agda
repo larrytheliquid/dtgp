@@ -44,6 +44,10 @@ private
   0minus zero = refl
   0minus (suc n) = refl
 
+  minus : ∀ n → n ∸ n ≡ 0
+  minus zero = refl
+  minus (suc n) = minus n
+
   lem : ∀ m n → m + (0 ∸ n) ≡ m
   lem m n rewrite 0minus n | plus0 m = refl
 
@@ -80,6 +84,19 @@ run (Spike._∷_ {suc m} {suc (suc n)} and t) xs
 run (Spike._∷_ {m} {zero} and t) xs rewrite plus2 m =
   (head (tail xs)) ∧ (head xs) ∷ []
 
-run (Spike._∷_ dup t) xs = {!!}
+run (Spike._∷_ {zero} {suc n} dup t) xs
+  with run t []
+... | y ∷ ys = y ∷ y ∷ ys
+run (Spike._∷_ {m} {zero} dup t) xs
+  rewrite plus1 m
+  = head xs ∷ head xs ∷ []
+run (Spike._∷_ {suc m} {suc n} dup t) (x ∷ xs)
+  rewrite lem m n
+  = x ∷ run t (x ∷ xs)
 
-run (Spike._∷_ flush t) xs = {!!}
+run (Spike._∷_ {zero} {n} flush t) xs
+  rewrite minus n
+  = []
+run (Spike._∷_ {m} {n} flush t) xs
+  rewrite minus n
+  = []
