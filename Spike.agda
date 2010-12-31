@@ -16,7 +16,7 @@ data _⟶_ : ℕ → ℕ → Set where
 
   _∷_ : ∀ {B B'} →
     (w : W) → B ⟶ B' →
-    B + (In w B' ∸ B') ⟶ (B' ∸ In w B') + Out w B'
+    B + (In w B' ∸ B') ⟶ Out w B' + (B' ∸ In w B')
 
 Term : Set
 Term = ∃₂ _⟶_
@@ -32,8 +32,8 @@ Choices B B' = ∃ (Vec (B ⟶ B'))
 
 choices : Term → (B B' : ℕ) → Choices B B'
 choices (.0 , .0 , []) B B' = _ , []
-choices (.(B + (In w B' ∸ B')) , .(B' ∸ In w B' + Out w B') , _∷_ {B} {B'} w ws) C C'
-  with choices (_ , _ , ws) C C' | C ≟ (B + (In w B' ∸ B')) | C' ≟ (B' ∸ In w B' + Out w B')
+choices (.(B + (In w B' ∸ B')) , .(Out w B' + (B' ∸ In w B')) , _∷_ {B} {B'} w ws) C C'
+  with choices (_ , _ , ws) C C' | C ≟ (B + (In w B' ∸ B')) | C' ≟ (Out w B' + (B' ∸ In w B'))
 ... | _ , ih | yes p | yes p' rewrite p | p' = _ , ((w ∷ ws) ∷ ih)
 ... | ih | _ | _ = ih
 
