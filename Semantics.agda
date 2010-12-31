@@ -43,6 +43,12 @@ run (_∷_ {suc m} {n} true t) xs
   rewrite lem m n =
   true ∷ run t xs
 
+run (_∷_ {zero} {n} false t) xs =
+  false ∷ run t []
+run (_∷_ {suc m} {n} false t) xs
+  rewrite lem m n =
+  false ∷ run t xs
+
 run (_∷_ {zero} {suc n} not t) xs rewrite 0minus n
   with run t []
 ... | y ∷ ys = Data.Bool.not y ∷ ys
@@ -66,6 +72,22 @@ run (_∷_ {suc m} {suc (suc n)} and t) xs
 ... | y₂ ∷ y₁ ∷ ys = y₁ ∧ y₂ ∷ ys
 run (_∷_ {m} {zero} and t) xs rewrite plus2 m =
   (head (tail xs)) ∧ (head xs) ∷ []
+
+run (_∷_ {zero} {suc zero} or t) (x ∷ [])
+  with run t []
+... | y ∷ [] = (x ∨ y) ∷ []
+run (_∷_ {zero} {suc (suc n)} or t) xs rewrite 0minus n
+  with run t []
+... | y₂ ∷ y₁ ∷ ys = (y₁ ∨ y₂) ∷ ys
+run (_∷_ {suc m} {suc zero} or t) (x ∷ xs) rewrite plus1 m
+  with run t xs
+... | y ∷ [] = (x ∨ y) ∷ []
+run (_∷_ {suc m} {suc (suc n)} or t) xs
+  rewrite lem m n
+  with run t xs
+... | y₂ ∷ y₁ ∷ ys = (y₁ ∨ y₂) ∷ ys
+run (_∷_ {m} {zero} or t) xs rewrite plus2 m =
+  (head (tail xs) ∨ head xs) ∷ []
 
 run (_∷_ {zero} {suc n} dup t) xs
   with run t []
