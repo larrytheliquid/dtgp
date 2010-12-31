@@ -47,18 +47,36 @@ true∷and∷[]' = refl
 and∷and∷[] : 3 ⟶ 1
 and∷and∷[] = and ∷ and∷[]
 
+and∷and∷[]' : run and∷and∷[] (true ∷ true ∷ true ∷ []) ≡ (true ∷ [])
+and∷and∷[]' = refl
+
 true∷true∷[] : 0 ⟶ 2
 true∷true∷[] = true ∷ true∷[]
+
+true∷true∷[]' : run true∷true∷[] [] ≡ (true ∷ true ∷ [])
+true∷true∷[]' = refl
 
 true∷true∷not∷[] : 1 ⟶ 3
 true∷true∷not∷[] = true ∷ true ∷ not ∷ []
 
+true∷true∷not∷[]' : run true∷true∷not∷[] (false ∷ []) ≡ (true ∷ true ∷ true ∷ [])
+true∷true∷not∷[]' = refl
+
 not∷true∷true∷not∷[] : 1 ⟶ 3
 not∷true∷true∷not∷[] = not ∷ true∷true∷not∷[]
+
+not∷true∷true∷not∷[]' : run not∷true∷true∷not∷[] (false ∷ []) ≡ (true ∷ true ∷ false ∷ [])
+not∷true∷true∷not∷[]' = refl
 
 true∷and∷flush∷[] : 2 ⟶ 2
 true∷and∷flush∷[] = true ∷ and ∷ flush ∷ []
 
+true∷and∷flush∷[]' : run true∷and∷flush∷[] (false ∷ false ∷ []) ≡ (true ∷ false ∷ [])
+true∷and∷flush∷[]' = refl
+
 flush∷true∷and∷[] : 2 ⟶ 0
 flush∷true∷and∷[] = flush ∷ true∷and∷[]
+
+flush∷true∷and∷[]' : run flush∷true∷and∷[] (true ∷ true ∷ []) ≡ []
+flush∷true∷and∷[]' = refl
 
