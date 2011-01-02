@@ -4,8 +4,8 @@ open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat.DivMod
 open import Data.Fin hiding (_+_)
-open import Data.Vec hiding (_++_)
-open import Data.Product
+open import Data.Vec renaming (_++_ to _v++_)
+open import Data.Product hiding (map)
 open import Data.Maybe
 
 infixl 2 _⟶_
@@ -49,3 +49,24 @@ crossover seed B B' male female
   with choice seed B B' female
 ... | nothing = male
 ... | just t = proj₂ (proj₂ male) ++ t
+
+Terms : Set
+Terms = ∃ (Vec Term)
+
+permutations : ℕ → Term → Terms
+permutations 0 _ = 1 , (_ , _ , []) ∷ []
+permutations n (._ , ._ , []) = 0 , []
+permutations (suc n) (._ , ._ , w ∷ ws) =
+  _ ,
+  map (λ x → _ , _ , w ∷ proj₂ (proj₂ x))
+      (proj₂ (permutations n (_ , _ , ws)))
+  v++
+  proj₂ (permutations (suc n) (_ , _ , ws))
+
+combinations : ℕ → Term → Terms
+combinations zero xs = 0 , []
+combinations (suc n) xs =
+  _ ,
+  proj₂ (permutations (suc n) xs)
+  v++
+  proj₂ (combinations n xs)
