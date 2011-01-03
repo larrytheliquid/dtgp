@@ -4,7 +4,7 @@ open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat.DivMod
 open import Data.Fin hiding (_+_; pred)
-open import Data.Vec renaming (_++_ to _v++_)
+open import Data.Vec hiding (replicate) renaming (_++_ to _v++_)
 open import Data.Product hiding (map)
 open import Data.Maybe
 
@@ -53,29 +53,35 @@ crossover seed B B' male female
 Terms : Set
 Terms = ∃ (Vec Term)
 
-permutations : ℕ → Term → Terms
-permutations 0 _ = 1 , (_ , _ , []) ∷ []
-permutations n (._ , ._ , []) = 0 , []
-permutations (suc n) (._ , ._ , w ∷ ws) =
+distinct-combinations : ℕ → Term → Terms
+distinct-combinations 0 _ = 1 , (_ , _ , []) ∷ []
+distinct-combinations n (._ , ._ , []) = 0 , []
+distinct-combinations (suc n) (._ , ._ , w ∷ ws) =
   _ ,
   map (λ x → _ , _ , w ∷ proj₂ (proj₂ x))
-      (proj₂ (permutations n (_ , _ , ws)))
+      (proj₂ (distinct-combinations n (_ , _ , ws)))
   v++
-  proj₂ (permutations (suc n) (_ , _ , ws))
+  proj₂ (distinct-combinations (suc n) (_ , _ , ws))
 
-combinations : ℕ → Term → Terms
-combinations zero xs = 0 , []
-combinations (suc n) xs =
+replicate : ℕ → W → Term
+replicate zero w = _ , _ , w ∷ []
+replicate (suc n) w with replicate n w
+... | _ , _ , ws = _ , _ , w ∷ ws
+
+expand : ℕ → Term → Term
+expand n (._ , ._ , []) = _ , _ , []
+expand n (._ , ._ , w ∷ ws)
+  with replicate n w | expand n (_ , _ , ws)
+... | _ , _ , lhs | _ , _ , rhs = {!!}
+
+indistinct-combinations : ℕ → Term → Terms
+indistinct-combinations n t =
+  distinct-combinations n (expand n t)
+
+population : ℕ → Term → Terms
+population zero t = 0 , []
+population (suc n) t =
   _ ,
-  proj₂ (permutations (suc n) xs)
+  proj₂ (indistinct-combinations (suc n) t)
   v++
-  proj₂ (combinations n xs)
-
-length : ∀ {B B'} → B ⟶ B' → ℕ
-length [] = 0
-length (w ∷ ws) = suc (length ws)
-
-population : Term → Terms
-population language =
-  combinations (pred (length (proj₂ (proj₂ language)))) language
-
+  proj₂ (population n t)
