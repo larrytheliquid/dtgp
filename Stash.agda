@@ -3,7 +3,7 @@ module Stash (W : Set) (In Out : W → ℕ → ℕ) where
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Nat.DivMod
-open import Data.Fin hiding (_+_)
+open import Data.Fin hiding (_+_; pred)
 open import Data.Vec renaming (_++_ to _v++_)
 open import Data.Product hiding (map)
 open import Data.Maybe
@@ -70,3 +70,12 @@ combinations (suc n) xs =
   proj₂ (permutations (suc n) xs)
   v++
   proj₂ (combinations n xs)
+
+length : ∀ {B B'} → B ⟶ B' → ℕ
+length [] = 0
+length (w ∷ ws) = suc (length ws)
+
+population : Term → Terms
+population language =
+  combinations (pred (length (proj₂ (proj₂ language)))) language
+

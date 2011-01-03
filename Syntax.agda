@@ -1,6 +1,5 @@
 module Syntax where
 open import Data.Nat
-import Stash
 
 data Word : Set where
   true false
