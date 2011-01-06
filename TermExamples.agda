@@ -1,4 +1,4 @@
-module ThatExamples where
+module TermExamples where
 open import Data.Nat
 import That
 
@@ -40,3 +40,6 @@ true∷and∷[] = true ∷ and∷[]
 
 and∷true∷and∷[] : 2 ⟶ 1
 and∷true∷and∷[] = and ∷ true∷and∷[]
+
+long : 0 ⟶ 1
+long = not ∷ and ∷ and ∷ true ∷ not ∷ false ∷ true ∷ []
