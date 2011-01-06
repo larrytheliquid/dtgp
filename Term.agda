@@ -28,11 +28,11 @@ private
   add0 (suc n) with add0 n
   ... | p rewrite p = refl
 
-[_] : ∀ w n → In w n ⟶ Out w n
-[_] w n with _∷_ {k = n} w []
+[_] : ∀ w → In w 0 ⟶ Out w 0
+[_] w with _∷_ {k = 0} w []
 ... | t rewrite
-    add0 (In w n)
-  | add0 (Out w n)
+    add0 (In w 0)
+  | add0 (Out w 0)
   = t
 
 
