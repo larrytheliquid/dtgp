@@ -6,7 +6,7 @@ data Word : Set where
   true false
     not and or
     dup flush
-    double
+    square
     : Word
 
 In : Word → ℕ → ℕ
@@ -17,7 +17,7 @@ In and    B = 2 + B
 In or     B = 2 + B
 In dup    B = 1 + B
 In flush  B = B
-In double B = B
+In square B = B
 
 Out : Word → ℕ → ℕ
 Out true   B = 1 + B
@@ -27,7 +27,7 @@ Out and    B = 1 + B
 Out or     B = 1 + B
 Out dup    B = 2 + B
 Out flush  B = 0
-Out double B = 2 * B
+Out square B = B * B
 
 open Term Word In Out
 
@@ -46,6 +46,9 @@ not∷not∷[] = not ∷ not ∷ []
 true∷and∷[] : 2 ⟶ 2
 true∷and∷[] = true ∷ and∷[]
 
+false∷true∷and∷[] : 2 ⟶ 3
+false∷true∷and∷[] = false ∷ true∷and∷[]
+
 and∷true∷and∷[] : 2 ⟶ 1
 and∷true∷and∷[] = and ∷ true∷and∷[]
 
@@ -58,5 +61,5 @@ flush∷long∷[] = flush ∷ long∷[]
 dup∷and∷true∷and∷[] : 2 ⟶ 2
 dup∷and∷true∷and∷[] = dup ∷ and∷true∷and∷[]
 
-double∷true∷and∷[] : 2 ⟶ 4
-double∷true∷and∷[] = double ∷ true∷and∷[]
+square∷false∷true∷and∷[] : 2 ⟶ 9
+square∷false∷true∷and∷[] = square ∷ false∷true∷and∷[]
