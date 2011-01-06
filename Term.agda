@@ -22,4 +22,17 @@ _++_ : ∀ {Inw Outw B} →
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
+private
+  add0 : ∀ n → n + 0 ≡ n
+  add0 zero = refl
+  add0 (suc n) with add0 n
+  ... | p rewrite p = refl
+
+[_] : ∀ w → In w ⟶ Out w
+[_] w with _∷_ {k = 0} w []
+... | t rewrite
+    add0 (In w)
+  | add0 (Out w)
+  = t
+
 

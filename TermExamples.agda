@@ -1,6 +1,6 @@
 module TermExamples where
 open import Data.Nat
-import That
+import Term
 
 data Word : Set where
   true false
@@ -21,16 +21,16 @@ Out not   = 1
 Out and   = 1
 Out or    = 1
 
-open That Word In Out
+open Term Word In Out
 
 not∷[] : 1 ⟶ 1
-not∷[] = not ∷ []
+not∷[] = [ not ]
 
 and∷[] : 2 ⟶ 1
-and∷[] = and ∷ []
+and∷[] = [ and ]
 
 true∷[] : 0 ⟶ 1
-true∷[] = true ∷ []
+true∷[] = [ true ]
 
 not∷not∷[] : 1 ⟶ 1
 not∷not∷[] = not ∷ not ∷ []
@@ -42,4 +42,4 @@ and∷true∷and∷[] : 2 ⟶ 1
 and∷true∷and∷[] = and ∷ true∷and∷[]
 
 long : 0 ⟶ 1
-long = not ∷ and ∷ and ∷ true ∷ not ∷ false ∷ true ∷ []
+long = not ∷ and ∷ and ∷ true ∷ not ∷ false ∷ [ true ]
