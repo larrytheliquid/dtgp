@@ -34,5 +34,3 @@ private
     add0 (In w 0)
   | add0 (Out w 0)
   = t
-
-
