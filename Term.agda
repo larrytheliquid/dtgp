@@ -1,5 +1,5 @@
 open import Data.Nat
-module Term (W : Set) (In Out : W → ℕ) where
+module Term (W : Set) (In Out : W → ℕ → ℕ) where
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Product
@@ -12,8 +12,8 @@ data _⟶_ (B : ℕ) : ℕ → Set where
   []  : B ⟶ B
 
   _∷_ : ∀ {k} →
-    (w : W) → B ⟶ In w + k →
-    B ⟶ Out w + k
+    (w : W) → B ⟶ In w k →
+    B ⟶ Out w k
 
 _++_ : ∀ {Inw Outw B} →
   Inw ⟶ Outw →
@@ -28,11 +28,11 @@ private
   add0 (suc n) with add0 n
   ... | p rewrite p = refl
 
-[_] : ∀ w → In w ⟶ Out w
-[_] w with _∷_ {k = 0} w []
+[_] : ∀ w n → In w n ⟶ Out w n
+[_] w n with _∷_ {k = n} w []
 ... | t rewrite
-    add0 (In w)
-  | add0 (Out w)
+    add0 (In w n)
+  | add0 (Out w n)
   = t
 
 
