@@ -6,22 +6,20 @@ open import Data.Product
 open import Data.Function
 
 infixl 2 _⟶_
+infixr 5 _∷_ _++_
 
 data _⟶_ : ℕ → ℕ → Set where
   []  : ∀ {n} → n ⟶ n
 
-  less : ∀ {B k} →
-    (w : W) → B ⟶ suc (In w + k) →
-    B ⟶ suc (Out w + k)
-
-  equal : ∀ {B} →
-    (w : W) → B ⟶ In w →
-    B ⟶ Out w
+  _∷_ : ∀ {B k} →
+    (w : W) → B ⟶ In w + k →
+    B ⟶ Out w + k
 
 _++_ : ∀ {Inw Outw B} →
   Inw ⟶ Outw →
   B ⟶ Inw →
   B ⟶ Outw
 [] ++ ys = ys
-(less x xs) ++ ys = less x (xs ++ ys)
-(equal x xs) ++ ys = equal x (xs ++ ys)
+(x ∷ xs) ++ ys = x ∷ (xs ++ ys)
+
+
