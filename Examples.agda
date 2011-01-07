@@ -50,7 +50,7 @@ true∷and∷[] : 2 ⟶ 2
 true∷and∷[] = true ∷ and∷[]
 
 and∷and∷[] : 3 ⟶ 1
-and∷and∷[] = and ∷ and ∷ []
+and∷and∷[] = (and ∷ []) ++ (and ∷ [])
 
 true∷true∷[] : 0 ⟶ 2
 true∷true∷[] = true ∷ true∷[]
@@ -97,3 +97,10 @@ dup∷and∷true∷and∷[] = dup ∷ and∷true∷and∷[]
 
 square∷false∷true∷and∷[] : 2 ⟶ 9
 square∷false∷true∷and∷[] = square ∷ false∷true∷and∷[]
+
+hm : 3 ⟶ 3
+hm = []
+
+open import Data.List hiding (and)
+
+
