@@ -35,3 +35,20 @@ term2 = div ∷ plus ∷ div ∷ nat-x ∷ nat-z ∷ div ∷
 
 term' : 0 ⟶ 1
 term' = term2 ++ term1
+
+segment2 : 2 ⟶ 3
+segment2 = nat-z ∷ div ∷ nat-z ∷ []
+
+segment1 : 2 ⟶ 3
+segment1 =  nat-z ∷ nat 4 ∷ times  ∷ []
+
+original : 0 ⟶ 1
+original = (div ∷ plus ∷ div ∷ nat-x ∷ nat-z ∷ div ∷
+  nat-z ∷ nat 2 ∷ minus ∷ times ∷ [])
+  ++ segment1 ++ (nat-x ∷ nat 8 ∷ [])
+
+offspring : 0 ⟶ 1
+offspring = (div ∷ plus ∷ div ∷ nat-x ∷ nat-z ∷ div ∷
+  nat-z ∷ nat 2 ∷ minus ∷ times ∷ [])
+  ++ segment2 ++ (nat-x ∷ nat 8 ∷ [])
+
