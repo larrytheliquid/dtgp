@@ -10,16 +10,20 @@ combinations-of (suc n) (x ∷ xs) =
   ++
   (combinations-of (suc n) xs)
 
-repliconcat : ℕ → List A → List A
-repliconcat n xs = concat (map (replicate n) xs)
+_∷ʳ_ : List A → A → List A
+[]       ∷ʳ y = [ y ]
+(x ∷ xs) ∷ʳ y = x ∷ (xs ∷ʳ y)
 
-enumeration-of : ℕ → List A → List (List A)
-enumeration-of n xs = combinations-of n (repliconcat n xs)
+shift : List A → List A
+shift [] = []
+shift (x ∷ xs) = xs ∷ʳ x
 
-enumerate : ℕ → List A → List (List A)
-enumerate zero xs = [] ∷ []
-enumerate (suc n) xs =
-  enumeration-of (suc n) xs
-  ++
-  enumerate n xs
+shifts : ℕ → List A → List (List A)
+shifts zero xs = []
+shifts (suc n) xs with shift xs
+... | next = next ∷ shifts n next
 
+enumerations-of : ℕ → List A → List (List A)
+enumerations-of n xs =
+  concat (map (combinations-of n) 
+              (shifts (length xs) xs))
