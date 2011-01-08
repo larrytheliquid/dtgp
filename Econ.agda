@@ -26,6 +26,14 @@ from-List : (xs : L.List (ℕ × ℕ)) → Econ (econ-List xs)
 from-List L.[] = []
 from-List (L._∷_ x xs) = x ∷ from-List xs
 
+econs : ∀ {m n} → Econ m → Econ n → ℕ × ℕ
+econs {n = n} [] ys = n
+econs (x ∷ xs) ys = econ x (econs xs ys)
+
+append : ∀ {m n} → (xs : Econ m) → (ys : Econ n) → Econ (econs xs ys)
+append [] ys = ys
+append (x ∷ xs) ys = x ∷ append xs ys
+
 private
   eg1 : Econ (1 , 3)
   eg1 = (1 , 1) ∷ (0 , 1) ∷ (0 , 1) ∷ (1 , 1) ∷ []
