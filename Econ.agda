@@ -2,7 +2,7 @@ module Econ where
 open import Data.Nat
 open import Data.Product
 
-infixr 5 _∷_
+infixr 5 _∷_ _++_
 
 esuc : ℕ × ℕ → ℕ × ℕ → ℕ × ℕ
 esuc (zero , zero) xy = xy
@@ -30,9 +30,9 @@ esuc-Econ : ∀ {m n} → Econ m → Econ n → ℕ × ℕ
 esuc-Econ {n = n} [] ys = n
 esuc-Econ (x ∷ xs) ys = esuc x (esuc-Econ xs ys)
 
-append : ∀ {m n} → (xs : Econ m) → (ys : Econ n) → Econ (esuc-Econ xs ys)
-append [] ys = ys
-append (x ∷ xs) ys = x ∷ append xs ys
+_++_ : ∀ {m n} → (xs : Econ m) → (ys : Econ n) → Econ (esuc-Econ xs ys)
+[] ++ ys = ys
+(x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
 private
   eg1 : Econ (1 , 3)
