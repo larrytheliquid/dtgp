@@ -27,9 +27,7 @@ Out-Econ (cons B B' xs) ys =
 append : ∀ {B B' A A'} → (xs : Econ B B') → (ys : Econ A A') →
   Econ (In-Econ xs ys) (Out-Econ xs ys)
 append [] ys = ys
-append (cons B B' xs) ys with append xs ys
-... | ih with cons B B' ih
-... | ret = ret
+append (cons B B' xs) ys = cons B B' (append xs ys)
 
 
 
