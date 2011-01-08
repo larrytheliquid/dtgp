@@ -8,9 +8,6 @@ open import Data.Vec hiding (replicate) renaming (_++_ to _v++_)
 open import Data.Product hiding (map)
 open import Data.Maybe
 
--- infixl 2 _⟶_
--- infixr 5 _++_
-
 data Term : ℕ × ℕ → Set where
   []  : Term (0 , 0)
 
@@ -18,9 +15,6 @@ data Term : ℕ × ℕ → Set where
     (w : W) → Term B →
     Term (proj₁ B + (In w (proj₂ B) ∸ proj₂ B) ,
     Out w (proj₂ B) + (proj₂ B ∸ In w (proj₂ B)))
-
--- Term : Set
--- Term = ∃₂ _⟶_
 
 import Data.List as L
 
@@ -34,7 +28,35 @@ List-IO (L._∷_ w ws) with List-IO ws
 from-List : (ws : L.List W) → Term (List-IO ws)
 from-List L.[] = []
 from-List (L._∷_ w ws) with from-List ws
-... | ih = cons w ih
+... | ih = {!!}
+-- cons w ih
+
+IO : ∀ {B} → Term B → ℕ × ℕ
+IO [] = 0 , 0
+IO (cons w ws) with IO ws
+... | B =
+  proj₁ B + (In w (proj₂ B) ∸ proj₂ B) ,
+  Out w (proj₂ B) + (proj₂ B ∸ In w (proj₂ B))
+
+-- plus : (C B : ℕ × ℕ) → ℕ × ℕ
+-- plus (zero , zero) B = B
+-- plus C B = (proj₁ C ∸ proj₂ B) + proj₁ B ,
+--   (proj₂ B ∸ proj₁ C) + proj₂ C
+
+-- plus : (C B : ℕ × ℕ) → ℕ × ℕ
+-- plus (zero , zero) B = B
+-- plus (C , C') B = (C ∸ proj₂ B) + proj₁ B ,
+--   (proj₂ B ∸ C) + C'
+
+
+-- append : ∀ {C B} →
+--   Term C →
+--   Term B →
+--   Term (plus C B)
+-- append [] ys = ys
+-- append (cons x xs) ys with append xs ys
+-- ... | ih with cons x ih
+-- ... | ret = {!!}
 
 -- _++_ : ∀ {A A' B B'} →
 --   A ⟶ A' → B ⟶ B' → Term
