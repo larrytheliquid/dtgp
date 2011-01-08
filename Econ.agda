@@ -26,11 +26,11 @@ from-List : (xs : L.List (ℕ × ℕ)) → Econ (esuc-List xs)
 from-List L.[] = []
 from-List (L._∷_ x xs) = x ∷ from-List xs
 
-esucs : ∀ {m n} → Econ m → Econ n → ℕ × ℕ
-esucs {n = n} [] ys = n
-esucs (x ∷ xs) ys = esuc x (esucs xs ys)
+fold-esuc : ∀ {m n} → Econ m → Econ n → ℕ × ℕ
+fold-esuc {n = n} [] ys = n
+fold-esuc (x ∷ xs) ys = esuc x (fold-esuc xs ys)
 
-append : ∀ {m n} → (xs : Econ m) → (ys : Econ n) → Econ (esucs xs ys)
+append : ∀ {m n} → (xs : Econ m) → (ys : Econ n) → Econ (fold-esuc xs ys)
 append [] ys = ys
 append (x ∷ xs) ys = x ∷ append xs ys
 
