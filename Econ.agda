@@ -14,12 +14,27 @@ econ (suc m , n) xy with econ (m , n) xy
 
 data Econ : ℕ × ℕ → Set where
   []  : Econ (0 , 0)
-  _∷_ : ∀ {a} → (b : ℕ × ℕ) → Econ a → Econ (econ b a)
+  _∷_ : ∀ {n} → (m : ℕ × ℕ) → Econ n → Econ (econ m n)
 
-eg1 : Econ (1 , 3)
-eg1 = (1 , 1) ∷ (0 , 1) ∷ (0 , 1) ∷ (1 , 1) ∷ []
+import Data.List as L
 
-eg2 : Econ (3 , 1)
-eg2 = (2 , 1) ∷ (2 , 1) ∷ []
+econ-List : L.List (ℕ × ℕ) → ℕ × ℕ
+econ-List L.[] = 0 , 0
+econ-List (L._∷_ x xs) = econ x (econ-List xs)
+
+from-List : (xs : L.List (ℕ × ℕ)) → Econ (econ-List xs)
+from-List L.[] = []
+from-List (L._∷_ x xs) = x ∷ from-List xs
+
+private
+  eg1 : Econ (1 , 3)
+  eg1 = (1 , 1) ∷ (0 , 1) ∷ (0 , 1) ∷ (1 , 1) ∷ []
+
+  eg2 : Econ (3 , 1)
+  eg2 = (2 , 1) ∷ (2 , 1) ∷ []
+
+  eg3 : Econ (1 , 3)
+  eg3 = (1 , 2) ∷ (1 , 2) ∷ []
+
 
 
