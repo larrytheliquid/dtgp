@@ -21,9 +21,9 @@ In-Trans : ∀ old-out old-in →
 In-Trans old-out old-in
   rewrite lem-minus old-out = refl
 
-Old-Trans : ∀ new-out old-out →
+Out-Trans : ∀ new-out old-out →
   Out new-out old-out old-out ≡ new-out
-Old-Trans new-out old-out
+Out-Trans new-out old-out
   rewrite lem-minus old-out = refl
 
 data Econ : ℕ → ℕ → Set where
@@ -43,20 +43,37 @@ In-Econ : ∀ {B B' A A'} → Econ B B' → Econ A A' → ℕ
 In-Econ {A = A} [] ys = A
 In-Econ (cons B B' xs) ys = In B (In-Econ xs ys) (Out-Econ xs ys)
 
+Out-Assoc : ∀ {B B' A A'} →
+  (xs : Econ B B') →
+  (ys : Econ A A') →
+  Out-Econ xs ys ≡ Out B' B A'
+Out-Assoc [] ys = {!!}
+Out-Assoc (cons new-in new-out xs) ys with Out-Assoc xs ys
+... | ih rewrite ih = {!!}
+
 append : ∀ {B B' A A'} → (xs : Econ B B') → (ys : Econ A A') →
   Econ (In-Econ xs ys) (Out-Econ xs ys)
 append [] ys = ys
 append (cons B B' xs) ys = cons B B' (append xs ys)
+
+-- hm : ∀ {new-in new-out old-in old-out} →
+--   Econ new-in new-out →
+--   Econ old-in old-out →
+--   Econ (In new-in old-in old-out) (Out new-out new-in old-out)
+-- hm [] ys = {!!}
+-- hm (cons B B' xs) ys with append (cons B B' xs) ys
+-- ... | ih with cons B B' ih
+-- ... | ret = {!!}
 
 -- sappend : ∀ {C B A} → (xs : Econ B C) → (ys : Econ A B) →
 --   Econ (In-Econ xs ys) (Out-Econ xs ys)
 -- sappend [] ys = ys
 -- sappend (cons B B' xs) ys = cons B B' (append xs ys)
 
--- sappend : ∀ {C B A} →
---   Econ B C →
---   Econ A B →
---   Econ A C
--- sappend xs ys with append xs ys
--- ... | ih = {!!}
+-- sappend : ∀ {new-out old-in old-out} →
+--   Econ old-out new-out →
+--   Econ old-in old-out →
+--   Econ old-in new-out
+-- sappend [] ys = ys
+-- sappend (cons new-in new-out xs) ys = {!!}
 
