@@ -48,32 +48,15 @@ Out-Assoc : ∀ {B B' A A'} →
   (ys : Econ A A') →
   Out-Econ xs ys ≡ Out B' B A'
 Out-Assoc [] ys = {!!}
-Out-Assoc (cons new-in new-out xs) ys with Out-Assoc xs ys
-... | ih rewrite ih = {!!}
+Out-Assoc (cons {old-in} {old-out} new-in new-out xs) ys with Out-Assoc xs ys
+... | ih rewrite ih with new-in | old-out
+... | m | zero  = {!!}
+... | zero | suc n  = {!!}
+... | suc m | suc n  = {!!}
 
 append : ∀ {B B' A A'} → (xs : Econ B B') → (ys : Econ A A') →
   Econ (In-Econ xs ys) (Out-Econ xs ys)
 append [] ys = ys
 append (cons B B' xs) ys = cons B B' (append xs ys)
 
--- hm : ∀ {new-in new-out old-in old-out} →
---   Econ new-in new-out →
---   Econ old-in old-out →
---   Econ (In new-in old-in old-out) (Out new-out new-in old-out)
--- hm [] ys = {!!}
--- hm (cons B B' xs) ys with append (cons B B' xs) ys
--- ... | ih with cons B B' ih
--- ... | ret = {!!}
-
--- sappend : ∀ {C B A} → (xs : Econ B C) → (ys : Econ A B) →
---   Econ (In-Econ xs ys) (Out-Econ xs ys)
--- sappend [] ys = ys
--- sappend (cons B B' xs) ys = cons B B' (append xs ys)
-
--- sappend : ∀ {new-out old-in old-out} →
---   Econ old-out new-out →
---   Econ old-in old-out →
---   Econ old-in new-out
--- sappend [] ys = ys
--- sappend (cons new-in new-out xs) ys = {!!}
 
