@@ -39,24 +39,32 @@ Out-Econ {A' = A'} [] ys = A'
 Out-Econ (cons B B' xs) ys =
   Out B' B (Out-Econ xs ys)
 
+Out-Econ-Trans : ∀ {new-out old-in old-out} →
+  (xs : Econ old-out new-out) →
+  (ys : Econ old-in old-out) →
+  Out-Econ xs ys ≡ Out new-out old-out old-out
+Out-Econ-Trans [] ys = refl
+Out-Econ-Trans (cons {old-out = old-out} new-in new-out xs) ys
+  -- rewrite Out-Trans new-out old-out
+  with Out-Econ-Trans xs ys
+... | ih rewrite ih = ?
+
 In-Econ : ∀ {B B' A A'} → Econ B B' → Econ A A' → ℕ
 In-Econ {A = A} [] ys = A
 In-Econ (cons B B' xs) ys = In B (In-Econ xs ys) (Out-Econ xs ys)
 
-Out-Assoc : ∀ {B B' A A'} →
-  (xs : Econ B B') →
-  (ys : Econ A A') →
-  Out-Econ xs ys ≡ Out B' B A'
-Out-Assoc [] ys = {!!}
-Out-Assoc (cons {old-in} {old-out} new-in new-out xs) ys with Out-Assoc xs ys
-... | ih rewrite ih with new-in | old-out
-... | m | zero  = {!!}
-... | zero | suc n  = {!!}
-... | suc m | suc n  = {!!}
+-- Out-Assoc : ∀ {B B' A A'} →
+--   (xs : Econ B B') →
+--   (ys : Econ A A') →
+--   Out-Econ xs ys ≡ Out B' B A'
+-- Out-Assoc [] ys = {!!}
+-- Out-Assoc (cons {old-in} {old-out} new-in new-out xs) ys with Out-Assoc xs ys
+-- ... | ih rewrite ih with new-in | old-out
+-- ... | m | zero  = {!!}
+-- ... | zero | suc n  = {!!}
+-- ... | suc m | suc n  = {!!}
 
 append : ∀ {B B' A A'} → (xs : Econ B B') → (ys : Econ A A') →
   Econ (In-Econ xs ys) (Out-Econ xs ys)
 append [] ys = ys
 append (cons B B' xs) ys = cons B B' (append xs ys)
-
-
