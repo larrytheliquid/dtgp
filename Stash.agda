@@ -25,7 +25,10 @@ _++_ : ∀ {A A' B B'} →
   A ⟶ A' → B ⟶ B' → Term
 [] ++ ys = _ , _ , ys
 (x ∷ xs) ++ ys with xs ++ ys
-... | _ , _ , ih = _ , _ , (x ∷ xs)
+... | _ , _ , ih = _ , _ , (x ∷ ih)
+
+Terms : Set
+Terms = ∃ (Vec Term)
 
 Choices : ℕ → ℕ → Set
 Choices B B' = ∃ (Vec (B ⟶ B'))
@@ -50,38 +53,3 @@ crossover seed B B' male female
 ... | nothing = male
 ... | just t = proj₂ (proj₂ male) ++ t
 
-Terms : Set
-Terms = ∃ (Vec Term)
-
-distinct-combinations : ℕ → Term → Terms
-distinct-combinations 0 _ = 1 , (_ , _ , []) ∷ []
-distinct-combinations n (._ , ._ , []) = 0 , []
-distinct-combinations (suc n) (._ , ._ , w ∷ ws) =
-  _ ,
-  map (λ x → _ , _ , w ∷ proj₂ (proj₂ x))
-      (proj₂ (distinct-combinations n (_ , _ , ws)))
-  v++
-  proj₂ (distinct-combinations (suc n) (_ , _ , ws))
-
-replicate : ℕ → W → Term
-replicate zero w = _ , _ , w ∷ []
-replicate (suc n) w with replicate n w
-... | _ , _ , ws = _ , _ , w ∷ ws
-
-expand : ℕ → Term → Term
-expand n (._ , ._ , []) = _ , _ , []
-expand n (._ , ._ , w ∷ ws)
-  with replicate n w | expand n (_ , _ , ws)
-... | _ , _ , lhs | _ , _ , rhs = {!!}
-
-indistinct-combinations : ℕ → Term → Terms
-indistinct-combinations n t =
-  distinct-combinations n (expand n t)
-
-population : ℕ → Term → Terms
-population zero t = 0 , []
-population (suc n) t =
-  _ ,
-  proj₂ (indistinct-combinations (suc n) t)
-  v++
-  proj₂ (population n t)
