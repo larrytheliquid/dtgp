@@ -12,26 +12,27 @@ Out : ℕ → ℕ → ℕ → ℕ
 Out new-out new-in old-out =
   (old-out ∸ new-in) + new-out
 
-import Data.List as L
+open import Data.List
 
-Out-List : L.List (ℕ × ℕ) → ℕ
-Out-List L.[] = 0
-Out-List (L._∷_ (B , B') xs) =
+Out-List : List (ℕ × ℕ) → ℕ
+Out-List [] = 0
+Out-List (_∷_ (B , B') xs) =
   Out B' B (Out-List xs)
 
-In-List : L.List (ℕ × ℕ) → ℕ
-In-List L.[] = 0
-In-List (L._∷_ (B , B') xs) =
+In-List : List (ℕ × ℕ) → ℕ
+In-List [] = 0
+In-List (_∷_ (B , B') xs) =
   In B (In-List xs) (Out-List xs)
 
-data Econ : ℕ → ℕ → Set where
-  []  : Econ 0 0
-  cons : ∀ {old-in old-out} →
-    (new-in new-out : ℕ) →
-    Econ old-in old-out →
-    Econ (In new-in old-in old-out) 
-         (Out new-out new-in old-out)
+data Econ : List (ℕ × ℕ) → ℕ → ℕ → Set where
+  []  : Econ [] 0 0
+  cons : ∀ {xs} →
+    (x : ℕ × ℕ) →
+    Econ xs (In-List xs) (Out-List xs) →
+    Econ (x ∷ xs) (In-List (x ∷ xs)) (Out-List ((x ∷ xs)))
 
-from-List : (xs : L.List (ℕ × ℕ)) → Econ (In-List xs) (Out-List xs)
-from-List L.[] = []
-from-List (L._∷_ (B , B') xs) = cons B B' (from-List xs)
+append : ∀ {xs ys} → Econ xs (In-List xs) (Out-List xs) → Econ ys (In-List ys) (Out-List ys) →
+  Econ (xs ++ ys) (In-List (xs ++ ys)) (Out-List (xs ++ ys))
+append [] ys = ys
+append (cons x xs) ys = cons x (append xs ys)
+         
