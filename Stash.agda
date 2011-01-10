@@ -37,26 +37,26 @@ from-List L.[] = _ , _ , []
 from-List (L._∷_ x xs) with from-List xs
 ... | _ , _ , ih = _ , _ , x ∷ ih
 
-Choices : ℕ → ℕ → Set
-Choices B B' = ∃ (Vec (B ⟶ B'))
+Candidates : ℕ → ℕ → Set
+Candidates B B' = ∃ (Vec (B ⟶ B'))
 
-choices : Term → (B B' : ℕ) → Choices B B'
-choices (.0 , .0 , []) B B' = _ , []
-choices (.(B + (In w B' ∸ B')) , .(Out w B' + (B' ∸ In w B')) , _∷_ {B} {B'} w ws) C C'
-  with choices (_ , _ , ws) C C' | C ≟ (B + (In w B' ∸ B')) | C' ≟ (Out w B' + (B' ∸ In w B'))
+candidates : Term → (B B' : ℕ) → Candidates B B'
+candidates (.0 , .0 , []) B B' = _ , []
+candidates (.(B + (In w B' ∸ B')) , .(Out w B' + (B' ∸ In w B')) , _∷_ {B} {B'} w ws) C C'
+  with candidates (_ , _ , ws) C C' | C ≟ (B + (In w B' ∸ B')) | C' ≟ (Out w B' + (B' ∸ In w B'))
 ... | _ , ih | yes p | yes p' rewrite p | p' = _ , ((w ∷ ws) ∷ ih)
 ... | ih | _ | _ = ih
 
-choice : (seed B B' : ℕ) → Term → Maybe (B ⟶ B')
-choice seed B B' t with choices t B B'
-choice seed 0 0 _ | zero , [] = just []
-choice seed _ _ _ | zero , [] = nothing
+choose : (seed B B' : ℕ) → Term → Maybe (B ⟶ B')
+choose seed B B' t with candidates t B B'
+choose seed 0 0 _ | zero , [] = just []
+choose seed _ _ _ | zero , [] = nothing
 ... | suc n , c ∷ cs = just (lookup (seed mod suc n) (c ∷ cs))
 
 crossover : (seed B B' : ℕ) → 
   (male : Term) → (female : Term) → Term
 crossover seed B B' male female
-  with choice seed B B' female
+  with choose seed B B' female
 ... | nothing = male
 ... | just t = proj₂ (proj₂ male) ++ t
 
