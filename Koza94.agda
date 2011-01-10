@@ -1,23 +1,31 @@
 module Koza94 where
 open import Data.Nat
+open import Data.List hiding (and; or)
+open import Data.Vec hiding (map)
+open import Data.Product hiding (map)
+open import ListExt
+import Stash
 
 data Word : Set where
-  d0 d1 d2 d3 d4 d5
-    and or
-    nand nor
-    : Word
+  true nand nor : Word
 
 In : Word → ℕ → ℕ
-In and  B = 2
-In or   B = 2
+In true B = 0
 In nand B = 2
 In nor  B = 2
-In d*   B = 0
 
 Out : Word → ℕ → ℕ
-Out and  B = 1
-Out or   B = 1
+Out true B = 1
 Out nand B = 1
 Out nor  B = 1
-Out d*   B = 1
 
+open Stash Word In Out
+
+raw-lang : List Word
+raw-lang = true ∷ nand ∷ nor ∷ []
+
+raw-bank : List (List Word)
+raw-bank = enumerate raw-lang
+
+bank : Terms
+bank = _ , fromList (map from-List raw-bank)
