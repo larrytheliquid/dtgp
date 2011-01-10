@@ -14,15 +14,15 @@ infixr 5 _∷_ _++_
 data _⟶_ : ℕ → ℕ → Set where
   []  : 0 ⟶ 0
 
-  _∷_ : ∀ {B B'} →
-    (w : W) → B ⟶ B' →
-    B + (In w B' ∸ B') ⟶ Out w B' + (B' ∸ In w B')
+  _∷_ : ∀ {A A'} →
+    (w : W) → A ⟶ A' →
+    A + (In w A' ∸ A') ⟶ Out w A' + (A' ∸ In w A')
 
 Term : Set
 Term = ∃₂ _⟶_
 
 _++_ : ∀ {A A' B B'} →
-  A ⟶ A' → B ⟶ B' → Term
+  B ⟶ B' → A ⟶ A' → Term
 [] ++ ys = _ , _ , ys
 (x ∷ xs) ++ ys with xs ++ ys
 ... | _ , _ , ih = _ , _ , (x ∷ ih)
@@ -37,10 +37,28 @@ from-List L.[] = _ , _ , []
 from-List (L._∷_ x xs) with from-List xs
 ... | _ , _ , ih = _ , _ , x ∷ ih
 
+Candidates : ℕ → ℕ → Set
+Candidates A A' = ∃ (Vec (A ⟶ A'))
+
+candidates : (A A' : ℕ) → Terms → Candidates A A'
+candidates A A' (._ , []) = _ , []
+candidates A A' (._ , (B , B' , xs) ∷ xss)
+  with candidates A A' (_ , xss)
+  |    A  ≟ B
+  |    A' ≟ B'
+... | _ , ih | yes p | yes p'
+  rewrite p | p' = _ , xs ∷ ih
+... | _ , ih | _ | _ = _ , ih
+
 rand-term : ℕ → Terms → Term
 rand-term seed (zero , []) = _ , _ , []
 rand-term seed (suc n , xs ∷ xss) =
   lookup (seed mod suc n) (xs ∷ xss)
+
+rand-candidate : ∀ {A A'} → ℕ → Candidates A A' → Maybe (A ⟶ A')
+rand-candidate seed (._ , []) = nothing
+rand-candidate seed (suc n , xs ∷ xss) =
+  just (lookup (seed mod suc n) (xs ∷ xss))
 
 map : (Term → Term) → Terms → Terms
 map f (._ , []) = _ , []
@@ -62,28 +80,16 @@ split-male : ℕ → Term → Term
 split-male seed xs =
   rand-term seed (inits xs)
 
-Candidates : ℕ → ℕ → Set
-Candidates B B' = ∃ (Vec (B ⟶ B'))
+split-female : (seed A A' : ℕ) → Term → Maybe (A ⟶ A')
+split-female seed A A' xs =
+  rand-candidate seed (candidates A A' (tails xs))
 
-candidates : Term → (B B' : ℕ) → Candidates B B'
-candidates (._ , ._ , []) B B' = _ , []
-candidates (._ , ._ , _∷_ {B} {B'} w ws) C C'
-  with candidates (_ , _ , ws) C C'
-  |    C ≟ (B + (In w B' ∸ B'))
-  |    C' ≟ (Out w B' + (B' ∸ In w B'))
-... | _ , ih | yes p | yes p' rewrite p | p' = _ , ((w ∷ ws) ∷ ih)
-... | ih | _ | _ = ih
-
-choose : (seed B B' : ℕ) → Term → Maybe (B ⟶ B')
-choose seed B B' t with candidates t B B'
-choose seed 0 0 _ | zero , [] = just []
-choose seed _ _ _ | zero , [] = nothing
-... | suc n , c ∷ cs = just (lookup (seed mod suc n) (c ∷ cs))
-
-crossover : (seed B B' : ℕ) → 
-  (male : Term) → (female : Term) → Term
-crossover seed B B' male female
-  with choose seed B B' female
+crossover : ℕ → ℕ → Term → Term → Term
+crossover male-seed female-seed male female
+  with split-male male-seed male
+... | A , A' , male'
+  with split-female female-seed A A' (_ , _ , male')
 ... | nothing = male
-... | just t = proj₂ (proj₂ male) ++ t
+... | just female' = male' ++ female'
+
 
