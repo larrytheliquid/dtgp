@@ -30,6 +30,13 @@ _++_ : ∀ {A A' B B'} →
 Terms : Set
 Terms = ∃ (Vec Term)
 
+import Data.List as L
+
+from-List : L.List W → Term
+from-List L.[] = _ , _ , []
+from-List (L._∷_ x xs) with from-List xs
+... | _ , _ , ih = _ , _ , x ∷ ih
+
 Choices : ℕ → ℕ → Set
 Choices B B' = ∃ (Vec (B ⟶ B'))
 
