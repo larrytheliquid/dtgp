@@ -40,6 +40,11 @@ from-List (L._∷_ x xs) with from-List xs
 Candidates : ℕ → ℕ → Set
 Candidates A A' = ∃ (Vec (A ⟶ A'))
 
+to-Terms : ∀ {A A'} → Candidates A A' → Terms
+to-Terms (zero , []) = _ , []
+to-Terms (suc n , xs ∷ xss)
+  = _ , (_ , _ , xs) ∷ (proj₂ (to-Terms (_ , xss)))
+
 candidates : (A A' : ℕ) → Terms → Candidates A A'
 candidates A A' (._ , []) = _ , []
 candidates A A' (._ , (B , B' , xs) ∷ xss)

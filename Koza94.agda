@@ -28,4 +28,7 @@ raw-bank : List (List Word)
 raw-bank = enumerate raw-lang
 
 bank : Terms
-bank = _ , fromList (map from-List raw-bank)
+bank = _ , fromList (Data.List.map from-List raw-bank)
+
+population : Terms
+population = to-Terms (candidates 0 0 bank)
