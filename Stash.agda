@@ -97,4 +97,10 @@ crossover male-seed female-seed male female
 ... | nothing = male
 ... | just female' = male' ++ female'
 
-
+mutate : ℕ → ℕ → Term → Terms → Term
+mutate male-seed mutation-seed male bank
+  with split-male male-seed male
+... | A , A' , male'
+  with rand-candidate mutation-seed (candidates A A' bank)
+... | nothing = male
+... | just mutation = male' ++ mutation
