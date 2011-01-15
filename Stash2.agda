@@ -4,37 +4,38 @@ open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Product hiding (map)
 open import Data.Function
-open import Data.List hiding (_++_; [_]; tails; map; inits)
 
-infixl 2 _⟶_
 infixr 5 _∷_ _++_
 
-data _⟶_ (B : ℕ) : ℕ → Set where
-  []  : B ⟶ B
+data Term (A : ℕ) : ℕ → ℕ → Set where
+  []  : Term A A zero
 
-  _∷_ : ∀ {k} →
-    (w : W) → B ⟶ In w k →
-    B ⟶ Out w k
+  _∷_ : ∀ {n k} →
+    (w : W) → Term A (In w k) n →
+    Term A (Out w k) (suc n)
 
-_++_ : ∀ {Inw Outw B} →
-  Inw ⟶ Outw →
-  B ⟶ Inw →
-  B ⟶ Outw
+_++_ : ∀ {A B C m n} →
+  Term B C m →
+  Term A B n →
+  Term A C (m + n)
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-Term : ℕ → Set
-Term m = ∃ (_⟶_ m)
+data Split (m : ℕ) {n A C : ℕ} : Term A C (m + n) → Set where
+  _++'_ : ∀ {B}
+    (xs : Term B C m)
+    (ys : Term A B n) →
+    Split m (xs ++ ys)
 
-Terms : ℕ → Set
-Terms m = List (Term m)
+split : ∀ m {n A C} (xs : Term A C (m + n)) → Split m xs
+split zero xs = [] ++' xs
+split (suc m) (x ∷ xs) with split m xs
+split (suc A) (x ∷ .(xs ++ ys)) | xs ++' ys = (x ∷ xs) ++' ys
 
-map : ∀ {m} → (Term m → Term m) → Terms m → Terms m
-map f [] = []
-map f (xs ∷ xss) = f xs ∷ map f xss
+take : ∀ {A C} m {n} → Term A C (m + n) → Σ ℕ λ B → Term B C m
+take m xs with split m xs
+take m .(xs ++ ys) | xs ++' ys = _ , xs
 
-tails : ∀ {m} → Term m → Terms m
-tails (n , []) = (n , []) ∷ []
-tails (._ , x ∷ xs) =
-  (_ , x ∷ xs) ∷ tails (_ , xs)
-
+drop : ∀ {A C} m {n} → Term A C (m + n) → Σ ℕ λ B → Term A B n
+drop m xs with split m xs
+drop m .(xs ++ ys) | xs ++' ys = _ , ys
