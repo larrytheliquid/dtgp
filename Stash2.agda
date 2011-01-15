@@ -4,6 +4,7 @@ open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Product hiding (map)
 open import Data.Function
+import Data.List as L
 
 infixr 5 _∷_ _++_
 
@@ -30,12 +31,4 @@ data Split (m : ℕ) {n A C : ℕ} : Term A C (m + n) → Set where
 split : ∀ m {n A C} (xs : Term A C (m + n)) → Split m xs
 split zero xs = [] ++' xs
 split (suc m) (x ∷ xs) with split m xs
-split (suc A) (x ∷ .(xs ++ ys)) | xs ++' ys = (x ∷ xs) ++' ys
-
-take : ∀ {A C} m {n} → Term A C (m + n) → Σ ℕ λ B → Term B C m
-take m xs with split m xs
-take m .(xs ++ ys) | xs ++' ys = _ , xs
-
-drop : ∀ {A C} m {n} → Term A C (m + n) → Σ ℕ λ B → Term A B n
-drop m xs with split m xs
-drop m .(xs ++ ys) | xs ++' ys = _ , ys
+split (suc A) (x ∷ ._) | xs ++' ys = (x ∷ xs) ++' ys

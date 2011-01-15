@@ -6,7 +6,7 @@ open import Data.Product hiding (map)
 open import Data.Function
 open import Data.Vec renaming (_++_ to _v++_)
 
--- infixr 5 _∷_ _++_
+infixr 5 _∷_ _++_
 
 data Term (A : ℕ) : ℕ → {n : ℕ} → Vec ℕ n → Set where
   []  : Term A A []
