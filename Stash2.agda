@@ -44,6 +44,19 @@ concat : ∀ {A C n} → Prog A C n → Term A C n
 concat [] = []
 concat (xs ∷ xss) = xs ++ concat xss
 
+data Trisect (m : ℕ) {n o A D : ℕ} : Term A D (m + n + o) → Set where
+  _++'_++'_ : ∀ {B C}
+    (xs : Term C D m)
+    (ys : Term B C n)
+    (zs : Term A B o) →
+    Trisect m ((xs ++ ys) ++ zs)
+
+trisect : ∀ m n {o A D} (xs : Term A D (m + n + o)) → Trisect m xs
+trisect zero zero xs = [] ++' [] ++' xs
+trisect zero (suc n) xs = {!!}
+trisect (suc m) zero xs = {!!}
+trisect (suc m) (suc n) xs = {!!}
+
 data Group {A C} (n : ℕ) : Term A C n → Set where
   concat' : (xss : Prog A C n) → Group n (concat xss)
 
