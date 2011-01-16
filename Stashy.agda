@@ -8,9 +8,6 @@ open import Data.Product hiding (map)
 open import Data.Function
 open import Data.Vec hiding (_++_)
 
-TODO : ℕ
-TODO = 42
-
 infixr 5 _∷_ _++_ _++'_
 
 data Term (A : ℕ) : ℕ → Set where
@@ -83,16 +80,19 @@ evolve1 i j k l rand♀ rand♂ xss
   with tournament i j xss | tournament k l xss
 ... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
 
+Rand : ℕ → Set
+Rand n = (Fin n × Fin n × Fin n × Fin n) × (ℕ × ℕ)
+
 evolveN : ∀ {A C m n} →
-  Vec (Fin m × Fin m × Fin m × Fin m) n →
+  Vec (Rand m) n →
   Population A C m →
   Population A C n
 evolveN [] xss = []
-evolveN ((i , j , k , l) ∷ is) xss =
-  evolve1 i j k l TODO TODO xss ∷ evolveN is xss
+evolveN (((i , j , k , l) , (rand♀ , rand♂)) ∷ is) xss =
+  evolve1 i j k l rand♀ rand♂ xss ∷ evolveN is xss
 
 evolve : ∀ {A C n} →
-  Vec (Fin n × Fin n × Fin n × Fin n) n →
+  Vec (Rand n) n →
   Population A C n →
   Population A C n
-evolve iss xss = evolveN iss xss
+evolve rands xss = evolveN rands xss
