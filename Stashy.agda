@@ -40,8 +40,8 @@ length : ∀ {A C} → Term A C → ℕ
 length [] = 0
 length (x ∷ xs) = suc (length xs)
 
-split-female : ∀ {A C} → (xs : Term A C) → ℕ → Split xs
-split-female xs rand with rand mod (suc (length xs))
+splitFemale : ∀ {A C} → (xs : Term A C) → ℕ → Split xs
+splitFemale xs rand with rand mod (suc (length xs))
 ... | i = split (toℕ i) xs
 
 tails : ∀ {A D} B → Term A D → ∃ (V.Vec (Term A B))
@@ -51,14 +51,14 @@ tails B (_∷_ {k = k} x xs) with x ∷ xs | Out x k ≟ B
   _ , V._∷_ x∷xs (proj₂ (tails B xs))
 ... | x∷xs | no p = tails B xs
 
-_++split-male_ : ∀ {A C} {xs : Term A C} →
+_++splitMale_ : ∀ {A C} {xs : Term A C} →
   Split xs → (rand : ℕ) → Term A C
-(_++'_ {B = B} xs ys) ++split-male rand 
+(_++'_ {B = B} xs ys) ++splitMale rand 
   with tails B ys
-(xs ++' ys) ++split-male rand | zero , V.[] = xs ++ ys
-(xs ++' ys) ++split-male rand | suc n , zs
+(xs ++' ys) ++splitMale rand | zero , V.[] = xs ++ ys
+(xs ++' ys) ++splitMale rand | suc n , zs
   = xs ++ (V.lookup (rand mod suc n) zs)
 
-crossover : ∀ {A C} (female male : Term A C) (rand-f rand-m : ℕ) → Term A C
-crossover female male rand-f rand-m =
-  split-female female rand-f ++split-male rand-m
+crossover : ∀ {A C} (female male : Term A C) (randF randM : ℕ) → Term A C
+crossover female male randF randM =
+  splitFemale female randF ++splitMale randM
