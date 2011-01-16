@@ -6,7 +6,7 @@ open import Relation.Binary.PropositionalEquality
 open import Data.Fin hiding (_+_; raise)
 open import Data.Product hiding (map)
 open import Data.Function
--- open import Data.Vec hiding (_++_; concat)
+import Data.Vec as V
 
 infixr 5 _∷_ _++_ _++'_
 
@@ -36,7 +36,15 @@ split (suc n) [] = [] ++' []
 split (suc n) (x ∷ xs) with split n xs
 split (suc A) (x ∷ ._) | xs ++' ys = (x ∷ xs) ++' ys
 
-import Data.Vec as V
+length : ∀ {A C} → Term A C → ℕ
+length [] = 0
+length (x ∷ xs) = suc (length xs)
+
+split-male : ∀ {A C} → ℕ → Term A C → ∃ (Term A)
+split-male rand xs with rand mod (suc (length xs))
+... | i with split (toℕ i) xs
+split-male rand ._ | i | xs ++' ys = _ , ys
+
 tails : ∀ {A D} B → Term A D → ∃ (V.Vec (Term A B))
 tails B [] = _ , V.[]
 tails B (_∷_ {k = k} x xs) with x ∷ xs | Out x k ≟ B
