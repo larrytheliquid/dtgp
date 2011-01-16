@@ -8,7 +8,7 @@ open import Data.Product hiding (map)
 open import Data.Function
 -- open import Data.Vec hiding (_++_; concat)
 
-infixr 5 _∷_ _++_
+infixr 5 _∷_ _++_ _++'_
 
 data Term (A : ℕ) : ℕ → ℕ → Set where
   []  : Term A A zero
@@ -43,26 +43,19 @@ tails B (_∷_ {k = k} x xs) with x ∷ xs | Out x k ≟ B
   _ , V._∷_ (_ , x∷xs) (proj₂ (tails B xs))
 ... | x∷xs | no p = tails B xs
 
-crossover : ∀ {A C m n} {xs : Term A C (m + n)} (rand : ℕ) →
+split-male : ∀ {A C m n} → (i : Fin m) →
+  (xs : Term A C (toℕ i + n)) → Split (toℕ i) xs
+split-male zero xs = [] ++' xs
+split-male (suc i) (x ∷ xs)
+  with split-male i xs
+split-male (suc _) (x ∷ ._) | xs ++' ys =
+  (x ∷ xs) ++' ys
+
+split-female : ∀ {A C m n} {xs : Term A C (m + n)} (rand : ℕ) →
   Split m xs → ∃ (Term A C)
-crossover {A = A} rand (_++'_ {B = B} xs ys)
+split-female {A = A} rand (_++'_ {B = B} xs ys)
   with tails B ys
-crossover rand (xs ++' ys) | zero , V.[] = _ , xs ++ ys
-crossover rand (xs ++' ys) | suc n , zs
+split-female rand (xs ++' ys) | zero , V.[] = _ , xs ++ ys
+split-female rand (xs ++' ys) | suc n , zs
   with V.lookup (rand mod suc n) zs
 ... | _ , ys' = _ , xs ++ ys'
-
--- crossover rand (xs ++' []) = _ , xs
--- crossover rand (xs ++' (_∷_ {n = n} y ys)) =
---   V.lookup (rand mod suc n) (y ∷ ys)
-
--- inits on Prog?
-
--- import Data.List as L
--- all-n : ℕ → L.List ℕ
--- all-n zero = L.[]
--- all-n (suc n) = L._∷_ zero (L.map suc (all-n n))
-
--- import Data.List.All as A
--- splits : ∀ {n A C} (xs : Term A C n) → A.All (Σ ℕ λ m → Split m xs)
--- splits xs = ?
