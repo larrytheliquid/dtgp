@@ -40,8 +40,8 @@ length : ∀ {A C} → Term A C → ℕ
 length [] = 0
 length (x ∷ xs) = suc (length xs)
 
-splitFemale : ∀ {A C} → (xs : Term A C) → ℕ → Split xs
-splitFemale xs rand with rand mod (suc (length xs))
+split♀ : ∀ {A C} → (xs : Term A C) → ℕ → Split xs
+split♀ xs rand with rand mod (suc (length xs))
 ... | i = split (toℕ i) xs
 
 tails : ∀ {A D} B → Term A D → ∃ (V.Vec (Term A B))
@@ -51,17 +51,17 @@ tails B (_∷_ {k = k} x xs) with x ∷ xs | Out x k ≟ B
   _ , V._∷_ x∷xs (proj₂ (tails B xs))
 ... | x∷xs | no p = tails B xs
 
-_++splitMale_ : ∀ {A C} {xs : Term A C} →
+_++split♂_ : ∀ {A C} {xs : Term A C} →
   Split xs → (rand : ℕ) → Term A C
-(_++'_ {B = B} xs ys) ++splitMale rand 
+(_++'_ {B = B} xs ys) ++split♂ rand 
   with tails B ys
-(xs ++' ys) ++splitMale rand | zero , V.[] = xs ++ ys
-(xs ++' ys) ++splitMale rand | suc n , zs
+(xs ++' ys) ++split♂ rand | zero , V.[] = xs ++ ys
+(xs ++' ys) ++split♂ rand | suc n , zs
   = xs ++ (V.lookup (rand mod suc n) zs)
 
-crossover : ∀ {A C} (female male : Term A C) (randF randM : ℕ) → Term A C
-crossover female male randF randM =
-  splitFemale female randF ++splitMale randM
+crossover : ∀ {A C} (♀ ♂ : Term A C) (rand♀ rand♂ : ℕ) → Term A C
+crossover ♀ male rand♀ rand♂ =
+  split♀ ♀ rand♀ ++split♂ rand♂
 
 Population : (A C n : ℕ) → Set
 Population A C n = V.Vec (Term A C) n
@@ -69,23 +69,15 @@ Population A C n = V.Vec (Term A C) n
 Rands : ℕ → Set
 Rands n = V.Vec ℕ n
 
-evolve2 : ∀ {A C n} (iY iZ : Fin n) → Rands 4 →
+evolve1 : ∀ {A C n} (♀ ♂ : Term A C) → (rand♀ rand♂ : ℕ) → Fin n →
   Population A C n → Population A C n
-evolve2 iY iZ rands xss
-  with V.lookup iY xss | V.lookup iZ xss
-... | ys | zs
-  with crossover ys zs (V.lookup zero rands)
-                       (V.lookup (suc zero) rands)
-  |    crossover ys zs (V.lookup (suc (suc zero)) rands)
-                       (V.lookup (suc (suc (suc zero))) rands)
-... | ys' | zs'
-  with V._[_]≔_ xss iY ys'
-... | xss' =
-  V._[_]≔_ xss' iZ zs'
+evolve1 ♀ ♂ rand♀ rand♂ i xss
+  with crossover ♀ ♂ rand♀ rand♂ 
+... | child = V._[_]≔_ xss i child
 
-evolve : ∀ {A C m n} →
-  Rands 4 → V.Vec (Fin n) m →
-  Population A C n → Population A C n
-evolve rands V.[] xss = xss
-evolve rands (V._∷_ iY (V._∷_ iZ is)) xss = evolve2 iY iZ rands xss
-evolve rands (V._∷_ i is) xss = xss
+-- evolve : ∀ {A C m n} →
+--   Rands 4 → V.Vec (Fin n) m →
+--   Population A C n → Population A C n
+-- evolve rands V.[] xss = xss
+-- evolve rands (V._∷_ iY (V._∷_ iZ is)) xss = evolve2 iY iZ rands xss
+-- evolve rands (V._∷_ i is) xss = xss
