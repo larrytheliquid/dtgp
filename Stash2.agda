@@ -1,10 +1,12 @@
 open import Data.Nat
 module Stash2 (W : Set) (In Out : W → ℕ → ℕ) where
+open import Data.Nat.DivMod
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
+open import Data.Fin hiding (_+_; raise)
 open import Data.Product hiding (map)
 open import Data.Function
-import Data.List as L
+-- open import Data.Vec hiding (_++_; concat)
 
 infixr 5 _∷_ _++_
 
@@ -33,33 +35,27 @@ split zero xs = [] ++' xs
 split (suc m) (x ∷ xs) with split m xs
 split (suc A) (x ∷ ._) | xs ++' ys = (x ∷ xs) ++' ys
 
-data Prog (A : ℕ) : ℕ → ℕ → Set where
-  []  : Prog A A zero
+import Data.Vec as V
+tails : ∀ {A D m} B → Term A D m  → ∃ (V.Vec (∃ (Term A B)))
+tails B [] = _ , V.[]
+tails B (_∷_ {k = k} x xs) with x ∷ xs | Out x k ≟ B
+... | x∷xs | yes p rewrite p =
+  _ , V._∷_ (_ , x∷xs) (proj₂ (tails B xs))
+... | x∷xs | no p = tails B xs
 
-  _∷_ : ∀ {B C m n} →
-    Term B C m → Prog A B n →
-    Prog A C (m + n)
+crossover : ∀ {A C m n} {xs : Term A C (m + n)} (rand : ℕ) →
+  Split m xs → ∃ (Term A C)
+crossover rand (xs ++' []) = _ , xs
+crossover rand (xs ++' (_∷_ {n = n} y ys)) =
+  V.lookup (rand mod suc n) (y ∷ ys)
 
-concat : ∀ {A C n} → Prog A C n → Term A C n
-concat [] = []
-concat (xs ∷ xss) = xs ++ concat xss
+-- inits on Prog?
 
-data Trisect (m : ℕ) {n o A D : ℕ} : Term A D (m + n + o) → Set where
-  _++'_++'_ : ∀ {B C}
-    (xs : Term C D m)
-    (ys : Term B C n)
-    (zs : Term A B o) →
-    Trisect m ((xs ++ ys) ++ zs)
+-- import Data.List as L
+-- all-n : ℕ → L.List ℕ
+-- all-n zero = L.[]
+-- all-n (suc n) = L._∷_ zero (L.map suc (all-n n))
 
-trisect : ∀ m n {o A D} (xs : Term A D (m + n + o)) → Trisect m xs
-trisect zero zero xs = [] ++' [] ++' xs
-trisect zero (suc n) xs = {!!}
-trisect (suc m) zero xs = {!!}
-trisect (suc m) (suc n) xs = {!!}
-
-data Group {A C} (n : ℕ) : Term A C n → Set where
-  concat' : (xss : Prog A C n) → Group n (concat xss)
-
-group : ∀ {A C} n (xss : Prog A C n) → Group n (concat xss)
-group zero xss = concat' xss
-group (suc n) xss = {!!}
+-- import Data.List.All as A
+-- splits : ∀ {n A C} (xs : Term A C n) → A.All (Σ ℕ λ m → Split m xs)
+-- splits xs = ?
