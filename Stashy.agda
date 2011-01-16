@@ -8,6 +8,9 @@ open import Data.Product hiding (map)
 open import Data.Function
 open import Data.Vec hiding (_++_)
 
+TODO : ℕ
+TODO = 42
+
 infixr 5 _∷_ _++_ _++'_
 
 data Term (A : ℕ) : ℕ → Set where
@@ -67,20 +70,29 @@ crossover ♀ male rand♀ rand♂ =
 Population : (A C n : ℕ) → Set
 Population A C n = Vec (Term A C) n
 
-Rands : ℕ → Set
-Rands n = Vec ℕ n
+postulate
+  tournament : ∀ {A C n} (i j : Fin n) →
+    Population A C n → Term A C
 
-evolve1 : ∀ {A C n} (♀ ♂ : Term A C) → (rand♀ rand♂ : ℕ) → Fin n →
-  Population A C n → Population A C n
-evolve1 ♀ ♂ rand♀ rand♂ i xss =
-  xss [ i ]≔ crossover ♀ ♂ rand♀ rand♂ 
+evolve1 : ∀ {A C n} →
+  (i j k l : Fin n) →
+  (rand♀ rand♂ : ℕ) →
+  Population A C n →
+  Term A C
+evolve1 i j k l rand♀ rand♂ xss
+  with tournament i j xss | tournament k l xss
+... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
 
-postulate tournament : ∀ {A C n} (i j k l : Fin n) →
-  Population A C n → Term A C × Term A C × Fin n
+evolveN : ∀ {A C m n} →
+  Vec (Fin m × Fin m × Fin m × Fin m) n →
+  Population A C m →
+  Population A C n
+evolveN [] xss = []
+evolveN ((i , j , k , l) ∷ is) xss =
+  evolve1 i j k l TODO TODO xss ∷ evolveN is xss
 
--- evolve : ∀ {A C m n} →
---   Rands 4 → Vec (Fin n) m →
---   Population A C n → Population A C n
--- evolve rands [] xss = xss
--- evolve rands (iY ∷ (V._∷_ iZ is)) xss = evolve2 iY iZ rands xss
--- evolve rands (i ∷ is) xss = xss
+evolve : ∀ {A C n} →
+  Vec (Fin n × Fin n × Fin n × Fin n) n →
+  Population A C n →
+  Population A C n
+evolve iss xss = evolveN iss xss
