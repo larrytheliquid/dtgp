@@ -66,9 +66,12 @@ crossover female male randF randM =
 Population : (A C n : ℕ) → Set
 Population A C n = V.Vec (Term A C) n
 
-sucPopulation : ∀ {A C n} (iY iZ : Fin n) (rands : V.Vec ℕ 4) →
+Rands : ℕ → Set
+Rands n = V.Vec ℕ n
+
+evolve2 : ∀ {A C n} (iY iZ : Fin n) → Rands 4 →
   Population A C n → Population A C n
-sucPopulation iY iZ rands xss
+evolve2 iY iZ rands xss
   with V.lookup iY xss | V.lookup iZ xss
 ... | ys | zs
   with crossover ys zs (V.lookup zero rands)
@@ -79,3 +82,10 @@ sucPopulation iY iZ rands xss
   with V._[_]≔_ xss iY ys'
 ... | xss' =
   V._[_]≔_ xss' iZ zs'
+
+evolve : ∀ {A C m n} →
+  Rands 4 → V.Vec (Fin n) m →
+  Population A C n → Population A C n
+evolve rands V.[] xss = xss
+evolve rands (V._∷_ iY (V._∷_ iZ is)) xss = evolve2 iY iZ rands xss
+evolve rands (V._∷_ i is) xss = xss
