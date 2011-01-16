@@ -62,3 +62,20 @@ _++splitMale_ : ∀ {A C} {xs : Term A C} →
 crossover : ∀ {A C} (female male : Term A C) (randF randM : ℕ) → Term A C
 crossover female male randF randM =
   splitFemale female randF ++splitMale randM
+
+Population : (A C n : ℕ) → Set
+Population A C n = V.Vec (Term A C) n
+
+sucPopulation : ∀ {A C n} (iY iZ : Fin n) (rands : V.Vec ℕ 4) →
+  Population A C n → Population A C n
+sucPopulation iY iZ rands xss
+  with V.lookup iY xss | V.lookup iZ xss
+... | ys | zs
+  with crossover ys zs (V.lookup zero rands)
+                       (V.lookup (suc zero) rands)
+  |    crossover ys zs (V.lookup (suc (suc zero)) rands)
+                       (V.lookup (suc (suc (suc zero))) rands)
+... | ys' | zs'
+  with V._[_]≔_ xss iY ys'
+... | xss' =
+  V._[_]≔_ xss' iZ zs'
