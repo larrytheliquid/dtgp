@@ -45,9 +45,16 @@ tails B (_∷_ {k = k} x xs) with x ∷ xs | Out x k ≟ B
 
 crossover : ∀ {A C m n} {xs : Term A C (m + n)} (rand : ℕ) →
   Split m xs → ∃ (Term A C)
-crossover rand (xs ++' []) = _ , xs
-crossover rand (xs ++' (_∷_ {n = n} y ys)) =
-  V.lookup (rand mod suc n) (y ∷ ys)
+crossover {A = A} rand (_++'_ {B = B} xs ys)
+  with tails B ys
+crossover rand (xs ++' ys) | zero , V.[] = _ , xs ++ ys
+crossover rand (xs ++' ys) | suc n , zs
+  with V.lookup (rand mod suc n) zs
+... | _ , ys' = _ , xs ++ ys'
+
+-- crossover rand (xs ++' []) = _ , xs
+-- crossover rand (xs ++' (_∷_ {n = n} y ys)) =
+--   V.lookup (rand mod suc n) (y ∷ ys)
 
 -- inits on Prog?
 
