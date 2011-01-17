@@ -68,25 +68,40 @@ Population : (A C n : ℕ) → Set
 Population A C n = Vec (Term A C) n
 
 open import Data.Bool
-module Evolve (U : Set) (input : {n : ℕ} → Vec U n)
-  (eval : {m n : ℕ} → Term m n → Vec U m → Vec U n)
-  (better? : {n : ℕ} → Vec U n → Vec U n → Bool)
+
+_gte_ : ℕ → ℕ → Bool
+zero gte zero = true
+zero gte (suc n) = false
+(suc m) gte zero = true
+(suc m) gte (suc n) = m gte n
+
+sumParity : ∀ {n} → Vec Bool n → ℕ × ℕ
+sumParity [] = 0 , 0
+sumParity (true ∷ xs) with sumParity xs
+... | ts , fs = suc ts , fs
+sumParity (false ∷ xs) with sumParity xs
+... | ts , fs = ts , suc fs
+
+module Evolve (U : Set) (pop ins outs cases : ℕ)
+  (fitnessCases : Vec (Vec U ins) cases)
+  (eval : Term ins outs → Vec U ins → Vec U outs)
+  (better : Vec U outs → Vec U outs → Bool)
   where
 
-  tournament : ∀ {A C n} (i j : Fin n) →
-    Population A C n → Term A C
+  tournament : (i j : Fin pop) →
+    Population ins outs pop → Term ins outs
   tournament i j xss
-    with lookup i xss
-    |    lookup j xss
-  ... | a | b = if
-    better? (eval a input) (eval b input)
-    then a else b
+    with lookup i xss | lookup j xss
+  ... | a | b with map
+    (λ input → better (eval a input) (eval b input))
+    fitnessCases
+  ... | bs with sumParity bs
+  ... | ts , fs = if (ts gte fs) then a else b
 
-  evolve1 : ∀ {A C n} →
-    (i j k l : Fin n) →
+  evolve1 : (i j k l : Fin pop) →
     (rand♀ rand♂ : ℕ) →
-    Population A C n →
-    Term A C
+    Population ins outs pop →
+    Term ins outs
   evolve1 i j k l rand♀ rand♂ xss
     with tournament i j xss | tournament k l xss
   ... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
@@ -94,16 +109,16 @@ module Evolve (U : Set) (input : {n : ℕ} → Vec U n)
   Rand : ℕ → Set
   Rand n = (Fin n × Fin n × Fin n × Fin n) × (ℕ × ℕ)
 
-  evolveN : ∀ {A C m n} →
-    Vec (Rand m) n →
-    Population A C m →
-    Population A C n
+  evolveN : ∀ {n} →
+    Vec (Rand pop) n →
+    Population ins outs pop →
+    Population ins outs n
   evolveN [] xss = []
   evolveN (((i , j , k , l) , (rand♀ , rand♂)) ∷ is) xss =
     evolve1 i j k l rand♀ rand♂ xss ∷ evolveN is xss
 
-  evolve : ∀ {A C n} →
-    Vec (Rand n) n →
-    Population A C n →
-    Population A C n
+  evolve :
+    Vec (Rand pop) pop →
+    Population ins outs pop →
+    Population ins outs pop
   evolve rands xss = evolveN rands xss
