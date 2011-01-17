@@ -34,7 +34,17 @@ evenParity xs = even (trues xs)
 
 open Stashy Word In Out
 
-input : Vec Word 0
-input = []
+population = 15
+inputs = 2
+outputs = 1
+cases = 4
 
--- better?
+fitnessCases : Vec (Vec Bool inputs) cases
+fitnessCases =
+    (true ∷ true ∷ [])
+  ∷ (true ∷ false ∷ [])
+  ∷ (false ∷ true ∷ [])
+  ∷ (false ∷ false ∷ [])
+  ∷ []
+
+
