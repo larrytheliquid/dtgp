@@ -67,32 +67,43 @@ crossover ♀ male rand♀ rand♂ =
 Population : (A C n : ℕ) → Set
 Population A C n = Vec (Term A C) n
 
-postulate
+open import Data.Bool
+module Evolve (U : Set) (input : {n : ℕ} → Vec U n)
+  (eval : {m n : ℕ} → Term m n → Vec U m → Vec U n)
+  (better? : {n : ℕ} → Vec U n → Vec U n → Bool)
+  where
+
   tournament : ∀ {A C n} (i j : Fin n) →
     Population A C n → Term A C
+  tournament i j xss
+    with lookup i xss
+    |    lookup j xss
+  ... | a | b = if
+    better? (eval a input) (eval b input)
+    then a else b
 
-evolve1 : ∀ {A C n} →
-  (i j k l : Fin n) →
-  (rand♀ rand♂ : ℕ) →
-  Population A C n →
-  Term A C
-evolve1 i j k l rand♀ rand♂ xss
-  with tournament i j xss | tournament k l xss
-... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
+  evolve1 : ∀ {A C n} →
+    (i j k l : Fin n) →
+    (rand♀ rand♂ : ℕ) →
+    Population A C n →
+    Term A C
+  evolve1 i j k l rand♀ rand♂ xss
+    with tournament i j xss | tournament k l xss
+  ... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
 
-Rand : ℕ → Set
-Rand n = (Fin n × Fin n × Fin n × Fin n) × (ℕ × ℕ)
+  Rand : ℕ → Set
+  Rand n = (Fin n × Fin n × Fin n × Fin n) × (ℕ × ℕ)
 
-evolveN : ∀ {A C m n} →
-  Vec (Rand m) n →
-  Population A C m →
-  Population A C n
-evolveN [] xss = []
-evolveN (((i , j , k , l) , (rand♀ , rand♂)) ∷ is) xss =
-  evolve1 i j k l rand♀ rand♂ xss ∷ evolveN is xss
+  evolveN : ∀ {A C m n} →
+    Vec (Rand m) n →
+    Population A C m →
+    Population A C n
+  evolveN [] xss = []
+  evolveN (((i , j , k , l) , (rand♀ , rand♂)) ∷ is) xss =
+    evolve1 i j k l rand♀ rand♂ xss ∷ evolveN is xss
 
-evolve : ∀ {A C n} →
-  Vec (Rand n) n →
-  Population A C n →
-  Population A C n
-evolve rands xss = evolveN rands xss
+  evolve : ∀ {A C n} →
+    Vec (Rand n) n →
+    Population A C n →
+    Population A C n
+  evolve rands xss = evolveN rands xss
