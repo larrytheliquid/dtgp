@@ -2,6 +2,7 @@ module Angeline97 where
 open import Relation.Binary.PropositionalEquality
 open import Data.Bool hiding (not)
 open import Data.Nat
+open import Data.Product
 open import Data.Vec
 import Stashy
 
@@ -9,14 +10,14 @@ data Word : Set where
   not and or : Word
 
 In : Word → ℕ → ℕ
-In not n = 1
-In and n = 2
-In or  n = 2
+In not n = 1 + n
+In and n = 2 + n
+In or  n = 2 + n
 
 Out : Word → ℕ → ℕ
-Out not n = 1
-Out and n = 1
-Out or  n = 1
+Out not n = 1 + n
+Out and n = 1 + n
+Out or  n = 1 + n
 
 even : ℕ → Bool
 even zero = true
@@ -47,4 +48,15 @@ fitnessCases =
   ∷ (false ∷ false ∷ [])
   ∷ []
 
+score : Vec Bool inputs → Vec Bool outputs → ℕ
+score xs (y ∷ []) = if evenParity xs ∧ y
+  then 1 else 0
 
+eval : ∀ {A C} → Term A C → Vec Bool A → Vec Bool C
+eval [] as = as
+eval (not ∷ xs) as with eval xs as
+... | c ∷ cs = Data.Bool.not c ∷ cs
+eval (and ∷ xs) as with eval xs as
+... | c₂ ∷ c₁ ∷ cs = (c₁ ∧ c₂) ∷ cs
+eval (or ∷ xs) as with eval xs as
+... | c₂ ∷ c₁ ∷ cs = (c₁ ∨ c₂) ∷ cs

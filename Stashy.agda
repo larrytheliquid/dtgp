@@ -85,7 +85,7 @@ sumParity (false ∷ xs) with sumParity xs
 module Evolve (U : Set) (pop ins outs cases : ℕ)
   (fitnessCases : Vec (Vec U ins) cases)
   (eval : Term ins outs → Vec U ins → Vec U outs)
-  (better : Vec U outs → Vec U outs → Bool)
+  (score : Vec U ins → Vec U outs → ℕ)
   where
 
   tournament : (i j : Fin pop) →
@@ -93,7 +93,11 @@ module Evolve (U : Set) (pop ins outs cases : ℕ)
   tournament i j xss
     with lookup i xss | lookup j xss
   ... | a | b with map
-    (λ input → better (eval a input) (eval b input))
+    (λ input →
+      score input (eval a input)
+      gte
+      score input (eval b input)
+    )
     fitnessCases
   ... | bs with sumParity bs
   ... | ts , fs = if (ts gte fs) then a else b
