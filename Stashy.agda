@@ -84,8 +84,8 @@ sumParity (false ∷ xs) with sumParity xs
 
 module Evolve (U : Set) (pop ins outs cases : ℕ)
   (fitnessCases : Vec (Vec U ins) cases)
-  (eval : Term ins outs → Vec U ins → Vec U outs)
   (score : Vec U ins → Vec U outs → ℕ)
+  (eval : Term ins outs → Vec U ins → Vec U outs)
   where
 
   tournament : (i j : Fin pop) →

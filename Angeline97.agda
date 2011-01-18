@@ -2,6 +2,7 @@ module Angeline97 where
 open import Relation.Binary.PropositionalEquality
 open import Data.Bool hiding (not)
 open import Data.Nat
+open import Data.Fin hiding (_+_)
 open import Data.Product
 open import Data.Vec
 import Stashy
@@ -35,7 +36,7 @@ evenParity xs = even (trues xs)
 
 open Stashy Word In Out
 
-population = 15
+population = 4
 inputs = 2
 outputs = 1
 cases = 4
@@ -60,3 +61,24 @@ eval (and ∷ xs) as with eval xs as
 ... | c₂ ∷ c₁ ∷ cs = (c₁ ∧ c₂) ∷ cs
 eval (or ∷ xs) as with eval xs as
 ... | c₂ ∷ c₁ ∷ cs = (c₁ ∨ c₂) ∷ cs
+
+open Evolve Bool population inputs outputs cases fitnessCases score eval
+
+random : Vec (Rand population) population
+random =
+    ((suc zero , suc (suc zero) , zero , suc (suc (suc zero))) , (6 , 7))
+  ∷ ((suc (suc (suc zero)) , suc (suc zero) , zero , suc zero) , (9 , 5))
+  ∷ ((suc zero , zero , suc (suc zero) , suc (suc (suc zero))) , (1 , 10))
+  ∷ ((zero , suc (suc zero) , suc zero , suc (suc (suc zero))) , (3 , 8))
+  ∷ []
+
+initialPopulation : Population inputs outputs population
+initialPopulation =
+    (not ∷ and ∷ not ∷ [])
+  ∷ (not ∷ and ∷ [])
+  ∷ (not ∷ or ∷ [])
+  ∷ (not ∷ or ∷ not ∷ [])
+  ∷ []
+
+evolved : Population inputs outputs population
+evolved = evolve random initialPopulation
