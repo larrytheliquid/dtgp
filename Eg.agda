@@ -21,17 +21,17 @@ Out pop n = n
 
 open Stashy2 Word In Out
 
-og : Term 2 1
-og = and ∷ []
+bc : Term 2 1
+bc = and ∷ []
 
-go : Term 3 2
-go = and ∷ []
+ab : Term 3 2
+ab = and ∷ []
 
-oggo : Term 3 1
-oggo = og ++ go
+abc : Term 3 1
+abc = bc ++ ab
 
 more : Term 6 5
 more = and ∷ []
 
-hm : Term 3 1
-hm = (and ∷ []) ++ (and ∷ [])
+big : Term 10 8
+big = (and ∷ []) ++ (and ∷ [])
