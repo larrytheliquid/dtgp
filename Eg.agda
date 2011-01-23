@@ -65,3 +65,4 @@ eval (pop ∷ xs) as with eval xs as
 ... | c ∷ cs = cs
 eval (_∷_ {k = n} square xs) as with eval xs as
 ... | cs = concat (replicate {n = n} cs)
+

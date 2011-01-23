@@ -80,3 +80,6 @@ crossover ♀ ♂ rand♀ rand♂
 
 Population : (A C n : ℕ) → Set
 Population A C n = Vec (Term A C) n
+
+discoveredLength : Σ ℕ (Vec ℕ)
+discoveredLength = _ , 1 ∷ 2 ∷ []
