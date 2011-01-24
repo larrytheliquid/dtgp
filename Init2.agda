@@ -1,5 +1,5 @@
 open import Data.Nat
-module Init (W : Set) (In Out : W → ℕ → ℕ) where
+module Init2 (W : Set) (In Out : W → ℕ → ℕ) where
 open import Data.Nat.DivMod
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
@@ -26,16 +26,16 @@ _++_ : ∀ {A B C} →
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-ext : {A B : ℕ} (n : ℕ) → Term A B → (w : W) → Maybe (Term A (Out w n))
-ext {B = B} n xs x with B ≟ In x n
-... | yes p rewrite p = just (x ∷ xs)
+ext : {A B B' C : ℕ} → Term B' C → Term A B → Maybe (Term A C)
+ext {B = B} {B' = B'} xs ys with B ≟ B'
+... | yes p rewrite p = just (xs ++ ys)
 ... | no p = nothing
 
-extp : {A B : ℕ} (n : ℕ) → Term A B → W → Maybe (∃ λ w → Term A (Out w n))
-extp n xs x with ext n xs x
-... | just xxs = just (_ , xxs)
+extp : {A B : ℕ} → Term A B → ∃₂ Term → Maybe (∃ λ C → Term A C)
+extp ys (_ , _ , xs) with ext xs ys
+... | just zs = just (_ , zs)
 ... | nothing = nothing
 
-enum : {A B : ℕ} (n : ℕ) → Term A B → List W → List (∃ λ w → Term A (Out w n))
-enum n xs ws = gfilter (extp n xs) ws
+enum : {A B : ℕ} → List (∃₂ Term) → Term A B → List (∃ λ C → Term A C)
+enum xss ys = gfilter (extp ys) xss
 
