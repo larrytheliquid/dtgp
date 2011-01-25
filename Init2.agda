@@ -39,3 +39,6 @@ extp ys (_ , _ , xs) with ext xs ys
 enum : {A B : ℕ} → List (∃₂ Term) → Term A B → List (∃ λ C → Term A C)
 enum xss ys = gfilter (extp ys) xss
 
+enums : {A B : ℕ} → List (∃₂ Term) → List (Term A B) → List (∃ λ C → Term A C)
+enums xss yss = concatMap (enum xss) yss
+
