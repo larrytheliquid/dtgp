@@ -31,6 +31,15 @@ Out square n = n * n
 
 open Stashy2 Word In Out
 
+a : Term 3 3
+a = []
+
+b : Term 3 2
+b = and ∷ a
+
+c : Term 3 1
+c = and ∷ b
+
 bc : Term 2 1
 bc = and ∷ []
 

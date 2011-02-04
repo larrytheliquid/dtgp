@@ -17,7 +17,7 @@ data Term (A : ℕ) : ℕ → Set where
   _∷_ : ∀ {k} →
     (w : W) → Term A (In w k) →
     Term A (Out w k)
-
+  
 _++_ : ∀ {A B C} →
   Term B C →
   Term A B →
