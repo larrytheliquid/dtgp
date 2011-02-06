@@ -42,29 +42,29 @@ Closed : Words → ℕ → Set
 Closed ws n = Term ([] , 0) (ws , n)
 
 sukitrebek : Closed (true ∷ []) 1
-sukitrebek = _∷_ true {[] , 0} []
+sukitrebek = cons true {_ , _} nil
 
 sukitrebek2 : Closed (pop ∷ true ∷ []) 0
-sukitrebek2 = _∷_ pop {true , [] , 0} []
+sukitrebek2 = cons pop {_ , _ , _} nil
 
 sukitrebek3 : Closed (not ∷ true ∷ []) 1
-sukitrebek3 = _∷_ not {true ∷ [] , 0} (_∷_ true {[] , 0} [])
+sukitrebek3 = cons not {_ , _} (cons true {_ , _} nil)
 
 sukitrebek4 : Closed (true ∷ true ∷ []) 2
-sukitrebek4 = _∷_ true {true ∷ [] , 1} (_∷_ true {[] , 0} [])
+sukitrebek4 = cons true {_ , _} (cons true {_ , _} nil)
 
 sukitrebek5 : Closed (true ∷ true ∷ true ∷ []) 3
-sukitrebek5 = _∷_ true {true ∷ true ∷ [] , 2} (_∷_ true {true ∷ [] , 1} (_∷_ true {[] , 0} []))
+sukitrebek5 = cons true {_ , _} (cons true {_ , _} (cons true {_ , _} nil))
 
 sukitrebek6 : Closed (and ∷ true ∷ true ∷ []) 1
-sukitrebek6 = _∷_ and {true ∷ true ∷ [] , 0} (_∷_ true {true ∷ [] , 1} (_∷_ true {[] , 0} []))
+sukitrebek6 = cons and {_ , _} (cons true {_ , _} (cons true {_ , _} nil))
 
 sukitrebek7 : Closed (dup ∷ true ∷ []) 2
-sukitrebek7 = _∷_ dup {true , [] , 2} (_∷_ true {true ∷ [] , 1} (_∷_ true {[] , 0} []))
+sukitrebek7 = cons dup {_ , _ , _} (cons true {_ , _} (cons true {_ , _} nil))
 
 sukitrebek8 : Closed (not ∷ not ∷ true ∷ []) 1
-sukitrebek8 = _∷_ not {not ∷ true ∷ [] , 0} (_∷_ not {true ∷ [] , 0} (_∷_ true {[] , 0} []))
+sukitrebek8 = cons not {_ , _} (cons not {_ , _} (cons true {_ , _} nil))
 
 sukitrebek9 : Closed (dup ∷ not ∷ true ∷ []) 1
-sukitrebek9 = _∷_ dup {not , true ∷ [] , 1} (_∷_ not {not ∷ true ∷ [] , 0} (_∷_ not {true ∷ [] , 0} (_∷_ true {[] , 0} [])))
+sukitrebek9 = cons dup {_ , _ , _} (cons not {_ , _} (cons not {_ , _} (cons true {_ , _} nil)))
 
