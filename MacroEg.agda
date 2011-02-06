@@ -36,5 +36,14 @@ Out and (ws , n) = ws , 1 + n
 Out pop (w , ws , n) = ws , n
 Out dup (w , ws , n) = w ∷ w ∷ ws , n
 
+open Macro Domain Word Var In Out
 
+Closed : Words → ℕ → Set
+Closed ws n = Term (ws , 0) ([] , n)
+
+sukitrebek : Closed (true ∷ []) 1
+sukitrebek = _∷_ true {[] , 0} []
+
+sukitrebek2 : Closed (pop ∷ true ∷ []) 0
+sukitrebek2 = _∷_ pop {true , [] , 0} []
 
