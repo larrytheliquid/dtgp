@@ -59,3 +59,12 @@ sukitrebek5 = _∷_ true {true ∷ true ∷ [] , 2} (_∷_ true {true ∷ [] , 1
 sukitrebek6 : Closed (and ∷ true ∷ true ∷ []) 1
 sukitrebek6 = _∷_ and {true ∷ true ∷ [] , 0} (_∷_ true {true ∷ [] , 1} (_∷_ true {[] , 0} []))
 
+sukitrebek7 : Closed (dup ∷ true ∷ []) 2
+sukitrebek7 = _∷_ dup {true , [] , 2} (_∷_ true {true ∷ [] , 1} (_∷_ true {[] , 0} []))
+
+sukitrebek8 : Closed (not ∷ not ∷ true ∷ []) 1
+sukitrebek8 = _∷_ not {not ∷ true ∷ [] , 0} (_∷_ not {true ∷ [] , 0} (_∷_ true {[] , 0} []))
+
+sukitrebek9 : Closed (dup ∷ not ∷ true ∷ []) 1
+sukitrebek9 = _∷_ dup {not , true ∷ [] , 1} (_∷_ not {not ∷ true ∷ [] , 0} (_∷_ not {true ∷ [] , 0} (_∷_ true {[] , 0} [])))
+
