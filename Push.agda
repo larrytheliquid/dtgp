@@ -57,3 +57,17 @@ Out dup     (w ,      ws , m , n) = dup   ∷      w ∷ ws ,     m ,     n
 Out depth   (         ws , m , n) = depth ∷          ws ,     m , 1 + n
 Out eq      (w₁ , w₂ , ws , m , n) = eq    ∷ w₁ ∷ w₂ ∷ ws , 1 + m ,     n
 Out swap    (w₁ , w₂ , ws , m , n) = swap  ∷ w₁ ∷ w₂ ∷ ws ,     m ,     n
+
+open Macro Domain Word Var In Out
+
+Closed : Words → ℕ → ℕ → Set
+Closed ws m n = Term ([] , 0 , 0) (ws , m , n)
+
+sukitrebek : Closed (true ∷ []) 1 0
+sukitrebek = cons true {_ , _ , _} nil
+
+sukitrebek2 : Closed (depth ∷ true ∷ []) 1 1
+sukitrebek2 = cons depth {_ , _ , _} (cons true {_ , _ , _} nil)
+
+sukitrebek3 : Closed (swap ∷ true ∷ not ∷ []) 1 0
+sukitrebek3 = cons swap {_ , _ , _ , _ , _} (cons not {_ , _ , _} (cons true {_ , _ , _} nil))
