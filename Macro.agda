@@ -24,3 +24,9 @@ _++_ : ∀ {A B C} →
   Term A C
 nil ++ ys = ys
 (cons x xs) ++ ys = cons x (xs ++ ys)
+
+data Split {A C} B : Term A C → Set where
+  _++'_ :
+    (xs : Term B C)
+    (ys : Term A B) →
+    Split B (xs ++ ys)
