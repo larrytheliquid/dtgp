@@ -1,4 +1,4 @@
-open import Data.Nat
+open import Data.Nat hiding (_≥_)
 module Stashy2 (W : Set) (In Out : W → ℕ → ℕ) where
 open import Data.Nat.DivMod
 open import Relation.Nullary
@@ -81,5 +81,21 @@ crossover ♀ ♂ rand♀ rand♂
 Population : (A C n : ℕ) → Set
 Population A C n = Vec (Term A C) n
 
-discoveredLength : Σ ℕ (Vec ℕ)
-discoveredLength = _ , 1 ∷ 2 ∷ []
+open import Data.Bool
+
+_≥_ : ℕ → ℕ → Bool
+zero ≥ zero = true
+zero ≥ (suc n) = false
+(suc m) ≥ zero = true
+(suc m) ≥ (suc n) = m ≥ n
+
+postulate
+  score : ∀ {A C} → Term A C → ℕ
+
+select : ∀ {A C n} → (i j : Fin n) →
+  Population A C n → Term A C
+select i j xss
+  with lookup i xss | lookup j xss
+... | a | b =
+  if (score a ≥ score b)
+  then a else b
