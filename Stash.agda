@@ -1,5 +1,5 @@
 open import Data.Nat hiding (_≥_)
-module Stashy2 (W : Set) (In Out : W → ℕ → ℕ) where
+module Stash (W : Set) (In Out : W → ℕ → ℕ) where
 open import Data.Nat.DivMod
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
