@@ -7,7 +7,8 @@ open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
 open import Data.Function
-open import Data.Vec hiding (_++_)
+open import Data.Vec hiding (_++_; _>>=_)
+open import Rand
 
 infixr 5 _∷_ _++_ _++'_
 
@@ -99,25 +100,34 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
   ... | ♀ | ♂ = if score ♀ ≥ score ♂
     then ♀ else ♂
 
-  Rand : Set
-  Rand = Vec ℕ 6
+  evolve2 : ∀ {A C n} →
+    Population A C n →
+    Rand (Term A C × Term A C)
+  evolve2 xss =
+    rand >>= λ i →
+    rand >>= λ j →
+    rand >>= λ k →
+    rand >>= λ l →
+    rand >>= λ rand♀ →
+    rand >>= λ rand♂ →
+    let ♀ = select i j xss
+        ♂ = select k l xss
+    in
+    return (crossover ♀ ♂ rand♀ rand♂)
 
-  Rands : ℕ → Set
-  Rands n = Vec Rand n
+  evolveN : ∀ {A C m} → (n : ℕ) →
+    Population A C m →
+    Rand (Vec (Term A C) n)
+  evolveN zero xss = return []
+  evolveN (suc n) xss
+    with runState (evolve2 xss) 0
+  ... | (♀ , ♂) , r1
+    with runState (evolveN n xss) 0
+  ... | ih , r = return (♀ ∷ ih)
 
-  evolve2 : ∀ {A C n} → Rand →
-    Population A C n → Term A C × Term A C
-  evolve2 (i ∷ j ∷ k ∷ l ∷ rand♀ ∷ rand♂ ∷ []) xss
-    with select i j xss | select k l xss
-  ... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
-
-  evolveN : ∀ {A C m n} → Rands n →
-    Population A C m → Vec (Term A C) n
-  evolveN [] xss = []
-  evolveN (is ∷ iss) xss with evolve2 is xss
-  ... | ♀ , ♂ = ♀ ∷ evolveN iss xss
-
-  evolve : ∀ {A C n} → Rands (2 + n) →
+  evolve : ∀ {A C n} → (seed : ℕ) →
     Population A C n → Population A C n
-  evolve rands xss = evolveN rands xss
+  evolve {n = n} seed xss =
+    proj₁ (runState (evolveN (2 + n) xss) seed)
+
 
