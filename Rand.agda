@@ -19,6 +19,9 @@ data State (S A : Set) : Set where
 runState : ∀ {S A} → State S A → S → A × S
 runState (state f) = f
 
+runRand :  ∀ {S A} → State S A → S → A
+runRand st seed = proj₁ (runState st seed)
+
 return : ∀ {S A} → A → State S A
 return a = state (λ s → a , s)
 

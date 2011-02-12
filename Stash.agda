@@ -119,15 +119,14 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
     Population A C m →
     Rand (Vec (Term A C) n)
   evolveN zero xss = return []
-  evolveN (suc n) xss
-    with runState (evolve2 xss) 0
-  ... | (♀ , ♂) , r1
-    with runState (evolveN n xss) 0
-  ... | ih , r = return (♀ ∷ ih)
+  evolveN (suc n) xss =
+    evolve2 xss >>= λ offspring →
+    evolveN n xss >>= λ ih →
+    return (proj₁ offspring ∷ ih)
 
   evolve : ∀ {A C n} → (seed : ℕ) →
     Population A C n → Population A C n
   evolve {n = n} seed xss =
-    proj₁ (runState (evolveN (2 + n) xss) seed)
+    runRand (evolveN (2 + n) xss) seed
 
 
