@@ -79,7 +79,7 @@ crossover ♀ ♂ rand♀ rand♂
 ... | just ys = swap₁ xs ys , swap₂ xs ys
 
 Population : (A C n : ℕ) → Set
-Population A C n = Vec (Term A C) n
+Population A C n = Vec (Term A C) (suc n)
 
 open import Data.Bool
 
@@ -92,7 +92,7 @@ zero ≥ (suc n) = false
 module GP (score : ∀ {A C} → Term A C → ℕ) where
 
   select : ∀ {A C n} → (ii jj : ℕ) →
-    Population A C (suc n) → Term A C
+    Population A C n → Term A C
   select {n = zero} ii jj (xs ∷ []) = xs
   select {n = suc n} ii jj (xs ∷ xss)
     with ii mod suc n | jj mod suc n
@@ -103,23 +103,22 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
   Rand : Set
   Rand = Vec ℕ 6
 
+  Rands : ℕ → Set
+  Rands n = Vec Rand (suc n)
+
   evolve1 : ∀ {A C n} → Rand →
-    Population A C (suc n) →
-    Term A C
+    Population A C n → Term A C
   evolve1 (i ∷ j ∷ k ∷ l ∷ rand♀ ∷ rand♂ ∷ []) xss
     with select i j xss | select k l xss
   ... | ♀ | ♂ = proj₁ (crossover ♀ ♂ rand♀ rand♂)
 
-  evolveN : ∀ {A C m n} → Vec Rand (suc n) →
-    Population A C (suc m) →
-    Population A C (suc n)
+  evolveN : ∀ {A C m n} → Rands n →
+    Population A C m → Population A C n
   evolveN (rand ∷ []) xss = evolve1 rand xss ∷ []
   evolveN (rand ∷ is ∷ iss) xss with evolve1 rand xss
   ... | offspring = offspring ∷ evolveN (is ∷ iss) xss
 
-  evolve : ∀ {A C n} →
-    Vec Rand (suc n) →
-    Population A C (suc n) →
-    Population A C (suc n)
+  evolve : ∀ {A C n} → Rands n →
+    Population A C n → Population A C n
   evolve rands xss = evolveN rands xss
 
