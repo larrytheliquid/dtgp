@@ -96,6 +96,32 @@ select : ∀ {A C n} → (i j : Fin n) →
   Population A C n → Term A C
 select i j xss
   with lookup i xss | lookup j xss
-... | a | b =
-  if (score a ≥ score b)
-  then a else b
+... | ♀ | ♂ =
+  if (score ♀ ≥ score ♂)
+  then ♀ else ♂
+
+evolve1 : ∀ {A C n} (i j k l : Fin n) →
+  (rand♀ rand♂ : ℕ) →
+  Population A C n →
+  Term A C
+evolve1 i j k l rand♀ rand♂ xss
+  with select i j xss | select k l xss
+... | ♀ | ♂ = proj₁ (crossover ♀ ♂ rand♀ rand♂)
+
+Rand : ℕ → Set
+Rand n = (Fin n × Fin n × Fin n × Fin n) × (ℕ × ℕ)
+
+evolveN : ∀ {A C m n} → Vec (Rand m) n →
+  Population A C m →
+  Population A C n
+evolveN [] xss = []
+evolveN (((i , j , k , l) , (rand♀ , rand♂)) ∷ is) xss
+  with evolve1 i j k l rand♀ rand♂ xss
+... | offspring = offspring ∷ evolveN is xss
+
+evolve : ∀ {A C n} →
+  Vec (Rand n) n →
+  Population A C n →
+  Population A C n
+evolve rands xss = evolveN rands xss
+
