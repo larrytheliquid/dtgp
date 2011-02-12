@@ -103,7 +103,7 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
   Rand = Vec ℕ 6
 
   Rands : ℕ → Set
-  Rands n = Vec Rand (1 + n)
+  Rands n = Vec Rand n
 
   evolve2 : ∀ {A C n} → Rand →
     Population A C n → Term A C × Term A C
@@ -112,14 +112,12 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
   ... | ♀ | ♂ = crossover ♀ ♂ rand♀ rand♂
 
   evolveN : ∀ {A C m n} → Rands n →
-    Population A C m → Population A C n
-  evolveN (rand ∷ []) xss with evolve2 rand xss
-  ... | ♀ , ♂ = ♀ ∷ ♂ ∷ []
-  evolveN (rand ∷ is ∷ iss) xss
-    with evolve2 is xss
-  ... | ♀ , ♂ = ♀ ∷ evolveN (is ∷ iss) xss
+    Population A C m → Vec (Term A C) n
+  evolveN [] xss = []
+  evolveN (is ∷ iss) xss with evolve2 is xss
+  ... | ♀ , ♂ = ♀ ∷ evolveN iss xss
 
-  evolve : ∀ {A C n} → Rands n →
+  evolve : ∀ {A C n} → Rands (2 + n) →
     Population A C n → Population A C n
   evolve rands xss = evolveN rands xss
 
