@@ -1,5 +1,6 @@
-open import Data.Nat hiding (_≥_)
-module Stash (W : Set) (In Out : W → ℕ → ℕ) where
+open import Data.Nat hiding (_≥_; _≟_)
+open import Stacks
+module Stash (ar : ℕ) (W : Set) (In Out : W → Stacks ar → Stacks ar) where
 open import Data.Function
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
@@ -10,9 +11,12 @@ open import Data.Function
 open import Data.Vec hiding (_++_; _>>=_)
 open import Rand
 
+Types : Set
+Types = Stacks ar
+
 infixr 5 _∷_ _++_ _++'_
 
-data Term (ins : ℕ) : ℕ → Set where
+data Term (ins : Types) : Types → Set where
   []  : Term ins ins
 
   _∷_ : ∀ {k} →
@@ -26,7 +30,7 @@ _++_ : ∀ {ins mid outs} →
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-data Split {ins outs : ℕ} (mid : ℕ) : Term ins outs → Set where
+data Split {ins outs} mid : Term ins outs → Set where
   _++'_ :
     (xs : Term mid outs)
     (ys : Term ins mid) →
@@ -51,13 +55,13 @@ split (suc n) [] = _ , [] ++' []
 split (suc n) (x ∷ xs) with split n xs
 split (suc n) (x ∷ ._) | _ , xs ++' ys = _ , (x ∷ xs) ++' ys
 
-splits : ∀ {ins outs} (n : ℕ) (mid : ℕ) → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
+splits : {ins outs : Types} (n : ℕ) (mid : Types) → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
 splits zero mid xs with split zero xs
-... | mid' , ys with mid ≟ mid'
+... | mid' , ys with ar ⊢ mid ≟ mid'
 ... | yes p rewrite p = _ , ys ∷ []
 ... | no p = _ , []
 splits (suc n) mid xs with split (suc n) xs
-... | mid' , ys with mid ≟ mid' | splits n mid xs
+... | mid' , ys with ar ⊢ mid ≟ mid' | splits n mid xs
 ... | yes p | _ , yss rewrite p = _ , ys ∷ yss
 ... | no p | _ , yss = _ , yss
 
@@ -71,7 +75,7 @@ split♀ xs =
   let i = r mod (suc (length xs))
   in return (split (toℕ i) xs)
 
-split♂ : ∀ {ins outs} (xs : Term ins outs) (mid : ℕ) →
+split♂ : ∀ {ins outs} (xs : Term ins outs) mid →
   Maybe (Rand (Split mid xs))
 split♂ xs B
   with splits (length xs) B xs
@@ -90,7 +94,7 @@ crossover ♀ ♂ =
     (return (♀ , ♂))
     (split♂ ♂ (proj₁ b,xs))
 
-Population : (ins outs n : ℕ) → Set
+Population : ∀ ins outs n → Set
 Population ins outs n = Vec (Term ins outs) (2 + n)
 
 open import Data.Bool
@@ -101,7 +105,7 @@ zero ≥ (suc n) = false
 (suc m) ≥ zero = true
 (suc m) ≥ (suc n) = m ≥ n
 
-module GP (ins outs : ℕ) (score : Term ins outs → ℕ) where
+module GP (ins outs : Types) (score : Term ins outs → ℕ) where
 
   select : ∀ {n} →
     Population ins outs n → Rand (Term ins outs)
