@@ -28,4 +28,16 @@ eval (plus ∷ xs) as with eval xs as
 eval (times ∷ xs) as with eval xs as
 ... | c₂ ∷ c₁ ∷ cs = (c₁ * c₂) ∷ cs
 
+score : ∀ {A C} → Term A C → ℕ
+score xs = sum (eval xs (replicate 2))
 
+population : Population 0 1 _
+population =
+    (plus ∷ plus ∷ two ∷ two ∷ two ∷ [])
+  ∷ (times ∷ two ∷ two ∷ [])
+  ∷ (plus ∷ times ∷ two ∷ plus ∷ two ∷ two ∷ two ∷ [])
+  ∷ (times ∷ two ∷ plus ∷ two ∷ two ∷ [])
+  ∷ []
+
+answer : Population 0 1 _
+answer = evolve score 1337 population

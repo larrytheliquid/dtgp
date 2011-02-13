@@ -75,7 +75,7 @@ suc m == suc n = m == n
 -- score {A} {C} xs = (A == 2) ∧ scores fitnessCases xs
 
 score : ∀ {A C} → Term A C → ℕ
-score {A} {C} xs = trues (eval xs (replicate true))
+score xs = trues (eval xs (replicate true))
 
 population : Population 2 1 _
 population =
