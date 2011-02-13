@@ -1,7 +1,8 @@
 module Rand where
 open import Data.Nat
-open import Data.Nat.DivMod
-open import Data.Fin hiding (_+_)
+open import Relation.Nullary.Decidable
+open import Data.Nat.DivMod renaming (_mod_ to _nmod_)
+open import Data.Fin
 open import Data.Product
 open import State public
 
@@ -47,4 +48,14 @@ Rand A = State ℕ A
 runRand :  ∀ {A} → Rand A → ℕ → A
 runRand st seed = proj₁ (runState st seed)
 
+primNatMod : (dividend divisor : ℕ) → ℕ
+primNatMod dividend zero = zero
+primNatMod dividend (suc n) =
+  let x = primNatToInteger dividend
+      y = primNatToInteger (suc n)
+      z = primIntegerMod x y
+      nat = primIntegerAbs z
+  in nat
 
+_mod_ : (dividend divisor : ℕ) {≢0 : False (divisor ≟ 0)} → Fin divisor
+_mod_ m n {p} = _nmod_ (primNatMod m n) n {p}

@@ -1,7 +1,4 @@
 module State where
-open import Data.Nat
-open import Data.Nat.DivMod
-open import Data.Fin hiding (_+_)
 open import Data.Product
 
 infixl 1 _>>=_ _=<<_

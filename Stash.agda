@@ -1,7 +1,6 @@
 open import Data.Nat hiding (_≥_)
 module Stash (W : Set) (In Out : W → ℕ → ℕ) where
 open import Data.Function
-open import Data.Nat.DivMod
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Fin hiding (_+_; raise)
@@ -111,10 +110,9 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
     rand >>= λ jj →
     let ♀ = lookup (ii mod (2 + n)) xss
         ♂ = lookup (jj mod (2 + n)) xss
-    in return (
+    in return $
       if score ♀ ≥ score ♂
       then ♀ else ♂
-    )
 
   evolve2 : ∀ {A C n} →
     Population A C n →
