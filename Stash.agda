@@ -58,12 +58,12 @@ split (suc n) (x ∷ ._) | _ , xs ++' ys = _ , (x ∷ xs) ++' ys
 splits : {ins outs : Types} (n : ℕ) (mid : Types) → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
 splits zero mid xs with split zero xs
 ... | mid' , ys with ar ⊢ mid ≟ mid'
-... | yes p rewrite p = _ , ys ∷ []
-... | no p = _ , []
+... | just p rewrite p = _ , ys ∷ []
+... | nothing = _ , []
 splits (suc n) mid xs with split (suc n) xs
 ... | mid' , ys with ar ⊢ mid ≟ mid' | splits n mid xs
-... | yes p | _ , yss rewrite p = _ , ys ∷ yss
-... | no p | _ , yss = _ , yss
+... | just p | _ , yss rewrite p = _ , ys ∷ yss
+... | nothing | _ , yss = _ , yss
 
 length : ∀ {ins outs} → Term ins outs → ℕ
 length [] = 0
