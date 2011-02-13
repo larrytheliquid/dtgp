@@ -12,67 +12,67 @@ open import Rand
 
 infixr 5 _∷_ _++_ _++'_
 
-data Term (A : ℕ) : ℕ → Set where
-  []  : Term A A
+data Term (ins : ℕ) : ℕ → Set where
+  []  : Term ins ins
 
   _∷_ : ∀ {k} →
-    (w : W) → Term A (In w k) →
-    Term A (Out w k)
+    (w : W) → Term ins (In w k) →
+    Term ins (Out w k)
 
-_++_ : ∀ {A B C} →
-  Term B C →
-  Term A B →
-  Term A C
+_++_ : ∀ {ins mid outs} →
+  Term mid outs →
+  Term ins mid →
+  Term ins outs
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-data Split {A C : ℕ} (B : ℕ) : Term A C → Set where
+data Split {ins outs : ℕ} (mid : ℕ) : Term ins outs → Set where
   _++'_ :
-    (xs : Term B C)
-    (ys : Term A B) →
-    Split B (xs ++ ys)
+    (xs : Term mid outs)
+    (ys : Term ins mid) →
+    Split mid (xs ++ ys)
 
-swap₁ : ∀ {A B C} {xs ys : Term A C} →
-  Split B xs → Split B ys → Term A C
+swap₁ : ∀ {ins mid outs} {xs ys : Term ins outs} →
+  Split mid xs → Split mid ys → Term ins outs
 swap₁ (xs ++' ys) (as ++' bs) = xs ++ bs
 
-swap₂ : ∀ {A B C} {xs ys : Term A C} →
-  Split B xs → Split B ys → Term A C
+swap₂ : ∀ {ins mid outs} {xs ys : Term ins outs} →
+  Split mid xs → Split mid ys → Term ins outs
 swap₂ (xs ++' ys) (as ++' bs) = as ++ ys
 
-swaps : ∀ {A B C} {xs ys : Term A C} →
-  Split B xs → Split B ys →
-  Term A C × Term A C
+swaps : ∀ {ins mid outs} {xs ys : Term ins outs} →
+  Split mid xs → Split mid ys →
+  Term ins outs × Term ins outs
 swaps xs ys = swap₁ xs ys , swap₂ xs ys
 
-split : ∀ {A C} (n : ℕ) (xs : Term A C) → ∃ λ B → Split B xs
+split : ∀ {ins outs} (n : ℕ) (xs : Term ins outs) → ∃ λ mid → Split mid xs
 split zero xs = _ , [] ++' xs
 split (suc n) [] = _ , [] ++' []
 split (suc n) (x ∷ xs) with split n xs
-split (suc A) (x ∷ ._) | _ , xs ++' ys = _ , (x ∷ xs) ++' ys
+split (suc n) (x ∷ ._) | _ , xs ++' ys = _ , (x ∷ xs) ++' ys
 
-splits : ∀ {A C} (n : ℕ) (B : ℕ) → (xs : Term A C) → ∃ (Vec (Split B xs))
-splits zero B xs with split zero xs
-... | B' , ys with B ≟ B'
+splits : ∀ {ins outs} (n : ℕ) (mid : ℕ) → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
+splits zero mid xs with split zero xs
+... | mid' , ys with mid ≟ mid'
 ... | yes p rewrite p = _ , ys ∷ []
 ... | no p = _ , []
-splits (suc n) B xs with split (suc n) xs
-... | B' , ys with B ≟ B' | splits n B xs
+splits (suc n) mid xs with split (suc n) xs
+... | mid' , ys with mid ≟ mid' | splits n mid xs
 ... | yes p | _ , yss rewrite p = _ , ys ∷ yss
 ... | no p | _ , yss = _ , yss
 
-length : ∀ {A C} → Term A C → ℕ
+length : ∀ {ins outs} → Term ins outs → ℕ
 length [] = 0
 length (x ∷ xs) = suc (length xs)
 
-split♀ : ∀ {A C} → (xs : Term A C) → Rand (∃ λ B → Split B xs)
+split♀ : ∀ {ins outs} → (xs : Term ins outs) → Rand (∃ λ mid → Split mid xs)
 split♀ xs = 
   rand >>= λ r →
   let i = r mod (suc (length xs))
   in return (split (toℕ i) xs)
 
-split♂ : ∀ {A C} (xs : Term A C) (B : ℕ) →
-  Maybe (Rand (Split B xs))
+split♂ : ∀ {ins outs} (xs : Term ins outs) (mid : ℕ) →
+  Maybe (Rand (Split mid xs))
 split♂ xs B
   with splits (length xs) B xs
 ... | zero , [] = nothing
@@ -81,17 +81,17 @@ split♂ xs B
   return (lookup (r mod suc n) xss)
  )
 
-crossover : ∀ {A C} (♀ ♂ : Term A C) →
-  Rand (Term A C × Term A C)
+crossover : ∀ {ins outs} (♀ ♂ : Term ins outs) →
+  Rand (Term ins outs × Term ins outs)
 crossover ♀ ♂ =
-  split♀ ♀ >>= λ B,xs →
+  split♀ ♀ >>= λ b,xs →
   maybe
-    (_=<<_ (return ∘ (swaps (proj₂ B,xs))))
+    (_=<<_ (return ∘ (swaps (proj₂ b,xs))))
     (return (♀ , ♂))
-    (split♂ ♂ (proj₁ B,xs))
+    (split♂ ♂ (proj₁ b,xs))
 
-Population : (A C n : ℕ) → Set
-Population A C n = Vec (Term A C) (2 + n)
+Population : (ins outs n : ℕ) → Set
+Population ins outs n = Vec (Term ins outs) (2 + n)
 
 open import Data.Bool
 
@@ -101,10 +101,10 @@ zero ≥ (suc n) = false
 (suc m) ≥ zero = true
 (suc m) ≥ (suc n) = m ≥ n
 
-module GP (score : ∀ {A C} → Term A C → ℕ) where
+module GP (ins outs : ℕ) (score : Term ins outs → ℕ) where
 
-  select : ∀ {A C n} →
-    Population A C n → Rand (Term A C)
+  select : ∀ {n} →
+    Population ins outs n → Rand (Term ins outs)
   select {n = n} xss =
     rand >>= λ ii →
     rand >>= λ jj →
@@ -114,26 +114,25 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
       if score ♀ ≥ score ♂
       then ♀ else ♂
 
-  evolve2 : ∀ {A C n} →
-    Population A C n →
-    Rand (Term A C × Term A C)
+  evolve2 : ∀ {n} →
+    Population ins outs n →
+    Rand (Term ins outs × Term ins outs)
   evolve2 xss =
     select xss >>= λ ♀ →
     select xss >>= λ ♂ →
     crossover ♀ ♂
 
-  evolveN : ∀ {A C m} → (n : ℕ) →
-    Population A C m →
-    Rand (Vec (Term A C) (n * 2))
+  evolveN : ∀ {m} → (n : ℕ) →
+    Population ins outs m →
+    Rand (Vec (Term ins outs) (n * 2))
   evolveN zero xss = return []
   evolveN (suc n) xss =
     evolve2 xss >>= λ offspring →
     evolveN n xss >>= λ ih →
     return (proj₁ offspring ∷ proj₂ offspring ∷ ih)
 
-  evolve : ∀ {A C n} → (seed : ℕ) →
-    Population A C n → Population A C (⌊ n /2⌋ * 2)
+  evolve : ∀ {n} → (seed : ℕ) →
+    Population ins outs n → Population ins outs (⌊ n /2⌋ * 2)
   evolve {n = n} seed xss =
     runRand (evolveN (⌊ 2 + n /2⌋) xss) seed
 
-open GP public

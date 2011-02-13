@@ -36,7 +36,7 @@ evenParity xs = even (trues xs)
 
 open Stash Word In Out
 
-eval : ∀ {A C} → Term A C → Vec Bool A → Vec Bool C
+eval : ∀ {ins outs} → Term ins outs → Vec Bool ins → Vec Bool outs
 eval [] as = as
 eval (not ∷ xs) as with eval xs as
 ... | c ∷ cs = Data.Bool.not c ∷ cs
@@ -51,13 +51,13 @@ match (_ ∷ _) [] = false
 match [] (_ ∷ _) = false
 match (x ∷ xs) (y ∷ ys) = x ∧ y ∧ match xs ys
 
-scores : ∀ {A C n} → Vec (Vec Bool A) n → Term A C → ℕ
+scores : ∀ {ins outs n} → Vec (Vec Bool ins) n → Term ins outs → ℕ
 scores ass xs = sum (map (λ as →
   if (match (eval xs as) [ evenParity as ])
   then 1 else 0)
   ass)
 
-fitnessCases : Vec (Vec Bool 2) 4
+fitnessCases : Vec (Vec Bool _) _
 fitnessCases =
     (true ∷ true ∷ [])
   ∷ (true ∷ false ∷ [])
@@ -71,13 +71,10 @@ zero == suc _ = false
 suc _ == zero = false
 suc m == suc n = m == n
 
--- score : ∀ {A C} → Term A C → ℕ
--- score {A} {C} xs = (A == 2) ∧ scores fitnessCases xs
+score : Term _ _ → ℕ
+score xs = scores fitnessCases xs
 
-score : ∀ {A C} → Term A C → ℕ
-score xs = trues (eval xs (replicate true))
-
-population : Population 2 1 _
+population : Population _ _ _
 population =
     (not ∷ and ∷ not ∷ [])
   ∷ (not ∷ and ∷ [])
@@ -85,6 +82,8 @@ population =
   ∷ (not ∷ or ∷ not ∷ [])
   ∷ []
 
-answer : Population 2 1 _
-answer = evolve score 1337 population
+open GP 2 1 score
+
+answer : Population _ _ _
+answer = evolve 1337 population
 
