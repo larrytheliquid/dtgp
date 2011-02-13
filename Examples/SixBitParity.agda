@@ -31,59 +31,59 @@ trues [] = 0
 trues (true ∷ xs) = suc (trues xs)
 trues (false ∷ xs) = trues xs
 
-evenParity : ∀ {n} → Vec Bool n → Bool
-evenParity xs = even (trues xs)
+-- evenParity : ∀ {n} → Vec Bool n → Bool
+-- evenParity xs = even (trues xs)
 
-open Stash Word In Out
+-- open Stash Word In Out
 
-eval : ∀ {ins outs} → Term ins outs → Vec Bool ins → Vec Bool outs
-eval [] as = as
-eval (not ∷ xs) as with eval xs as
-... | c ∷ cs = Data.Bool.not c ∷ cs
-eval (and ∷ xs) as with eval xs as
-... | c₂ ∷ c₁ ∷ cs = (c₁ ∧ c₂) ∷ cs
-eval (or ∷ xs) as with eval xs as
-... | c₂ ∷ c₁ ∷ cs = (c₁ ∨ c₂) ∷ cs
+-- eval : ∀ {ins outs} → Term ins outs → Vec Bool ins → Vec Bool outs
+-- eval [] as = as
+-- eval (not ∷ xs) as with eval xs as
+-- ... | c ∷ cs = Data.Bool.not c ∷ cs
+-- eval (and ∷ xs) as with eval xs as
+-- ... | c₂ ∷ c₁ ∷ cs = (c₁ ∧ c₂) ∷ cs
+-- eval (or ∷ xs) as with eval xs as
+-- ... | c₂ ∷ c₁ ∷ cs = (c₁ ∨ c₂) ∷ cs
 
-match : ∀ {m n} → Vec Bool m → Vec Bool n → Bool
-match [] [] = true
-match (_ ∷ _) [] = false
-match [] (_ ∷ _) = false
-match (x ∷ xs) (y ∷ ys) = x ∧ y ∧ match xs ys
+-- match : ∀ {m n} → Vec Bool m → Vec Bool n → Bool
+-- match [] [] = true
+-- match (_ ∷ _) [] = false
+-- match [] (_ ∷ _) = false
+-- match (x ∷ xs) (y ∷ ys) = x ∧ y ∧ match xs ys
 
-scores : ∀ {ins outs n} → Vec (Vec Bool ins) n → Term ins outs → ℕ
-scores ass xs = sum (map (λ as →
-  if (match (eval xs as) [ evenParity as ])
-  then 1 else 0)
-  ass)
+-- scores : ∀ {ins outs n} → Vec (Vec Bool ins) n → Term ins outs → ℕ
+-- scores ass xs = sum (map (λ as →
+--   if (match (eval xs as) [ evenParity as ])
+--   then 1 else 0)
+--   ass)
 
-fitnessCases : Vec (Vec Bool _) _
-fitnessCases =
-    (true ∷ true ∷ [])
-  ∷ (true ∷ false ∷ [])
-  ∷ (false ∷ true ∷ [])
-  ∷ (false ∷ false ∷ [])
-  ∷ []
+-- fitnessCases : Vec (Vec Bool _) _
+-- fitnessCases =
+--     (true ∷ true ∷ [])
+--   ∷ (true ∷ false ∷ [])
+--   ∷ (false ∷ true ∷ [])
+--   ∷ (false ∷ false ∷ [])
+--   ∷ []
 
-_==_ : ℕ → ℕ → Bool
-zero == zero = true
-zero == suc _ = false
-suc _ == zero = false
-suc m == suc n = m == n
+-- _==_ : ℕ → ℕ → Bool
+-- zero == zero = true
+-- zero == suc _ = false
+-- suc _ == zero = false
+-- suc m == suc n = m == n
 
-score : Term _ _ → ℕ
-score xs = scores fitnessCases xs
+-- score : Term _ _ → ℕ
+-- score xs = scores fitnessCases xs
 
-population : Population _ _ _
-population =
-    (not ∷ and ∷ not ∷ [])
-  ∷ (not ∷ and ∷ [])
-  ∷ (not ∷ not ∷ not ∷ or ∷ [])
-  ∷ (not ∷ or ∷ not ∷ [])
-  ∷ []
+-- population : Population _ _ _
+-- population =
+--     (not ∷ and ∷ not ∷ [])
+--   ∷ (not ∷ and ∷ [])
+--   ∷ (not ∷ not ∷ not ∷ or ∷ [])
+--   ∷ (not ∷ or ∷ not ∷ [])
+--   ∷ []
 
-open GP 2 1 score
+-- open GP 2 1 score
 
-answer : Population _ _ _
-answer = evolve 1337 1 population
+-- answer : Population _ _ _
+-- answer = evolve 1337 1 population
 
