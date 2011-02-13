@@ -135,3 +135,5 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
     Population A C n → Population A C (⌊ n /2⌋ * 2)
   evolve {n = n} seed xss =
     runRand (evolveN (⌊ 2 + n /2⌋) xss) seed
+
+open GP public
