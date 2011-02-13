@@ -114,25 +114,35 @@ module GP (ins outs : ℕ) (score : Term ins outs → ℕ) where
       if score ♀ ≥ score ♂
       then ♀ else ♂
 
-  evolve2 : ∀ {n} →
+  breed2 : ∀ {n} →
     Population ins outs n →
     Rand (Term ins outs × Term ins outs)
-  evolve2 xss =
+  breed2 xss =
     select xss >>= λ ♀ →
     select xss >>= λ ♂ →
     crossover ♀ ♂
 
-  evolveN : ∀ {m} → (n : ℕ) →
+  breedN : ∀ {m} → (n : ℕ) →
     Population ins outs m →
-    Rand (Vec (Term ins outs) (n * 2))
-  evolveN zero xss = return []
-  evolveN (suc n) xss =
-    evolve2 xss >>= λ offspring →
-    evolveN n xss >>= λ ih →
-    return (proj₁ offspring ∷ proj₂ offspring ∷ ih)
+    Rand (Vec (Term ins outs) n)
+  breedN zero xss = return []
+  breedN (suc n) xss =
+    breed2 xss >>= λ offspring →
+    breedN n xss >>= λ ih →
+    return (proj₁ offspring ∷ ih)
 
-  evolve : ∀ {n} → (seed : ℕ) →
-    Population ins outs n → Population ins outs (⌊ n /2⌋ * 2)
-  evolve {n = n} seed xss =
-    runRand (evolveN (⌊ 2 + n /2⌋) xss) seed
+  evolve1 : ∀ {n} →
+    Population ins outs n → Rand (Population ins outs n)
+  evolve1 xss = breedN _ xss
+
+  evolveN : ∀ {n} → (gens : ℕ) →
+    Population ins outs n → Rand (Population ins outs n)
+  evolveN zero xss = return xss
+  evolveN (suc gens) xss =
+    evolveN gens xss >>= evolve1
+
+  evolve : ∀ {n} → (seed gens : ℕ) →
+    Population ins outs n → Population ins outs n
+  evolve seed gens xss =
+    runRand (evolveN gens xss) seed
 

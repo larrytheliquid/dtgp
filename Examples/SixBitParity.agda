@@ -85,5 +85,5 @@ population =
 open GP 2 1 score
 
 answer : Population _ _ _
-answer = evolve 1337 population
+answer = evolve 1337 1 population
 
