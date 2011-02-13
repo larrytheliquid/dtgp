@@ -3,39 +3,40 @@ open import Data.Nat
 open import Data.Nat.DivMod
 open import Data.Fin hiding (_+_)
 open import Data.Product
+open import State public
 
-infixl 1 _>>=_
+postulate Int : Set
+{-# BUILTIN INTEGER Int #-}
 
--- multiplier  = 25173
--- incrementer = 13849
--- modulus     = 65536
+primitive
+  primIntegerPlus     : Int → Int → Int
+  primIntegerMinus    : Int → Int → Int
+  primIntegerTimes    : Int → Int → Int
+  primIntegerDiv      : Int → Int → Int  -- partial
+  primIntegerMod      : Int → Int → Int  -- partial
+  primIntegerAbs      : Int → ℕ
+  primNatToInteger    : ℕ → Int
 
--- nextRand : ℕ → ℕ
--- nextRand n = toℕ ((n * multiplier + incrementer) mod modulus)
+multiplier : Int
+multiplier = primNatToInteger 25173
 
-data State (S A : Set) : Set where
-  state : (S → A × S) → State S A
+incrementer : Int
+incrementer = primNatToInteger 13849
 
-runState : ∀ {S A} → State S A → S → A × S
-runState (state f) = f
+modulus : Int
+modulus = primNatToInteger 65536
 
-runRand :  ∀ {S A} → State S A → S → A
-runRand st seed = proj₁ (runState st seed)
-
-return : ∀ {S A} → A → State S A
-return a = state (λ s → a , s)
-
-_>>=_ : {S A B : Set} → State S A → (A → State S B) → State S B
-state h >>= f = state λ s →
-  let a,newState = h s
-      stateg = f (proj₁ a,newState)
-  in
-  runState stateg (proj₂ a,newState)
-
-open import Data.Nat
+nextRand : ℕ → ℕ
+nextRand nat =
+  let n = primNatToInteger nat
+      product = primIntegerTimes n multiplier
+      sum = primIntegerPlus product incrementer
+      remainder = primIntegerMod sum modulus
+  in primIntegerAbs remainder
 
 calcRand : ℕ → ℕ × ℕ
-calcRand n = n * 2 , n + 1
+calcRand n with nextRand n
+... | next = next , next
 
 rand : State ℕ ℕ
 rand = state calcRand
@@ -43,10 +44,7 @@ rand = state calcRand
 Rand : Set → Set
 Rand A = State ℕ A
 
-twoRands : Rand (ℕ × ℕ)
-twoRands =
-  rand >>= λ a →
-  rand >>= λ b →
-  return (a , b)
+runRand :  ∀ {A} → Rand A → ℕ → A
+runRand st seed = proj₁ (runState st seed)
 
 

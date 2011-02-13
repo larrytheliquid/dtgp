@@ -1,5 +1,6 @@
 open import Data.Nat hiding (_≥_)
 module Stash (W : Set) (In Out : W → ℕ → ℕ) where
+open import Data.Function
 open import Data.Nat.DivMod
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
@@ -40,6 +41,11 @@ swap₂ : ∀ {A B C} {xs ys : Term A C} →
   Split B xs → Split B ys → Term A C
 swap₂ (xs ++' ys) (as ++' bs) = as ++ ys
 
+swaps : ∀ {A B C} {xs ys : Term A C} →
+  Split B xs → Split B ys →
+  Term A C × Term A C
+swaps xs ys = swap₁ xs ys , swap₂ xs ys
+
 split : ∀ {A C} (n : ℕ) (xs : Term A C) → ∃ λ B → Split B xs
 split zero xs = _ , [] ++' xs
 split (suc n) [] = _ , [] ++' []
@@ -60,24 +66,30 @@ length : ∀ {A C} → Term A C → ℕ
 length [] = 0
 length (x ∷ xs) = suc (length xs)
 
-split♀ : ∀ {A C} → (xs : Term A C) → ℕ → ∃ λ B → Split B xs
-split♀ xs rand with rand mod (suc (length xs))
-... | i = split (toℕ i) xs
+split♀ : ∀ {A C} → (xs : Term A C) → Rand (∃ λ B → Split B xs)
+split♀ xs = 
+  rand >>= λ r →
+  let i = r mod (suc (length xs))
+  in return (split (toℕ i) xs)
 
-split♂ : ∀ {A C} (xs : Term A C) →
-  (B rand : ℕ) → Maybe (Split B xs)
-split♂ xs B rand
+split♂ : ∀ {A C} (xs : Term A C) (B : ℕ) →
+  Maybe (Rand (Split B xs))
+split♂ xs B
   with splits (length xs) B xs
 ... | zero , [] = nothing
-... | suc n , xss
-  = just (lookup (rand mod suc n) xss)
+... | suc n , xss = just (
+  rand >>= λ r →
+  return (lookup (r mod suc n) xss)
+ )
 
-crossover : ∀ {A C} (♀ ♂ : Term A C) (rand♀ rand♂ : ℕ) → Term A C × Term A C
-crossover ♀ ♂ rand♀ rand♂
-  with split♀ ♀ rand♀
-... | B , xs with  split♂ ♂ B rand♂
-... | nothing = ♀ , ♂
-... | just ys = swap₁ xs ys , swap₂ xs ys
+crossover : ∀ {A C} (♀ ♂ : Term A C) →
+  Rand (Term A C × Term A C)
+crossover ♀ ♂ =
+  split♀ ♀ >>= λ B,xs →
+  maybe
+    (_=<<_ (return ∘ (swaps (proj₂ B,xs))))
+    (return (♀ , ♂))
+    (split♂ ♂ (proj₁ B,xs))
 
 Population : (A C n : ℕ) → Set
 Population A C n = Vec (Term A C) (2 + n)
@@ -92,28 +104,25 @@ zero ≥ (suc n) = false
 
 module GP (score : ∀ {A C} → Term A C → ℕ) where
 
-  select : ∀ {A C n} → (ii jj : ℕ) →
-    Population A C n → Term A C
-  select {n = n} ii jj xss
-    with ii mod (2 + n) | jj mod (2 + n)
-  ... | i | j with lookup i xss | lookup j xss
-  ... | ♀ | ♂ = if score ♀ ≥ score ♂
-    then ♀ else ♂
+  select : ∀ {A C n} →
+    Population A C n → Rand (Term A C)
+  select {n = n} xss =
+    rand >>= λ ii →
+    rand >>= λ jj →
+    let ♀ = lookup (ii mod (2 + n)) xss
+        ♂ = lookup (jj mod (2 + n)) xss
+    in return (
+      if score ♀ ≥ score ♂
+      then ♀ else ♂
+    )
 
   evolve2 : ∀ {A C n} →
     Population A C n →
     Rand (Term A C × Term A C)
   evolve2 xss =
-    rand >>= λ i →
-    rand >>= λ j →
-    rand >>= λ k →
-    rand >>= λ l →
-    rand >>= λ rand♀ →
-    rand >>= λ rand♂ →
-    let ♀ = select i j xss
-        ♂ = select k l xss
-    in
-    return (crossover ♀ ♂ rand♀ rand♂)
+    select xss >>= λ ♀ →
+    select xss >>= λ ♂ →
+    crossover ♀ ♂
 
   evolveN : ∀ {A C m} → (n : ℕ) →
     Population A C m →
