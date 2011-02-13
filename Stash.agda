@@ -92,7 +92,7 @@ crossover ♀ ♂ =
     (split♂ ♂ (proj₁ B,xs))
 
 Population : (A C n : ℕ) → Set
-Population A C n = Vec (Term A C) (2 + n)
+Population A C n = Vec (Term A C) n
 
 open import Data.Bool
 
@@ -105,7 +105,7 @@ zero ≥ (suc n) = false
 module GP (score : ∀ {A C} → Term A C → ℕ) where
 
   select : ∀ {A C n} →
-    Population A C n → Rand (Term A C)
+    Population A C (2 + n) → Rand (Term A C)
   select {n = n} xss =
     rand >>= λ ii →
     rand >>= λ jj →
@@ -117,7 +117,7 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
     )
 
   evolve2 : ∀ {A C n} →
-    Population A C n →
+    Population A C (2 + n) →
     Rand (Term A C × Term A C)
   evolve2 xss =
     select xss >>= λ ♀ →
@@ -125,17 +125,15 @@ module GP (score : ∀ {A C} → Term A C → ℕ) where
     crossover ♀ ♂
 
   evolveN : ∀ {A C m} → (n : ℕ) →
-    Population A C m →
-    Rand (Vec (Term A C) n)
+    Population A C (2 + m) →
+    Rand (Vec (Term A C) (n * 2))
   evolveN zero xss = return []
   evolveN (suc n) xss =
     evolve2 xss >>= λ offspring →
     evolveN n xss >>= λ ih →
-    return (proj₁ offspring ∷ ih)
+    return (proj₁ offspring ∷ proj₂ offspring ∷ ih)
 
   evolve : ∀ {A C n} → (seed : ℕ) →
-    Population A C n → Population A C n
+    Population A C (2 + n) → Population A C (⌊ (2 + n) /2⌋ * 2)
   evolve {n = n} seed xss =
-    runRand (evolveN (2 + n) xss) seed
-
-
+    runRand (evolveN (⌊ 2 + n /2⌋) xss) seed
