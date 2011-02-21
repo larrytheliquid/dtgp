@@ -1,4 +1,4 @@
-module Examples.SixBitParity where
+module Examples.Parity where
 open import Relation.Binary.PropositionalEquality
 open import Data.Bool hiding (not)
 open import Data.Nat
