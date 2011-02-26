@@ -1,7 +1,11 @@
 module Eg where
-open import Data.Bool renaming (not to ¬)
+open import Data.Bool hiding (_≟_) renaming (not to ¬)
 open import Data.Nat
 open import Data.Vec renaming (_++_ to _v++_)
+open import Data.Maybe
+open import Data.Product hiding (swap)
+open import Relation.Nullary hiding (¬_)
+open import Relation.Binary.PropositionalEquality
 import Stashy2
 
 data Word : Set where
@@ -75,3 +79,22 @@ eval (pop ∷ xs) as with eval xs as
 eval (_∷_ {k = n} square xs) as with eval xs as
 ... | cs = concat (replicate {n = n} cs)
 
+match : (w : Word) (out : ℕ) → ∃ λ k → Dec (In w k ≡ out)
+match true n = n , yes refl
+match false n = n , yes refl
+match not zero = 0 , no λ()
+match not (suc n) = n , yes refl
+match and zero = 0 , no λ()
+match and (suc zero) = 0 , no λ()
+match and (suc (suc n)) = n , yes refl
+match or zero = 0 , no λ()
+match or (suc zero) = 0 , no λ()
+match or (suc (suc n)) = n , yes refl
+match dup zero = 0 , no λ()
+match dup (suc n) = n , yes refl
+match swap zero = 0 , no λ()
+match swap (suc zero) = 0 , no λ()
+match swap (suc (suc n)) = n , yes refl
+match pop zero = 0 , no λ()
+match pop (suc n) = n , yes refl
+match square n = n , yes refl

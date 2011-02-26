@@ -8,6 +8,8 @@ open import Data.Maybe
 open import Data.Product hiding (map; swap)
 open import Data.Function
 open import Data.Vec hiding (_++_)
+open import Data.List hiding (_++_; length)
+open import Relation.Binary
 
 infixr 5 _∷_ _++_ _++'_
 
@@ -83,3 +85,15 @@ Population A C n = Vec (Term A C) n
 
 discoveredLength : Σ ℕ (Vec ℕ)
 discoveredLength = _ , 1 ∷ 2 ∷ []
+
+toMaybe : {x y : ℕ} → Dec (x ≡ y) → Maybe ℕ
+toMaybe (no p) = nothing
+toMaybe {y = y} (yes p) = just y
+
+-- unify : (out : ℕ) (w : W) → Maybe (∃ (λ k → In w k ≟ out))
+-- unify out w = ?
+
+-- tableize : (i A : ℕ) → List W → List ℕ
+-- tableize zero A ws = gfilter (λ w → toMaybe (A ≟ In w A)) ws
+-- tableize (suc i) A ws with tableize i A ws
+-- ... | ih = {!!}
