@@ -7,7 +7,7 @@ open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
 open import Data.Function
-open import Data.Vec hiding (_++_; concat; map)
+open import Data.Vec hiding (_++_; concat; map; init)
 open import Data.List renaming (_++_ to _l++_)
 
 infixr 5 _∷_ _++_
@@ -71,3 +71,16 @@ tableize (suc i) A ws
   maybe (λ t → just (_ , t)) nothing
     (unify (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
     ) ws) ih)
+
+filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
+filterTo C [] = []
+filterTo C ((C' , x) ∷ xs)
+  with C' ≟ C
+... | no p = filterTo C xs
+... | yes p rewrite p = x ∷ filterTo C xs
+
+init : (i A C : ℕ) → List W → List (Term A C)
+init i A C ws = filterTo C (tableize i A ws)
+
+
+
