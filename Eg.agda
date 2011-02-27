@@ -86,7 +86,9 @@ match not zero = 0 , no λ()
 match not (suc n) = n , yes refl
 match and zero = 0 , no λ()
 match and (suc zero) = 0 , no λ()
-match and (suc (suc n)) = n , yes refl
+match and (suc (suc zero)) = 0 , yes refl
+match and (suc (suc (suc n))) = 0 , no (λ ())
+-- n , yes refl
 match or zero = 0 , no λ()
 match or (suc zero) = 0 , no λ()
 match or (suc (suc n)) = n , yes refl

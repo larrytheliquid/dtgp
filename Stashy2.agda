@@ -90,10 +90,23 @@ toMaybe : {x y : ℕ} → Dec (x ≡ y) → Maybe ℕ
 toMaybe (no p) = nothing
 toMaybe {y = y} (yes p) = just y
 
--- unify : (out : ℕ) (w : W) → Maybe (∃ (λ k → In w k ≟ out))
--- unify out w = ?
+-- postulate
+--   match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k)
 
--- tableize : (i A : ℕ) → List W → List ℕ
--- tableize zero A ws = gfilter (λ w → toMaybe (A ≟ In w A)) ws
--- tableize (suc i) A ws with tableize i A ws
+-- unify : ∀ {w k inp out} →
+--   Term inp out →
+--   ∃ (λ k → Dec (out ≡ In w k)) →
+--   Maybe (Term inp (Out w k))
+-- unify ws (k , no p) = nothing
+-- unify {w = w} ws (k , yes p)
+--   rewrite p
+--   = just {!w ∷ ws!}
+
+-- just (Out w k)
+
+-- tableize : (i A : ℕ) → List W → List (∃ λ C → (Term A C))
+-- tableize zero A ws =
+--   gfilter (λ w → unify (match w A)) ws
+-- tableize (suc i) A ws = {!!}
+-- with tableize i A ws
 -- ... | ih = {!!}

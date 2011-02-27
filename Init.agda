@@ -7,8 +7,8 @@ open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
 open import Data.Function
-open import Data.Vec hiding (_++_)
-open import Data.List hiding (_++_)
+open import Data.Vec hiding (_++_; concat; map)
+open import Data.List renaming (_++_ to _l++_)
 
 infixr 5 _∷_ _++_
 
@@ -39,3 +39,35 @@ extp n xs x with ext n xs x
 enum : {A B : ℕ} (n : ℕ) → Term A B → List W → List (∃ λ w → Term A (Out w n))
 enum n xs ws = gfilter (extp n xs) ws
 
+toMaybe : {x y : ℕ} → Dec (x ≡ y) → Maybe ℕ
+toMaybe (no p) = nothing
+toMaybe {y = y} (yes p) = just y
+
+dfilter : ∀ {A B} → (A → Dec B) → List A → List B
+dfilter fdec []       = []
+dfilter fdec (x ∷ xs) with fdec x
+... | yes p = p ∷ dfilter fdec xs
+... | no p = dfilter fdec xs
+
+postulate
+  match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k)
+
+unify : ∀ {w k inp out} →
+  Term inp out →
+  Dec (out ≡ In w k) →
+  Maybe (Term inp (Out w k))
+unify {w = w} {k = k} ws (no p) = nothing
+unify {w = w} {k = k} ws (yes p)
+  rewrite p = just (w ∷ ws)
+
+tableize : (i A : ℕ) → List W → List (∃ (Term A))
+tableize zero A ws = gfilter (λ w →
+  maybe (λ t → just (_ , t)) nothing
+    (unify [] (proj₂ (match w A)))
+    ) ws
+tableize (suc i) A ws
+  with tableize i A ws
+... | ih = concat (map (λ out,t → gfilter (λ w →
+  maybe (λ t → just (_ , t)) nothing
+    (unify (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
+    ) ws) ih)
