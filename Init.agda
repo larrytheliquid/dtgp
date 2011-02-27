@@ -71,7 +71,7 @@ module Initialization
   ... | ih = concat (map (λ out,t → gfilter (λ w →
     maybe (λ t → just (_ , t)) nothing
       (unify (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
-      ) ws) ih)
+      ) ws) ih) l++ ih
 
   filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
   filterTo C [] = []

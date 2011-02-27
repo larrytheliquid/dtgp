@@ -106,7 +106,7 @@ lang : List Word
 lang = true ∷ not ∷ and ∷ []
 
 gotry : List (Term 2 1)
-gotry = init 3 2 1 lang
+gotry = init 4 2 1 lang
 
 
 
