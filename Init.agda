@@ -49,38 +49,37 @@ dfilter fdec (x ∷ xs) with fdec x
 ... | yes p = p ∷ dfilter fdec xs
 ... | no p = dfilter fdec xs
 
-postulate
-  match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k)
+module Initialization
+  (match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k))
+  where
 
-unify : ∀ {w k inp out} →
-  Term inp out →
-  Dec (out ≡ In w k) →
-  Maybe (Term inp (Out w k))
-unify {w = w} {k = k} ws (no p) = nothing
-unify {w = w} {k = k} ws (yes p)
-  rewrite p = just (w ∷ ws)
+  unify : ∀ {w k inp out} →
+    Term inp out →
+    Dec (out ≡ In w k) →
+    Maybe (Term inp (Out w k))
+  unify {w = w} {k = k} ws (no p) = nothing
+  unify {w = w} {k = k} ws (yes p)
+    rewrite p = just (w ∷ ws)
 
-tableize : (i A : ℕ) → List W → List (∃ (Term A))
-tableize zero A ws = gfilter (λ w →
-  maybe (λ t → just (_ , t)) nothing
-    (unify [] (proj₂ (match w A)))
-    ) ws
-tableize (suc i) A ws
-  with tableize i A ws
-... | ih = concat (map (λ out,t → gfilter (λ w →
-  maybe (λ t → just (_ , t)) nothing
-    (unify (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
-    ) ws) ih)
+  tableize : (i A : ℕ) → List W → List (∃ (Term A))
+  tableize zero A ws = gfilter (λ w →
+    maybe (λ t → just (_ , t)) nothing
+      (unify [] (proj₂ (match w A)))
+      ) ws
+  tableize (suc i) A ws
+    with tableize i A ws
+  ... | ih = concat (map (λ out,t → gfilter (λ w →
+    maybe (λ t → just (_ , t)) nothing
+      (unify (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
+      ) ws) ih)
 
-filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
-filterTo C [] = []
-filterTo C ((C' , x) ∷ xs)
-  with C' ≟ C
-... | no p = filterTo C xs
-... | yes p rewrite p = x ∷ filterTo C xs
+  filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
+  filterTo C [] = []
+  filterTo C ((C' , x) ∷ xs)
+    with C' ≟ C
+  ... | no p = filterTo C xs
+  ... | yes p rewrite p = x ∷ filterTo C xs
 
-init : (i A C : ℕ) → List W → List (Term A C)
-init i A C ws = filterTo C (tableize i A ws)
-
-
+  init : (i A C : ℕ) → List W → List (Term A C)
+  init i A C ws = filterTo C (tableize i A ws)
 
