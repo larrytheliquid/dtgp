@@ -8,7 +8,8 @@ open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
 open import Data.Function
-open import Data.Vec hiding (_++_; _>>=_)
+open import Data.List hiding (length) renaming (_++_ to _l++_)
+open import Data.Vec hiding (_++_; _>>=_; concat; map; init)
 open import Rand
 
 infixr 5 _∷_ _++_ _++'_
@@ -94,7 +95,41 @@ crossover ♀ ♂ =
 Population : (ins outs n : ℕ) → Set
 Population ins outs n = Vec (Term ins outs) (2 + n)
 
-module GP (ins outs : ℕ) (score : Term ins outs → ℕ) where
+module Initialization
+  (match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k))
+  where
+
+  toMaybe : ∀ {w k inp out} →
+    Term inp out →
+    Dec (out ≡ In w k) →
+    Maybe (Term inp (Out w k))
+  toMaybe {w = w} {k = k} ws (no p) = nothing
+  toMaybe {w = w} {k = k} ws (yes p)
+    rewrite p = just (w ∷ ws)
+
+  tableize : (i A : ℕ) → List W → List (∃ (Term A))
+  tableize zero A ws = gfilter (λ w →
+    maybe (λ t → just (_ , t)) nothing
+      (toMaybe [] (proj₂ (match w A)))
+      ) ws
+  tableize (suc i) A ws
+    with tableize i A ws
+  ... | ih = concat (map (λ out,t → gfilter (λ w →
+    maybe (λ t → just (_ , t)) nothing
+      (toMaybe (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
+      ) ws) ih) l++ ih
+
+  filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
+  filterTo C [] = []
+  filterTo C ((C' , x) ∷ xs)
+    with C' ≟ C
+  ... | no p = filterTo C xs
+  ... | yes p rewrite p = x ∷ filterTo C xs
+
+  init : (i A C : ℕ) → List W → List (Term A C)
+  init i A C ws = filterTo C (tableize i A ws)
+
+module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
 
   _≥_ : ℕ → ℕ → Bool
   zero ≥ zero = true

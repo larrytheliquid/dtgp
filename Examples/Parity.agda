@@ -82,7 +82,7 @@ population =
   ∷ (not ∷ or ∷ not ∷ [])
   ∷ []
 
-open GP 2 1 score
+open Evolution score
 
 answer : Population _ _ _
 answer = evolve 1337 1 population

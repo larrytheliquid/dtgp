@@ -39,7 +39,7 @@ population =
   ∷ (times ∷ two ∷ plus ∷ two ∷ two ∷ [])
   ∷ []
 
-open GP 0 1 score
+open Evolution score
 
 answer : Population _ _ _
 answer = evolve 1337 1 population
