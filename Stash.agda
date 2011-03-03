@@ -3,6 +3,7 @@ module Stash (W : Set) (In Out : W → ℕ → ℕ) where
 open import Data.Function
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
+open import Data.Bool hiding (_≟_)
 open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
@@ -93,15 +94,13 @@ crossover ♀ ♂ =
 Population : (ins outs n : ℕ) → Set
 Population ins outs n = Vec (Term ins outs) (2 + n)
 
-open import Data.Bool
-
-_≥_ : ℕ → ℕ → Bool
-zero ≥ zero = true
-zero ≥ (suc n) = false
-(suc m) ≥ zero = true
-(suc m) ≥ (suc n) = m ≥ n
-
 module GP (ins outs : ℕ) (score : Term ins outs → ℕ) where
+
+  _≥_ : ℕ → ℕ → Bool
+  zero ≥ zero = true
+  zero ≥ (suc n) = false
+  (suc m) ≥ zero = true
+  (suc m) ≥ (suc n) = m ≥ n
 
   select : ∀ {n} →
     Population ins outs n → Rand (Term ins outs)
