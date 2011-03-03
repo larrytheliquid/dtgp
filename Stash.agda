@@ -10,7 +10,7 @@ open import Data.Product hiding (map; swap)
 open import Data.Function
 open import Data.List hiding (length) renaming (_++_ to _l++_)
 open import Data.Vec hiding (_++_; _>>=_; concat; map; init)
-open import Rand
+open import Stash.Rand
 
 infixr 5 _∷_ _++_ _++'_
 

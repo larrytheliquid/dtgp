@@ -1,4 +1,4 @@
-module State where
+module Stash.State where
 open import Data.Product
 
 infixl 1 _>>=_ _=<<_
