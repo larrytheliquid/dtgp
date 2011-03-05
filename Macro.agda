@@ -1,6 +1,6 @@
-open import Data.Nat
-module Macro (D : Set) (W : Set) (Var : W → Set)
-  (In Out : (w : W) → Var w → D)
+open import Relation.Binary
+module Macro (S : Setoid) (W : Set) (Var : W → Set)
+  (In Out : (w : W) → Var w → Setoid.carrier S)
   where
 open import Data.Nat.DivMod
 open import Relation.Nullary
@@ -11,22 +11,31 @@ open import Data.Product hiding (map; swap)
 open import Data.Function
 open import Data.Vec hiding (_++_)
 
-data Term (A : D) : D → Set where
-  nil  : Term A A
+open Setoid S
 
-  cons : (w : W) {v : Var w} →
-    Term A (In w v) →
-    Term A (Out w v)
+data Term (ins : carrier) : carrier → Set where
+  nil  : ∀ {ins'} → ins ≈ ins' → Term ins ins'
 
-_++_ : ∀ {A B C} →
-  Term B C →
-  Term A B →
-  Term A C
-nil ++ ys = ys
-(cons x xs) ++ ys = cons x (xs ++ ys)
+  cons : ∀ {Inwv Outwv} (w : W) (v : Var w) →
+    Inwv ≈ In w v →
+    Outwv ≈ Out w v →
+    Term ins Inwv →
+    Term ins Outwv
 
-data Split {A C} B : Term A C → Set where
-  _++'_ :
-    (xs : Term B C)
-    (ys : Term A B) →
-    Split B (xs ++ ys)
+append : ∀ {ins mids mids' outs} →
+  mids ≈ mids' →
+  Term mids' outs →
+  Term ins mids →
+  Term ins outs
+append p (nil ins') ys = {!!}
+append p (cons w v inwv outwv ws) ys =
+  cons w v inwv outwv (append p ws ys)
+
+-- nil ++ ys = ys
+-- (cons x xs) ++ ys = cons x (xs ++ ys)
+
+-- data Split {A C} B : Term A C → Set where
+--   _++'_ :
+--     (xs : Term B C)
+--     (ys : Term A B) →
+--     Split B (xs ++ ys)
