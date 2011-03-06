@@ -4,7 +4,8 @@ module Macro (S : Setoid) (W : Set) (Var : W → Set)
   where
 open import Data.Nat.DivMod
 open import Relation.Nullary
-open import Relation.Binary.PropositionalEquality
+open import Relation.Binary.PropositionalEquality hiding (trans; refl; sym)
+import Relation.Binary.EqReasoning as EqR; open EqR S
 open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
@@ -22,20 +23,19 @@ data Term (ins : carrier) : carrier → Set where
     Term ins Inwv →
     Term ins Outwv
 
+rwrt : ∀ {mids outs end} → mids ≈ outs → mids ≈ end → outs ≈ end
+rwrt a b = trans (sym a) b
+
+hm : ∀ {ins mids outs} → mids ≈ outs → Term ins mids → Term ins outs
+hm p (nil p') = nil (trans p' p)
+hm p (cons w v inwv outwv ws) =
+  cons w v inwv (rwrt p outwv) (hm refl ws)
+
 append : ∀ {ins mids mids' outs} →
   mids ≈ mids' →
   Term mids' outs →
   Term ins mids →
   Term ins outs
-append p (nil ins') ys = {!!}
+append p (nil ins') ys = hm (trans p ins') ys
 append p (cons w v inwv outwv ws) ys =
   cons w v inwv outwv (append p ws ys)
-
--- nil ++ ys = ys
--- (cons x xs) ++ ys = cons x (xs ++ ys)
-
--- data Split {A C} B : Term A C → Set where
---   _++'_ :
---     (xs : Term B C)
---     (ys : Term A B) →
---     Split B (xs ++ ys)
