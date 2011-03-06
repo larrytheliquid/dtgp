@@ -23,19 +23,16 @@ data Term (ins : carrier) : carrier → Set where
     Term ins Inwv →
     Term ins Outwv
 
-rwrt : ∀ {mids outs end} → mids ≈ outs → mids ≈ end → outs ≈ end
-rwrt a b = trans (sym a) b
-
-hm : ∀ {ins mids outs} → mids ≈ outs → Term ins mids → Term ins outs
-hm p (nil p') = nil (trans p' p)
-hm p (cons w v inwv outwv ws) =
-  cons w v inwv (rwrt p outwv) (hm refl ws)
-
 append : ∀ {ins mids mids' outs} →
   mids ≈ mids' →
   Term mids' outs →
   Term ins mids →
   Term ins outs
-append p (nil ins') ys = hm (trans p ins') ys
+append p (nil ins') ys = rewrite' (trans p ins') ys
+  where
+  rewrite' : ∀ {ins mids outs} → mids ≈ outs → Term ins mids → Term ins outs
+  rewrite' p (nil p') = nil (trans p' p)
+  rewrite' p (cons w v inwv outwv ws) =
+    cons w v inwv (trans (sym p) outwv) (rewrite' refl ws)
 append p (cons w v inwv outwv ws) ys =
   cons w v inwv outwv (append p ws ys)
