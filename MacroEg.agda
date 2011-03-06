@@ -45,7 +45,7 @@ sukitrebek : Closed (true ∷ []) 1
 sukitrebek = cons true {_ , _} nil
 
 sukitrebek2 : Closed (pop ∷ true ∷ []) 0
-sukitrebek2 = cons pop {_ , _ , _} nil
+sukitrebek2 = cons pop {true , [] , 0} nil
 
 sukitrebek3 : Closed (not ∷ true ∷ []) 1
 sukitrebek3 = cons not {_ , _} (cons true {_ , _} nil)
@@ -60,11 +60,11 @@ sukitrebek6 : Closed (and ∷ true ∷ true ∷ []) 1
 sukitrebek6 = cons and {_ , _} (cons true {_ , _} (cons true {_ , _} nil))
 
 sukitrebek7 : Closed (dup ∷ true ∷ []) 2
-sukitrebek7 = cons dup {_ , _ , _} (cons true {_ , _} (cons true {_ , _} nil))
+sukitrebek7 = cons dup {true , [] , 2} (cons true {true ∷ [] , 1} (cons true {[] , 0} nil))
 
 sukitrebek8 : Closed (not ∷ not ∷ true ∷ []) 1
 sukitrebek8 = cons not {_ , _} (cons not {_ , _} (cons true {_ , _} nil))
 
 sukitrebek9 : Closed (dup ∷ not ∷ true ∷ []) 1
-sukitrebek9 = cons dup {_ , _ , _} (cons not {_ , _} (cons not {_ , _} (cons true {_ , _} nil)))
+sukitrebek9 = cons dup {not , true ∷ [] , 1} (cons not {not ∷ true ∷ [] , 0} (cons not {true ∷ [] , 0} (cons true {[] , 0} nil)))
 
