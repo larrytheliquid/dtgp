@@ -1,13 +1,12 @@
 open import Data.Nat hiding (_≥_)
 module Stash (W : Set) (In Out : W → ℕ → ℕ) where
-open import Data.Function
+open import Function
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
 open import Data.Bool hiding (_≟_)
 open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
-open import Data.Function
 open import Data.List hiding (length) renaming (_++_ to _l++_)
 open import Data.Vec hiding (_++_; _>>=_; concat; map; init)
 open import Stash.Rand
@@ -87,7 +86,7 @@ crossover : ∀ {ins outs} (♀ ♂ : Term ins outs) →
   Rand (Term ins outs × Term ins outs)
 crossover ♀ ♂ =
   split♀ ♀ >>= λ b,xs →
-  maybe
+  maybe′
     (_=<<_ (return ∘ (swaps (proj₂ b,xs))))
     (return (♀ , ♂))
     (split♂ ♂ (proj₁ b,xs))
@@ -109,13 +108,13 @@ module Initialization
 
   tableize : (i A : ℕ) → List W → List (∃ (Term A))
   tableize zero A ws = gfilter (λ w →
-    maybe (λ t → just (_ , t)) nothing
+    maybe′ (λ t → just (_ , t)) nothing
       (toMaybe [] (proj₂ (match w A)))
       ) ws
   tableize (suc i) A ws
     with tableize i A ws
   ... | ih = concat (map (λ out,t → gfilter (λ w →
-    maybe (λ t → just (_ , t)) nothing
+    maybe′ (λ t → just (_ , t)) nothing
       (toMaybe (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
       ) ws) ih) l++ ih
 
