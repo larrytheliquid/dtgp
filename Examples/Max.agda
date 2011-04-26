@@ -17,7 +17,7 @@ Out two n = 1 + n
 Out plus n = 1 + n
 Out times n = 1 + n
 
-open Stash Word In Out
+open Stash ℕ Word In Out Data.Nat._≟_
 
 eval : ∀ {ins outs} → Term ins outs → Vec ℕ ins → Vec ℕ outs
 eval [] as = as

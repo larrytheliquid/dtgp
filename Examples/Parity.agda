@@ -34,7 +34,7 @@ trues (false ∷ xs) = trues xs
 evenParity : ∀ {n} → Vec Bool n → Bool
 evenParity xs = even (trues xs)
 
-open Stash Word In Out
+open Stash ℕ Word In Out Data.Nat._≟_
 
 eval : ∀ {ins outs} → Term ins outs → Vec Bool ins → Vec Bool outs
 eval [] as = as

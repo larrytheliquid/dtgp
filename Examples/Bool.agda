@@ -54,7 +54,7 @@ match pop zero = 0 , no λ()
 match pop (suc n) = n , yes refl
 match square n = n , yes refl
 
-open Stash Word In Out
+open Stash ℕ Word In Out Data.Nat._≟_
 
 a : Term 3 3
 a = []

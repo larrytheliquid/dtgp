@@ -18,31 +18,28 @@ record Domain : Set where
 open import Relation.Nullary
 open import Relation.Binary
 
-data MaybeDec (P : Set) : Set where
-  just : (p : P) → MaybeDec P
-  nothing : MaybeDec P
-
-_≟_ : (x y : Domain) → MaybeDec (x ≡ y)
+_≟_ : Decidable {A = Domain} _≡_
 (bs , ns) ≟ (bs' , ns') with bs ≟n bs' | ns ≟n ns'
-... | yes p | yes p' rewrite p | p' = just refl
-... | _ | _ = nothing
+... | yes p | yes p' rewrite p | p' = yes refl
+... | no p | _ = no {!!}
+... | _ | _ = {!!}
 
 ---------------------------------------------------------
 
-In : Word → Domain → Domain
-In not (m , n) = m , 1 + n
-In suc (m , n) = m , 1 + n
-In gt (m , n) = m , n + 2
+-- In : Word → Domain → Domain
+-- In not (m , n) = m , 1 + n
+-- In suc (m , n) = m , 1 + n
+-- In gt (m , n) = m , n + 2
 
-Out : Word → Domain → Domain
-Out not (m , n) = 1 + m , n
-Out suc (m , n) = m , 1 + n
-Out gt (m , n) = 1 + m , n
+-- Out : Word → Domain → Domain
+-- Out not (m , n) = 1 + m , n
+-- Out suc (m , n) = m , 1 + n
+-- Out gt (m , n) = 1 + m , n
 
-open Poly Domain Word In Out
+-- open Poly Domain Word In Out
 
-eg : Term (0 , 2) (1 , 0)
-eg = gt ∷ []
+-- eg : Term (0 , 2) (1 , 0)
+-- eg = gt ∷ []
 
-Domain-≡ : record {bools = 5 ; nats = 3} ≡ (5 , 3)
-Domain-≡ = refl 
+-- Domain-≡ : record {bools = 5 ; nats = 3} ≡ (5 , 3)
+-- Domain-≡ = refl 

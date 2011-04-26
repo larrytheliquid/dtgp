@@ -1,23 +1,28 @@
+open import Data.Maybe
+open import Relation.Binary
+open import Relation.Binary.PropositionalEquality
+module Stash
+  (Domain : Set) (W : Set)
+  (In Out : W → Domain → Domain)
+  (_≟_ : (x y : Domain) → Maybe (x ≡ y))
+where
 open import Data.Nat hiding (_≥_)
-module Stash (W : Set) (In Out : W → ℕ → ℕ) where
 open import Function
 open import Relation.Nullary
-open import Relation.Binary.PropositionalEquality
-open import Data.Bool hiding (_≟_)
-open import Data.Fin hiding (_+_; raise)
-open import Data.Maybe
-open import Data.Product hiding (map; swap)
+open import Data.Bool
+open import Data.Fin hiding (_+_)
+open import Data.Product hiding (map)
 open import Data.List hiding (length) renaming (_++_ to _l++_)
 open import Data.Vec hiding (_++_; _>>=_; concat; map; init)
 open import Stash.Rand
 
 infixr 5 _∷_ _++_ _++'_
 
-data Term (ins : ℕ) : ℕ → Set where
+data Term (ins : Domain) : Domain → Set where
   []  : Term ins ins
 
-  _∷_ : ∀ {k} →
-    (w : W) → Term ins (In w k) →
+  _∷_ : ∀ {k} (w : W) →
+    Term ins (In w k) →
     Term ins (Out w k)
 
 _++_ : ∀ {ins mid outs} →
@@ -27,7 +32,7 @@ _++_ : ∀ {ins mid outs} →
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-data Split {ins outs : ℕ} (mid : ℕ) : Term ins outs → Set where
+data Split {ins outs} mid : Term ins outs → Set where
   _++'_ :
     (xs : Term mid outs)
     (ys : Term ins mid) →
@@ -52,15 +57,15 @@ split (suc n) [] = _ , [] ++' []
 split (suc n) (x ∷ xs) with split n xs
 split (suc n) (x ∷ ._) | _ , xs ++' ys = _ , (x ∷ xs) ++' ys
 
-splits : ∀ {ins outs} (n : ℕ) (mid : ℕ) → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
+splits : ∀ {ins outs} (n : ℕ) mid → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
 splits zero mid xs with split zero xs
 ... | mid' , ys with mid ≟ mid'
-... | yes p rewrite p = _ , ys ∷ []
-... | no p = _ , []
+... | just p rewrite p = _ , ys ∷ []
+... | nothing = _ , []
 splits (suc n) mid xs with split (suc n) xs
 ... | mid' , ys with mid ≟ mid' | splits n mid xs
-... | yes p | _ , yss rewrite p = _ , ys ∷ yss
-... | no p | _ , yss = _ , yss
+... | just p | _ , yss rewrite p = _ , ys ∷ yss
+... | nothing | _ , yss = _ , yss
 
 length : ∀ {ins outs} → Term ins outs → ℕ
 length [] = 0
@@ -72,7 +77,7 @@ split♀ xs =
   let i = r mod (suc (length xs))
   in return (split (toℕ i) xs)
 
-split♂ : ∀ {ins outs} (xs : Term ins outs) (mid : ℕ) →
+split♂ : ∀ {ins outs} (xs : Term ins outs) mid →
   Maybe (Rand (Split mid xs))
 split♂ xs B
   with splits (length xs) B xs
@@ -91,11 +96,11 @@ crossover ♀ ♂ =
     (return (♀ , ♂))
     (split♂ ♂ (proj₁ b,xs))
 
-Population : (ins outs n : ℕ) → Set
+Population : ∀ ins outs n → Set
 Population ins outs n = Vec (Term ins outs) (2 + n)
 
 module Initialization
-  (match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k))
+  (match : ∀ w out → ∃ λ k → Dec (out ≡ In w k))
   where
 
   toMaybe : ∀ {w k inp out} →
@@ -106,7 +111,7 @@ module Initialization
   toMaybe {w = w} {k = k} ws (yes p)
     rewrite p = just (w ∷ ws)
 
-  tableize : (i A : ℕ) → List W → List (∃ (Term A))
+  tableize : ∀ (i : ℕ) A → List W → List (∃ (Term A))
   tableize zero A ws = gfilter (λ w →
     maybe′ (λ t → just (_ , t)) nothing
       (toMaybe [] (proj₂ (match w A)))
@@ -122,13 +127,13 @@ module Initialization
   filterTo C [] = []
   filterTo C ((C' , x) ∷ xs)
     with C' ≟ C
-  ... | no p = filterTo C xs
-  ... | yes p rewrite p = x ∷ filterTo C xs
+  ... | nothing = filterTo C xs
+  ... | just p rewrite p = x ∷ filterTo C xs
 
-  init : (i A C : ℕ) → List W → List (Term A C)
+  init : ∀ (i : ℕ) A C → List W → List (Term A C)
   init i A C ws = filterTo C (tableize i A ws)
 
-module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
+module Evolution {ins outs} (score : Term ins outs → ℕ) where
 
   _≥_ : ℕ → ℕ → Bool
   zero ≥ zero = true
