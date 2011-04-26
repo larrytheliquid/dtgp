@@ -1,7 +1,11 @@
 module Examples.Max where
 open import Data.Bool
 open import Data.Nat
-open import Data.Vec
+open import Data.Product
+open import Data.List hiding (sum)
+open import Data.Vec hiding (init)
+open import Relation.Nullary
+open import Relation.Binary.PropositionalEquality
 import Stash
 
 data Word : Set where
@@ -32,15 +36,25 @@ eval (times ∷ xs) as with eval xs as
 score : Term _ _ → ℕ
 score xs = sum (eval xs [])
 
-population : Population _ _ _
-population =
-    (plus ∷ plus ∷ nat 2 ∷ nat 2 ∷ nat 1 ∷ [])
-  ∷ (times ∷ nat 2 ∷ nat 3 ∷ [])
-  ∷ (plus ∷ times ∷ nat 1 ∷ plus ∷ nat 2 ∷ nat 2 ∷ nat 1 ∷ [])
-  ∷ (times ∷ nat 2 ∷ plus ∷ nat 3 ∷ nat 3 ∷ [])
-  ∷ []
-
 open Evolution score
+
+match : (w : Word) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k)
+match (nat _) n = n , yes refl
+match plus zero = 0 , no λ ()
+match plus (suc zero) = 0 , no λ ()
+match plus (suc (suc n)) = n , yes refl
+match times zero = 0 , no λ ()
+match times (suc zero) = 0 , no λ ()
+match times (suc (suc n)) = n , yes refl
+
+open Initialization match
+
+choices : List Word
+choices = nat 1 ∷ nat 2 ∷ nat 3 ∷ plus ∷ times ∷ []
+
+population : Population _ _ _
+population = fromList (init 4 0 1 choices)
 
 answer : Population _ _ _
 answer = evolve 1337 1 population
+
