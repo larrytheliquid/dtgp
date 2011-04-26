@@ -95,27 +95,23 @@ Population : (ins outs n : ℕ) → Set
 Population ins outs n = Vec (Term ins outs) (2 + n)
 
 module Initialization
-  (match : (w : W) (out : ℕ) → ∃ λ k → Dec (out ≡ In w k))
+  (match : (w : W) (out : ℕ) → Dec (∃ λ n → out ≡ In w n))
   where
 
-  toMaybe : ∀ {w k inp out} →
+  toMaybe : ∀ {w inp out} →
     Term inp out →
-    Dec (out ≡ In w k) →
-    Maybe (Term inp (Out w k))
-  toMaybe {w = w} {k = k} ws (no p) = nothing
-  toMaybe {w = w} {k = k} ws (yes p)
-    rewrite p = just (w ∷ ws)
+    Dec (∃ λ n → out ≡ In w n) →
+    Maybe (∃ λ n → Term inp n)
+  toMaybe {w = w} ws (no _) = nothing
+  toMaybe {w = w} ws (yes (_ , p))
+    rewrite p = just (_ , w ∷ ws)
 
   tableize : (i A : ℕ) → List W → List (∃ (Term A))
-  tableize zero A ws = gfilter (λ w →
-    maybe′ (λ t → just (_ , t)) nothing
-      (toMaybe [] (proj₂ (match w A)))
-      ) ws
+  tableize zero A ws = gfilter (λ w → toMaybe [] (match w A)) ws
   tableize (suc i) A ws
     with tableize i A ws
   ... | ih = concat (map (λ out,t → gfilter (λ w →
-    maybe′ (λ t → just (_ , t)) nothing
-      (toMaybe (proj₂ out,t) (proj₂ (match w (proj₁ out,t))))
+    toMaybe (proj₂ out,t) (match w (proj₁ out,t))
       ) ws) ih) l++ ih
 
   filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
