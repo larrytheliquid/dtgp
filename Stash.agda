@@ -1,5 +1,5 @@
 open import Data.Nat hiding (_≥_)
-module Stash (W : Set) (In Out : W → ℕ → ℕ) where
+module Stash (Word : Set) (pre post : Word → ℕ → ℕ) where
 open import Function
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
@@ -16,9 +16,9 @@ infixr 5 _∷_ _++_ _++'_
 data Term (ins : ℕ) : ℕ → Set where
   []  : Term ins ins
 
-  _∷_ : ∀ {k} →
-    (w : W) → Term ins (In w k) →
-    Term ins (Out w k)
+  _∷_ : ∀ {n} →
+    (w : Word) → Term ins (pre w n) →
+    Term ins (post w n)
 
 _++_ : ∀ {ins mid outs} →
   Term mid outs →
@@ -95,34 +95,34 @@ Population : (ins outs n : ℕ) → Set
 Population ins outs n = Vec (Term ins outs) (2 + n)
 
 module Initialization
-  (match : (w : W) (out : ℕ) → Dec (∃ λ n → out ≡ In w n))
+  (match : (w : Word) (out : ℕ) → Dec (Σ ℕ λ n → out ≡ pre w n))
   where
 
   toMaybe : ∀ {w inp out} →
     Term inp out →
-    Dec (∃ λ n → out ≡ In w n) →
+    Dec (∃ λ n → out ≡ pre w n) →
     Maybe (∃ λ n → Term inp n)
   toMaybe {w = w} ws (no _) = nothing
   toMaybe {w = w} ws (yes (_ , p))
     rewrite p = just (_ , w ∷ ws)
 
-  tableize : (i A : ℕ) → List W → List (∃ (Term A))
-  tableize zero A ws = gfilter (λ w → toMaybe [] (match w A)) ws
-  tableize (suc i) A ws
-    with tableize i A ws
+  enum-inp : (n inp : ℕ) → List Word → List (Σ ℕ λ out → Term inp out)
+  enum-inp zero inp ws = gfilter (λ w → toMaybe [] (match w inp)) ws
+  enum-inp (suc n) A ws
+    with enum-inp n A ws
   ... | ih = concat (map (λ out,t → gfilter (λ w →
     toMaybe (proj₂ out,t) (match w (proj₁ out,t))
       ) ws) ih) l++ ih
 
-  filterTo : ∀ {A} C → List (∃ (Term A)) → List (Term A C)
-  filterTo C [] = []
-  filterTo C ((C' , x) ∷ xs)
-    with C' ≟ C
-  ... | no p = filterTo C xs
-  ... | yes p rewrite p = x ∷ filterTo C xs
+  filter-out : ∀ {inp} out → List (∃ (Term inp)) → List (Term inp out)
+  filter-out out [] = []
+  filter-out out ((out' , x) ∷ xs)
+    with out' ≟ out
+  ... | no p = filter-out out xs
+  ... | yes p rewrite p = x ∷ filter-out out xs
 
-  init : (i A C : ℕ) → List W → List (Term A C)
-  init i A C ws = filterTo C (tableize i A ws)
+  init : (i inp out : ℕ) → List Word → List (Term inp out)
+  init i inp out ws = filter-out out (enum-inp i inp ws)
 
 module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
 
