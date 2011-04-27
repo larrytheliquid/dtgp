@@ -11,16 +11,16 @@ import Stash
 
 data Word : Set where
   nat : ℕ → Word
-  sucsuc times : Word
+  sucSuc times : Word
 
 In : Word → ℕ → ℕ
 In (nat _) n = n
-In sucsuc n = 1 + n
+In sucSuc n = 1 + n
 In times n = 2 + n
 
 Out : Word → ℕ → ℕ
 Out (nat _) n = 1 + n
-Out sucsuc n = 1 + n
+Out sucSuc n = 1 + n
 Out times n = 1 + n
 
 open Stash Word In Out
@@ -29,7 +29,7 @@ eval : ∀ {ins outs} → Term ins outs → Vec ℕ ins → Vec ℕ outs
 eval [] as = as
 eval (nat n ∷ xs) as with eval xs as
 ... | cs = n ∷ cs
-eval (sucsuc ∷ xs) as with eval xs as
+eval (sucSuc ∷ xs) as with eval xs as
 ... | c₁ ∷ cs = (2 + c₁) ∷ cs
 eval (times ∷ xs) as with eval xs as
 ... | c₂ ∷ c₁ ∷ cs = (c₁ * c₂) ∷ cs
@@ -41,10 +41,10 @@ open Evolution score
 
 match : (w : Word) (out : ℕ) → Dec (∃ λ n → out ≡ In w n)
 match (nat _) n = yes (n , refl)
-match sucsuc zero = no ¬p where
+match sucSuc zero = no ¬p where
   ¬p : Σ ℕ (λ n → 0 ≡ suc n) → ⊥
   ¬p (_ , ())
-match sucsuc (suc n) = yes (n , refl)
+match sucSuc (suc n) = yes (n , refl)
 match times zero = no ¬p where
   ¬p : Σ ℕ (λ n → 0 ≡ suc (suc n)) → ⊥
   ¬p (_ , ())
@@ -56,7 +56,7 @@ match times (suc (suc n)) = yes (n , refl)
 open Initialization match
 
 choices : List Word
-choices = nat 1 ∷ nat 2 ∷ nat 3 ∷ sucsuc ∷ times ∷ []
+choices = nat 1 ∷ nat 2 ∷ nat 3 ∷ sucSuc ∷ times ∷ []
 
 population : Population _ _ _
 population = fromList (init 4 0 1 choices)
