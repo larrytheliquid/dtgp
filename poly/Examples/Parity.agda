@@ -37,7 +37,7 @@ trues (false ∷ xs) = trues xs
 evenParity : ∀ {n} → Vec Bool n → Bool
 evenParity xs = even (trues xs)
 
-open DTGP Word pre post
+open DTGP pre post Data.Nat._≟_
 
 eval : ∀ {inp out} → Term inp out → Vec Bool inp → Vec Bool out
 eval [] is = is

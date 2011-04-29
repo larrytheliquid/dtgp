@@ -23,7 +23,7 @@ post (nat _) n = 1 + n
 post sucSuc n = 1 + n
 post times n = 1 + n
 
-open DTGP Word pre post
+open DTGP pre post Data.Nat._≟_
 
 eval : ∀ {inp out} → Term inp out → Vec ℕ inp → Vec ℕ out
 eval [] is = is

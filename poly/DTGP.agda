@@ -1,9 +1,14 @@
-open import Data.Nat hiding (_≥_)
-module DTGP (Word : Set) (pre post : Word → ℕ → ℕ) where
-open import Function
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
+module DTGP
+  {Domain Word : Set}
+  (pre post : Word → Domain → Domain)
+  (_≟_ : (x y : Domain) → Dec (x ≡ y))
+where
+open import Function
+open import Relation.Binary
 open import Data.Bool hiding (_≟_)
+open import Data.Nat hiding (_≥_; _≟_)
 open import Data.Fin hiding (_+_; raise)
 open import Data.Maybe
 open import Data.Product hiding (map; swap)
@@ -13,11 +18,11 @@ open import DTGP.Rand
 
 infixr 5 _∷_ _++_ _++'_
 
-data Term (inp : ℕ) : ℕ → Set where
+data Term (inp : Domain) : Domain → Set where
   []  : Term inp inp
 
-  _∷_ : ∀ {n} (w : Word) →
-    Term inp (pre w n) → Term inp (post w n)
+  _∷_ : ∀ {d} (w : Word) →
+    Term inp (pre w d) → Term inp (post w d)
 
 _++_ : ∀ {inp mid out} →
   Term mid out →
@@ -94,13 +99,13 @@ Population : ∀ inp out n → Set
 Population inp out n = Vec (Term inp out) (2 + n)
 
 module Initialization
-  (match : ∀ w out → Dec (∃ λ n → out ≡ pre w n))
+  (match : ∀ w out → Dec (∃ λ d → out ≡ pre w d))
   where
 
   toMaybe : ∀ {w inp out} →
     Term inp out →
-    Dec (∃ λ n → out ≡ pre w n) →
-    Maybe (∃ λ n → Term inp n)
+    Dec (∃ λ d → out ≡ pre w d) →
+    Maybe (∃ λ d → Term inp d)
   toMaybe {w = w} ws (no _) = nothing
   toMaybe {w = w} ws (yes (_ , p))
     rewrite p = just (_ , w ∷ ws)
