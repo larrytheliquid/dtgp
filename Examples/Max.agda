@@ -7,7 +7,7 @@ open import Data.List hiding (sum)
 open import Data.Vec hiding (init)
 open import Relation.Nullary
 open import Relation.Binary.PropositionalEquality
-import Stash
+import DTGP
 
 data Word : Set where
   nat : ℕ → Word
@@ -23,7 +23,7 @@ Out (nat _) n = 1 + n
 Out sucSuc n = 1 + n
 Out times n = 1 + n
 
-open Stash Word In Out
+open DTGP Word In Out
 
 eval : ∀ {ins outs} → Term ins outs → Vec ℕ ins → Vec ℕ outs
 eval [] as = as

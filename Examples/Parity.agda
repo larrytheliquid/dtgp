@@ -5,7 +5,7 @@ open import Data.Nat
 open import Data.Fin hiding (_+_)
 open import Data.Product hiding (map)
 open import Data.Vec
-import Stash
+import DTGP
 
 data Word : Set where
   not and or : Word
@@ -34,7 +34,7 @@ trues (false ∷ xs) = trues xs
 evenParity : ∀ {n} → Vec Bool n → Bool
 evenParity xs = even (trues xs)
 
-open Stash Word In Out
+open DTGP Word In Out
 
 eval : ∀ {ins outs} → Term ins outs → Vec Bool ins → Vec Bool outs
 eval [] as = as
@@ -45,15 +45,15 @@ eval (and ∷ xs) as with eval xs as
 eval (or ∷ xs) as with eval xs as
 ... | c₂ ∷ c₁ ∷ cs = (c₁ ∨ c₂) ∷ cs
 
-match : ∀ {m n} → Vec Bool m → Vec Bool n → Bool
-match [] [] = true
-match (_ ∷ _) [] = false
-match [] (_ ∷ _) = false
-match (x ∷ xs) (y ∷ ys) = x ∧ y ∧ match xs ys
+bitEqual : ∀ {m n} → Vec Bool m → Vec Bool n → Bool
+bitEqual [] [] = true
+bitEqual (_ ∷ _) [] = false
+bitEqual [] (_ ∷ _) = false
+bitEqual (x ∷ xs) (y ∷ ys) = x ∧ y ∧ bitEqual xs ys
 
 scores : ∀ {ins outs n} → Vec (Vec Bool ins) n → Term ins outs → ℕ
 scores ass xs = sum (map (λ as →
-  if (match (eval xs as) [ evenParity as ])
+  if (bitEqual (eval xs as) [ evenParity as ])
   then 1 else 0)
   ass)
 

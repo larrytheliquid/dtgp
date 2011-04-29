@@ -1,10 +1,10 @@
-module Stash.Rand where
+module DTGP.Rand where
 open import Data.Nat
 open import Relation.Nullary.Decidable
 open import Data.Nat.DivMod renaming (_mod_ to _nmod_)
 open import Data.Fin
 open import Data.Product
-open import Stash.State public
+open import DTGP.State public
 
 postulate Int : Set
 {-# BUILTIN INTEGER Int #-}
