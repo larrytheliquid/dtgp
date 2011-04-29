@@ -13,46 +13,45 @@ open import DTGP.Rand
 
 infixr 5 _∷_ _++_ _++'_
 
-data Term (ins : ℕ) : ℕ → Set where
-  []  : Term ins ins
+data Term (inp : ℕ) : ℕ → Set where
+  []  : Term inp inp
 
-  _∷_ : ∀ {n} →
-    (w : Word) → Term ins (pre w n) →
-    Term ins (post w n)
+  _∷_ : ∀ {n} (w : Word) →
+    Term inp (pre w n) → Term inp (post w n)
 
-_++_ : ∀ {ins mid outs} →
-  Term mid outs →
-  Term ins mid →
-  Term ins outs
+_++_ : ∀ {inp mid out} →
+  Term mid out →
+  Term inp mid →
+  Term inp out
 [] ++ ys = ys
 (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
-data Split {ins outs : ℕ} (mid : ℕ) : Term ins outs → Set where
+data Split {inp out} mid : Term inp out → Set where
   _++'_ :
-    (xs : Term mid outs)
-    (ys : Term ins mid) →
+    (xs : Term mid out)
+    (ys : Term inp mid) →
     Split mid (xs ++ ys)
 
-swap₁ : ∀ {ins mid outs} {xs ys : Term ins outs} →
-  Split mid xs → Split mid ys → Term ins outs
+swap₁ : ∀ {inp mid out} {xs ys : Term inp out} →
+  Split mid xs → Split mid ys → Term inp out
 swap₁ (xs ++' ys) (as ++' bs) = xs ++ bs
 
-swap₂ : ∀ {ins mid outs} {xs ys : Term ins outs} →
-  Split mid xs → Split mid ys → Term ins outs
+swap₂ : ∀ {inp mid out} {xs ys : Term inp out} →
+  Split mid xs → Split mid ys → Term inp out
 swap₂ (xs ++' ys) (as ++' bs) = as ++ ys
 
-swaps : ∀ {ins mid outs} {xs ys : Term ins outs} →
+swaps : ∀ {inp mid out} {xs ys : Term inp out} →
   Split mid xs → Split mid ys →
-  Term ins outs × Term ins outs
+  Term inp out × Term inp out
 swaps xs ys = swap₁ xs ys , swap₂ xs ys
 
-split : ∀ {ins outs} (n : ℕ) (xs : Term ins outs) → ∃ λ mid → Split mid xs
+split : ∀ {inp out} (n : ℕ) (xs : Term inp out) → ∃ λ mid → Split mid xs
 split zero xs = _ , [] ++' xs
 split (suc n) [] = _ , [] ++' []
 split (suc n) (x ∷ xs) with split n xs
 split (suc n) (x ∷ ._) | _ , xs ++' ys = _ , (x ∷ xs) ++' ys
 
-splits : ∀ {ins outs} (n : ℕ) (mid : ℕ) → (xs : Term ins outs) → ∃ (Vec (Split mid xs))
+splits : ∀ {inp out} (n : ℕ) mid → (xs : Term inp out) → ∃ (Vec (Split mid xs))
 splits zero mid xs with split zero xs
 ... | mid' , ys with mid ≟ mid'
 ... | yes p rewrite p = _ , ys ∷ []
@@ -62,17 +61,17 @@ splits (suc n) mid xs with split (suc n) xs
 ... | yes p | _ , yss rewrite p = _ , ys ∷ yss
 ... | no p | _ , yss = _ , yss
 
-length : ∀ {ins outs} → Term ins outs → ℕ
+length : ∀ {inp out} → Term inp out → ℕ
 length [] = 0
 length (x ∷ xs) = suc (length xs)
 
-split♀ : ∀ {ins outs} → (xs : Term ins outs) → Rand (∃ λ mid → Split mid xs)
+split♀ : ∀ {inp out} → (xs : Term inp out) → Rand (∃ λ mid → Split mid xs)
 split♀ xs = 
   rand >>= λ r →
   let i = r mod (suc (length xs))
   in return (split (toℕ i) xs)
 
-split♂ : ∀ {ins outs} (xs : Term ins outs) (mid : ℕ) →
+split♂ : ∀ {inp out} (xs : Term inp out) mid →
   Maybe (Rand (Split mid xs))
 split♂ xs B
   with splits (length xs) B xs
@@ -82,8 +81,8 @@ split♂ xs B
   return (lookup (r mod suc n) xss)
  )
 
-crossover : ∀ {ins outs} (♀ ♂ : Term ins outs) →
-  Rand (Term ins outs × Term ins outs)
+crossover : ∀ {inp out} (♀ ♂ : Term inp out) →
+  Rand (Term inp out × Term inp out)
 crossover ♀ ♂ =
   split♀ ♀ >>= λ b,xs →
   maybe′
@@ -91,11 +90,11 @@ crossover ♀ ♂ =
     (return (♀ , ♂))
     (split♂ ♂ (proj₁ b,xs))
 
-Population : (ins outs n : ℕ) → Set
-Population ins outs n = Vec (Term ins outs) (2 + n)
+Population : ∀ inp out n → Set
+Population inp out n = Vec (Term inp out) (2 + n)
 
 module Initialization
-  (match : (w : Word) (out : ℕ) → Dec (Σ ℕ λ n → out ≡ pre w n))
+  (match : ∀ w out → Dec (Σ ℕ λ n → out ≡ pre w n))
   where
 
   toMaybe : ∀ {w inp out} →
@@ -106,7 +105,7 @@ module Initialization
   toMaybe {w = w} ws (yes (_ , p))
     rewrite p = just (_ , w ∷ ws)
 
-  enum-inp : (n inp : ℕ) → List Word → List (Σ ℕ λ out → Term inp out)
+  enum-inp : ∀ (n : ℕ) inp → List Word → List (Σ ℕ λ out → Term inp out)
   enum-inp zero inp ws = gfilter (λ w → toMaybe [] (match w inp)) ws
   enum-inp (suc n) A ws
     with enum-inp n A ws
@@ -121,10 +120,10 @@ module Initialization
   ... | no p = filter-out out xs
   ... | yes p rewrite p = x ∷ filter-out out xs
 
-  init : (i inp out : ℕ) → List Word → List (Term inp out)
-  init i inp out ws = filter-out out (enum-inp i inp ws)
+  init : ∀ (n : ℕ) inp out → List Word → List (Term inp out)
+  init n inp out ws = filter-out out (enum-inp n inp ws)
 
-module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
+module Evolution {inp out} (score : Term inp out → ℕ) where
 
   _≥_ : ℕ → ℕ → Bool
   zero ≥ zero = true
@@ -133,7 +132,7 @@ module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
   (suc m) ≥ (suc n) = m ≥ n
 
   select : ∀ {n} →
-    Population ins outs n → Rand (Term ins outs)
+    Population inp out n → Rand (Term inp out)
   select {n = n} xss =
     rand >>= λ ii →
     rand >>= λ jj →
@@ -144,16 +143,16 @@ module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
       then ♀ else ♂
 
   breed2 : ∀ {n} →
-    Population ins outs n →
-    Rand (Term ins outs × Term ins outs)
+    Population inp out n →
+    Rand (Term inp out × Term inp out)
   breed2 xss =
     select xss >>= λ ♀ →
     select xss >>= λ ♂ →
     crossover ♀ ♂
 
   breedN : ∀ {m} → (n : ℕ) →
-    Population ins outs m →
-    Rand (Vec (Term ins outs) n)
+    Population inp out m →
+    Rand (Vec (Term inp out) n)
   breedN zero xss = return []
   breedN (suc n) xss =
     breed2 xss >>= λ offspring →
@@ -161,17 +160,17 @@ module Evolution {ins outs : ℕ} (score : Term ins outs → ℕ) where
     return (proj₁ offspring ∷ ih)
 
   evolve1 : ∀ {n} →
-    Population ins outs n → Rand (Population ins outs n)
+    Population inp out n → Rand (Population inp out n)
   evolve1 xss = breedN _ xss
 
   evolveN : ∀ {n} → (gens : ℕ) →
-    Population ins outs n → Rand (Population ins outs n)
+    Population inp out n → Rand (Population inp out n)
   evolveN zero xss = return xss
   evolveN (suc gens) xss =
     evolveN gens xss >>= evolve1
 
   evolve : ∀ {n} → (seed gens : ℕ) →
-    Population ins outs n → Population ins outs n
+    Population inp out n → Population inp out n
   evolve seed gens xss =
     runRand (evolveN gens xss) seed
 
