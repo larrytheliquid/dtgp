@@ -9,6 +9,11 @@ publication in [4th International Workshop on Approaches and
 Applications of Inductive
 Programming](http://www.cogsys.wiai.uni-bamberg.de/aaip11/).
 
+## Dependencies ##
+
+Agda version 2.2.10
+Agda standard library version 0.5
+
 ## Mono ##
 
 For code with examples that are most similar to the paper, see the
