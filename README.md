@@ -1,7 +1,5 @@
-DTGP
-====
-Dependently Typed Genetic Programming
--------------------------------------
+DTGP (Dependently Typed Genetic Programming)
+============================================
 
 ## Description ##
 
