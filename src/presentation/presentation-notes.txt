@@ -1,0 +1,8 @@
+we want our program to evolve with a specific starting and ending
+input/output according to the algo we would like to evolve
+
+agda --html
+
+can have different domains
+
+agda --html --compile-dir=. --ghc-flag=-isrc/mono -i src/mono -i ~/opt/agda-stdlib/src/ src/mono/DTGP.agda
