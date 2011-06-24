@@ -15,4 +15,15 @@ post true  n = 1 + n
 post not   n = 1 + n
 post and   n = 1 + n
 
-open DTGP Word pre post
+open DTGP pre post
+
+bc : Term 2 1
+bc = and ∷ []
+
+ab : Term 0 2
+ab = not ∷ true ∷ true ∷ []
+
+ac : Term 0 1
+ac = bc ++ ab
+
+

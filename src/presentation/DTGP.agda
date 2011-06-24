@@ -1,5 +1,5 @@
 open import Data.Nat hiding (_≥_)
-module DTGP (Word : Set) (pre post : Word → ℕ → ℕ) where
+module DTGP {Word : Set} (pre post : Word → ℕ → ℕ) where
 open import Data.Product
 
 infixr 5 _∷_ _++_ _++'_
